@@ -29,6 +29,11 @@
     
     <link rel="stylesheet" href="./assets/css/styles.css">
     <link rel="stylesheet" href="./assets/css/responsive.css">
+    <script src="https://kit.fontawesome.com/274f77f0e3.js" crossorigin="anonymous"></script>
+    <!-- Meta tags para personalizar la barra de estado en móviles y navegadores -->
+    <meta name="theme-color" content="#fb383a"> <!-- Chrome, Android -->
+    <meta name="msapplication-navbutton-color" content="#fb383a"> <!-- IE, Edge -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- Safari iOS -->
 </head>
 <body>
         <!-- Fondo dinámico -->
@@ -39,7 +44,7 @@
     <header>
         <nav>
             <a href="./">
-                <img src="./assets/img/logo.png" alt="Supertec Logo" style="height:55px;">
+                <img src="./assets/img/logo.png" alt="Supertec Logo" style="height:50px;">
             </a>
 
             <!-- Botón hamburguesa -->
@@ -68,13 +73,24 @@
             </div>
             <p class="logoSubtext"> Servicio Tecnico - Ventas</p>
         </div>
-        <h1>Servicios Tecnico para gamers y empresas</h1>
-        <p class="tagtext">
-            En Supertec, somos tu aliado para mantener tus dispositivos electrónicos favoritos en perfecto estado. 
-            Desde consolas de videojuegos que no encienden hasta computadoras que necesitan un empujón, nuestro laboratorio microelectrónico de vanguardia y técnicos especializados están listos para ofrecerte soluciones rápidas y duraderas. 
-            Confía en nosotros para revivir tu equipo con la más alta calidad y atención al detalle.
-        </p>
+       
     </section>
+
+
+    <!-- Productos Section -->
+    <section id="productos">
+        <div class="productos-header">
+            <h2>Nuestros Productos</h2>
+            <p>Encuentra lo último en tecnología y gaming al mejor precio.</p>
+            <a href="./tienda.html" class="tienda-btn">Ver tienda</a>
+        </div>
+
+        <div class="productos-carousel" id="productos-container">
+            <!-- Productos se insertan dinámicamente -->
+        </div>
+    </section>
+
+
 
    <!-- Servicios Section -->
     <section id="servicios">
@@ -97,7 +113,7 @@
                     </div>
                 </div>
                 <p>
-                    ¿Tu consola te está dando problemas? No te preocupes. En Supertec, somos expertos en la reparación de PlayStation, Xbox y Nintendo. 
+                    <strong>¿Tu consola te está dando problemas?</strong> No te preocupes. En Supertec, somos expertos en la reparación de PlayStation, Xbox y Nintendo. 
                     Solucionamos desde los errores más comunes (fallas de encendido, sobrecalentamiento, lectura de discos) hasta los más complejos, como reparaciones de puertos HDMI, reballing y cortocircuitos.
                 </p>
                 <p>
@@ -113,12 +129,14 @@
                     <div class="brand-logos" id="brand-logos">
                         <img src="./assets/img/marcas/windows-logo.png" alt="Windows">
                         <img src="./assets/img/marcas/apple-logo.png" alt="Apple">
-                        <img src="./assets/img/marcas/andorid-logo.png" alt="Android">
+                        <img src="./assets/img/marcas/xiaomi-logo.png" alt="Xiaomi">
                         <img src="./assets/img/marcas/samsung-logo.png" alt="Samsung">
+                        <img src="./assets/img/marcas/motorola-logo.png" alt="Motorola">
                         <img src="./assets/img/marcas/hp-logo.png" alt="HP">
                         <img src="./assets/img/marcas/lenovo-logo.png" alt="Lenovo">
                         <img src="./assets/img/marcas/gigabite.png" alt="Gigabyte">
                         <img src="./assets/img/marcas/sony-logo.png" alt="Sony">
+                        <img src="./assets/img/marcas/andorid-logo.png" alt="Android">
                     </div>
                 </div>
 
@@ -127,7 +145,7 @@
                     Ya sea que necesites reemplazar una pantalla, un teclado, una batería o solucionar problemas de rendimiento y software, estamos aquí para ayudarte.
                 </p>
                 <p>
-                    ¿Tu PC de escritorio o tu placa de video están fallando? Somos especialistas en reparaciones avanzadas a nivel de componente, incluyendo reballing y reparación de motherboards. 
+                    <strong>¿Tu PC de escritorio o tu placa de video están fallando?</strong> Somos especialistas en reparaciones avanzadas a nivel de componente, incluyendo reballing y reparación de motherboards. 
                     Y si tu iPhone, tablet o smartphone sufrió un accidente, confía en nuestros expertos para cambiar la pantalla, reparar el puerto de carga o solucionar fallas complejas de la placa base, incluso en casos de daño por líquidos.
                 </p>
                 <p>
@@ -174,15 +192,41 @@
         </div>
     </section>
 
-    <!-- Footer Section -->
-    <footer id="contacto">
-        <h3>Contacto</h3>
-        <p>Supertec - Servicio Técnico</p>
-        <p>Dirección: Mendoza, Argentina</p>
-        <p>Teléfono: +54 9 261 555-1234</p>
-        <p>Email: contacto@supertec.com.ar</p>
-        <p>&copy; 2025 Supertec. Todos los derechos reservados.</p>
-    </footer>
+<!-- Footer Section -->
+<footer id="contacto">
+    <h3>Contacto</h3>
+    <p>Email: contacto@supertec.com.ar</p>
+
+    <!-- Redes sociales + Logo -->
+    <div class="contactContainer">
+        <div class="socialMediaContainer">
+            <div class="socialMedia">
+                <a href="https://www.facebook.com/profile.php?id=100003893068135" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                <a href="https://www.threads.com/@supertecmza" target="_blank"><i class="fa-brands fa-square-x-twitter"></i></a>
+                <a href="https://www.instagram.com/supertecmza/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+            </div>
+            <div class="logo">
+                <img src="./assets/img/logo.png" alt="Supertec Logo" style="height: 80px;">
+            </div>
+            <div class="socialMedia">
+                <a href="https://www.youtube.com" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+                <a href="https://discord.gg" target="_blank"><i class="fa-brands fa-discord"></i></a>
+                <a href="https://www.spotify.com" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <p>&copy; 2025 Supertec. Todos los derechos reservados.</p>
+
+    <div class="footer-credit">
+        <a href="https://francocalegari.github.io/PortfolioFrancoCalegari/" target="_blank">
+            Code by Franco Calegari
+        </a>
+    </div>
+</footer>
+
     <script src="./assets/js/background.js"></script>
+    <script src="./assets/js/demoproductos.js" defer></script>
+
 </body>
 </html>

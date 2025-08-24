@@ -7,7 +7,7 @@
     header nav {
         flex-direction: row;
         align-items: center;
-        padding: 1.5rem 1rem 0.5rem 1rem;
+        padding: 0.4rem 1rem 0.4rem 1rem;
     }
 
     nav ul {

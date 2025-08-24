@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "img": "assets/img/productos/lenovo-tinkpad-img1.avif",
+    "name": "Lenovo ThinkPad",
+    "description": "Notebook Lenovo ThinkPad, ideal para trabajo y productividad.",
+    "precio": 250000
+  },
+  {
+    "id": 2,
+    "img": "assets/img/productos/Microsoft-Xbox-One-S-img1.jpg",
+    "name": "Microsoft Xbox One S",
+    "description": "Consola Xbox One S con soporte para juegos y entretenimiento en 4K.",
+    "precio": 180000
+  },
+  {
+    "id": 3,
+    "img": "assets/img/productos/nintendo-i1.webp",
+    "name": "Nintendo Switch",
+    "description": "Consola Nintendo Switch con controles de movimiento y juegos clásicos.",
+    "precio": 95000
+  },
+  {
+    "id": 4,
+    "img": "assets/img/productos/nintendosw2-i1.png",
+    "name": "Nintendo Switch 2",
+    "description": "Consola híbrida portátil y de sobremesa, la nueva generación de Nintendo.",
+    "precio": 320000
+  },
+  {
+    "id": 5,
+    "img": "assets/img/productos/PS3-slim-img1.png",
+    "name": "PlayStation 3 Slim",
+    "description": "Consola PlayStation 3 versión Slim, compatible con una amplia biblioteca de juegos.",
+    "precio": 85000
+  },
+  {
+    "id": 6,
+    "img": "assets/img/productos/PS4-i1.png",
+    "name": "PlayStation 4",
+    "description": "Consola PS4 con juegos en Full HD y gran catálogo exclusivo.",
+    "precio": 200000
+  },
+  {
+    "id": 7,
+    "img": "assets/img/productos/ps5-i1.png",
+    "name": "PlayStation 5",
+    "description": "La nueva generación de consolas con SSD ultrarrápido y gráficos de última tecnología.",
+    "precio": 450000
+  },
+  {
+    "id": 8,
+    "img": "assets/img/productos/Xbox-360S-img1.jpg",
+    "name": "Xbox 360 Slim",
+    "description": "Consola Xbox 360 Slim, retrocompatible con cientos de títulos.",
+    "precio": 70000
+  },
+  {
+    "id": 9,
+    "img": "assets/img/productos/xboxFamily-img1.png",
+    "name": "Xbox Family",
+    "description": "Paquete de consolas Xbox para toda la familia.",
+    "precio": 350000
+  },
+  {
+    "id": 10,
+    "img": "assets/img/productos/xbox-series-x-img1.png",
+    "name": "Xbox Series X",
+    "description": "Consola de nueva generación con potencia 4K y SSD ultrarrápido.",
+    "precio": 500000
+  }
+]

@@ -93,14 +93,28 @@ html {
 
 
 header {
-    backdrop-filter:blur(10px);
-    background-color: linear-gradient(50%, #2e3439, #29292900);
-    position: fixed;
+    position: fixed; /* referencia para ::before */
+    backdrop-filter: blur(10px);
+    background: linear-gradient(180deg,#fb383b49,70%, #fb383b00);
     padding: 0.5rem 0;
     width: 100%;
     z-index: 12;
     color: var(--color-claro);
 }
+
+/* Línea neón detrás del contenido del header pero sobre el fondo */
+header::after {
+    content: "";
+    position: absolute;
+    top: -2px;       /* la barra puede ir en top o bottom según necesites */
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #fb383a;
+    box-shadow: 0 0 10px #fb383a, 0 0 20px #fb383a, 0 0 40px #fb383a;
+    z-index: 0; /* detrás del contenido pero sobre el fondo */
+}
+
 
 nav {
     display: flex;
@@ -121,23 +135,52 @@ nav ul {
     display: flex;
     gap: 2rem;
 }
-
 nav ul li a {
     color: var(--color-claro);
     text-decoration: none;
     font-weight: 500;
     padding: 0.5rem 1rem;
     border-radius: 4px;
-    transition: background 0.2s, color 0.2s;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.3s ease;
+}
+
+nav ul li a::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    filter: blur(55px);
+    backdrop-filter: blur(100px) brightness(0.2);
+    background: rgba(251, 56, 59, 0.461);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: -1;
+    transition: width 0.5s ease, height 0.5s ease;
+}
+
+nav ul li a:hover::before,
+nav ul li a:focus::before {
+    width: 300%;
+    height: 300%;
 }
 
 nav ul li a:hover,
 nav ul li a:focus {
-    background: #fb383a;
     color: #fff;
 }
 
+
+
+
 /* ====== Hero Section ====== */
+.tagline {
+    margin-top: 100px;
+}
+
 #hero {
     text-align: center;
     padding: 8rem 2rem 1rem 2rem;
@@ -153,7 +196,7 @@ nav ul li a:focus {
     max-width: 800px;
     margin: auto;
     font-size: 1.2rem;
-    color: var(--color-claro);
+    
 }
 /*logo div*/
 #logo {
@@ -236,7 +279,7 @@ nav ul li a:focus {
   backdrop-filter: blur(10px);          /* efecto cristal */
   border-radius: 16px;
   padding: 2rem;
-  margin: 2rem auto;
+  margin: 1rem auto;
   max-width: 1100px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   border: 1px solid rgba(222, 221, 221, 0.6); /* borde con el gris #dedddd */
@@ -389,6 +432,55 @@ footer p {
     margin-bottom: 0.5rem;
     font-size: 0.95rem;
 }
+
+.contactContainer {
+    margin: 2rem 0;
+}
+
+.socialMediaContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+
+.socialMedia {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    font-size: 1.8rem;
+}
+
+.socialMedia a {
+    color: var(--color-claro);
+    transition: color 0.3s ease;
+}
+
+.socialMedia a:hover {
+    color: var(--color-rojo);
+}
+
+.logo img {
+    height: 80px;
+    filter: drop-shadow(0 0 4px rgba(0,0,0,0.6));
+}
+
+.footer-credit {
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+.footer-credit a {
+    color: var(--color-claro);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.footer-credit a:hover {
+    color: var(--color-rojo);
+}
+
 /* ====== Botones ====== */
 .btn {
     display: inline-block;
@@ -402,6 +494,103 @@ footer p {
 }
 .btn:hover {
     background: #c92c2e;
+}
+
+
+/*productosss*/
+
+#productos {
+    padding: 4rem 2rem;
+  
+    text-align: center;
+}
+.productos-header{
+    margin-bottom: 2rem;
+}
+
+.productos-header h2 {
+    font-size: 2rem;
+    color: var(--color-rojo);
+    
+}
+
+.productos-header p {
+    font-size: 1.1rem;
+    color: var(--color-claro);
+    margin-bottom: 2.5rem;
+}
+
+
+.productos-carousel {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 1rem 0;
+    scroll-behavior: smooth;
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #ff383a transparent; /* Personaliza color */
+}
+
+.productos-carousel::-webkit-scrollbar {
+    height: 8px;
+}
+.productos-carousel::-webkit-scrollbar-thumb {
+    background: #ff383a;
+    border-radius: 4px;
+}
+.productos-carousel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.producto-card {
+    flex: 0 0 auto; /* No se encogen, mantienen su tamaño */
+    width: 220px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    background: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: var(--color-oscuro);
+}
+.producto-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+}
+.producto-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.producto-card .precio {
+    font-weight: bold;
+    margin: 0.5rem 0;
+}
+
+.tienda-btn {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #ff1e56, #ffac41);
+  color: #fff;
+  font-weight: bold;
+  font-size: 1rem;
+  text-decoration: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+.tienda-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  filter: brightness(1.1);
+}
+
+.tienda-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
 
