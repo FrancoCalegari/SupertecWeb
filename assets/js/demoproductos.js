@@ -30,12 +30,5 @@ document.addEventListener("DOMContentLoaded", () => {
             container.innerHTML = "<p>Error al cargar los productos.</p>";
         });
 
-// Scroll horizontal con la rueda del mouse (más fuerza y suavidad)
-container.addEventListener("wheel", (evt) => {
-    evt.preventDefault();
-    container.scrollBy({
-        left: evt.deltaY * 4, // multiplica para dar más fuerza
-    });
-});
 
 });

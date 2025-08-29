@@ -34,6 +34,84 @@
     <meta name="theme-color" content="#fb383a"> <!-- Chrome, Android -->
     <meta name="msapplication-navbutton-color" content="#fb383a"> <!-- IE, Edge -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- Safari iOS -->
+    <style>
+.tienda {
+    padding: 6rem 2rem 2rem;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.productos-tienda h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--color-rojo);
+}
+
+.productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    gap: 2rem;
+}
+
+.producto-card {
+    background: var(--color-oscuro-trasparent);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 10px #00000050;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin: auto;
+}
+
+.producto-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 6px 20px #00000070;
+}
+
+.producto-card img {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.producto-card h3 {
+    color: var(--color-claro);
+    margin-bottom: 0.5rem;
+}
+
+.producto-card p {
+    font-size: 0.9rem;
+    color: var(--color-blanco);
+    opacity: 0.8;
+    margin-bottom: 0.8rem;
+}
+
+.precio {
+    display: block;
+    font-weight: bold;
+    color: var(--color-rojo);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.btn-comprar {
+    background: var(--color-rojo);
+    border: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-comprar:hover {
+    background: #ff5557;
+}
+</style>
 </head>
 <body>
         <!-- Fondo dinámico -->
@@ -62,43 +140,74 @@
             </ul>
         </nav>
     </header>
-
-
-<!-- Footer Section -->
-<footer id="contacto">
-    <h3>Contacto</h3>
-    <p>Email: contacto@supertec.com.ar</p>
-
-    <!-- Redes sociales + Logo -->
-    <div class="contactContainer">
-        <div class="socialMediaContainer">
-            <div class="socialMedia">
-                <a href="https://www.facebook.com/profile.php?id=100003893068135" target="_blank"><i class="fa-brands fa-facebook"></i></a>
-                <a href="https://www.threads.com/@supertecmza" target="_blank"><i class="fa-brands fa-square-x-twitter"></i></a>
-                <a href="https://www.instagram.com/supertecmza/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+    <main class="tienda">
+        <section class="productos-tienda">
+            <h1>Nuestros Productos</h1>
+            <div id="productos-container" class="productos-grid">
+                <!-- Los productos se cargan dinámicamente -->
             </div>
-            <div class="logo">
-                <img src="./assets/img/logo.png" alt="Supertec Logo" style="height: 80px;">
-            </div>
-            <div class="socialMedia">
-                <a href="https://www.youtube.com" target="_blank"><i class="fa-brands fa-youtube"></i></a>
-                <a href="https://discord.gg" target="_blank"><i class="fa-brands fa-discord"></i></a>
-                <a href="https://www.spotify.com" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+        </section>
+    </main>
+    <!-- Footer Section -->
+    <footer id="contacto">
+        <h3>Contacto</h3>
+        <p>Email: contacto@supertec.com.ar</p>
+
+        <!-- Redes sociales + Logo -->
+        <div class="contactContainer">
+            <div class="socialMediaContainer">
+                <div class="socialMedia">
+                    <a href="https://www.facebook.com/profile.php?id=100003893068135" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="https://www.threads.com/@supertecmza" target="_blank"><i class="fa-brands fa-square-x-twitter"></i></a>
+                    <a href="https://www.instagram.com/supertecmza/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+                <div class="logo">
+                    <img src="./assets/img/logo.png" alt="Supertec Logo" style="height: 80px;">
+                </div>
+                <div class="socialMedia">
+                    <a href="https://www.youtube.com" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="https://discord.gg" target="_blank"><i class="fa-brands fa-discord"></i></a>
+                    <a href="https://www.spotify.com" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <p>&copy; 2025 Supertec. Todos los derechos reservados.</p>
+        <p>&copy; 2025 Supertec. Todos los derechos reservados.</p>
 
-    <div class="footer-credit">
-        <a href="https://francocalegari.github.io/PortfolioFrancoCalegari/" target="_blank">
-            Code by Franco Calegari
-        </a>
-    </div>
-</footer>
+        <div class="footer-credit">
+            <a href="https://francocalegari.github.io/PortfolioFrancoCalegari/" target="_blank">
+                Code by Franco Calegari
+            </a>
+        </div>
+    </footer>
 
     <script src="./assets/js/background.js"></script>
     <script src="./assets/js/demoproductos.js" defer></script>
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("productos-container");
+
+    fetch("./assets/json/productos.json")
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(producto => {
+                const card = document.createElement("div");
+                card.classList.add("producto-card");
+
+                card.innerHTML = `
+                    <img src="${producto.img}" alt="${producto.name}">
+                    <h3>${producto.name}</h3>
+                    <p>${producto.description}</p>
+                    <span class="precio">$${producto.precio.toLocaleString("es-AR")}</span>
+                    <button class="btn-comprar">Comprar</button>
+                `;
+
+                container.appendChild(card);
+            });
+        })
+        .catch(err => console.error("Error al cargar productos:", err));
+});
+</script>
 
 </body>
 </html>
