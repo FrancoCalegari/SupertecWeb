@@ -53,6 +53,8 @@
     footer {
         padding: 2rem 1rem;
     }
+
+
 }
 
 /* Movil mediano / tablet pequeño: hasta 768px */
@@ -168,5 +170,52 @@
     @keyframes slideDown {
         from { transform: translateY(-20px); opacity: 0; }
         to { transform: translateY(0); opacity: 1; }
+    }
+}
+
+
+/* ============================
+   📱 Teléfonos (pantallas pequeñas)
+============================ */
+@media (max-width: 600px) {
+    .productos-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columnas */
+        gap: 1rem;
+    }
+
+    .producto-card {
+        padding: 0.6rem;
+    }
+
+    .producto-card img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .producto-card h3 {
+        font-size: 0.95rem;
+    }
+
+    .producto-card p {
+        font-size: 0.8rem;
+    }
+}
+
+/* ============================
+   📲 Tablets (pantallas medianas)
+============================ */
+@media (min-width: 601px) and (max-width: 992px) {
+    .productos-grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 columnas */
+        gap: 1.2rem;
+    }
+
+    .producto-card img {
+        width: 150px;
+        height: 150px;
+    }
+
+    .producto-card h3 {
+        font-size: 1rem;
     }
 }

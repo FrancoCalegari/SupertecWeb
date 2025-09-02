@@ -34,84 +34,6 @@
     <meta name="theme-color" content="#fb383a"> <!-- Chrome, Android -->
     <meta name="msapplication-navbutton-color" content="#fb383a"> <!-- IE, Edge -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- Safari iOS -->
-    <style>
-.tienda {
-    padding: 6rem 2rem 2rem;
-    max-width: 1200px;
-    margin: auto;
-}
-
-.productos-tienda h1 {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: var(--color-rojo);
-}
-
-.productos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-    gap: 2rem;
-}
-
-.producto-card {
-    background: var(--color-oscuro-trasparent);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    padding: 1rem;
-    text-align: center;
-    box-shadow: 0 4px 10px #00000050;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    margin: auto;
-}
-
-.producto-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 6px 20px #00000070;
-}
-
-.producto-card img {
-    width: 180px;
-    height: 180px;
-    object-fit: contain;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-}
-
-.producto-card h3 {
-    color: var(--color-claro);
-    margin-bottom: 0.5rem;
-}
-
-.producto-card p {
-    font-size: 0.9rem;
-    color: var(--color-blanco);
-    opacity: 0.8;
-    margin-bottom: 0.8rem;
-}
-
-.precio {
-    display: block;
-    font-weight: bold;
-    color: var(--color-rojo);
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-}
-
-.btn-comprar {
-    background: var(--color-rojo);
-    border: none;
-    padding: 0.7rem 1.2rem;
-    border-radius: 6px;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.btn-comprar:hover {
-    background: #ff5557;
-}
-</style>
 </head>
 <body>
         <!-- Fondo dinámico -->
@@ -143,7 +65,7 @@
     <main class="tienda">
         <section class="productos-tienda">
             <h1>Nuestros Productos</h1>
-            <div id="productos-container" class="productos-grid">
+            <div id="productos-container">
                 <!-- Los productos se cargan dinámicamente -->
             </div>
         </section>
