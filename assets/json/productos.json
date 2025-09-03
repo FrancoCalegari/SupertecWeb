@@ -12,7 +12,7 @@
   },
   {
     "id": 2,
-    "img": "assets/img/productos/Microsoft-Xbox-One-S-img1.jpg",
+    "img": "assets/img/productos/Microsoft-Xbox-One-S-img1.png",
     "name": "Microsoft Xbox One S",
     "description": "Consola Xbox One S con soporte para juegos y entretenimiento en 4K.",
     "precio": 180000,
@@ -78,7 +78,7 @@
   },
   {
     "id": 8,
-    "img": "assets/img/productos/Xbox-360S-img1.jpg",
+    "img": "assets/img/productos/Xbox-360S-img1.png",
     "name": "Xbox 360 Slim",
     "description": "Consola Xbox 360 Slim, retrocompatible con cientos de títulos.",
     "precio": 70000,
@@ -109,5 +109,105 @@
     "stock": 11,
     "marca": "Microsoft",
     "modelo": "Xbox Series X"
+  },
+  {
+    "id": 11,
+    "img": "assets/img/productos/AsusTuf.png",
+    "name": "Asus TUF Gaming",
+    "description": "Laptop de ultra rendimiento para gaming y tareas exigentes.",
+    "precio": 500000,
+    "categoria": "Notebooks",
+    "stock": 11,
+    "marca": "Asus",
+    "modelo": "TUF Gaming"
+  },
+  {
+    "id": 12,
+    "img": "assets/img/productos/HpPavilonGaming.avif",
+    "name": "HP Pavilion Gaming 15-ec1038la",
+    "description": "Laptop de ultra rendimiento para gaming y tareas exigentes.",
+    "precio": 1000000,
+    "categoria": "Notebooks",
+    "stock": 11,
+    "marca": "HP",
+    "modelo": "Pavilon Gaming 15-ec1038la"
+  },
+  {
+    "id": 13,
+    "img": "assets/img/productos/AppleMacM4.png",
+    "name": "Mac M4 15pulgadas.png",
+    "description": "Laptop de ligera ideal para la universidad.",
+    "precio": 800000,
+    "categoria": "Notebooks",
+    "stock": 11,
+    "marca": "Apple",
+    "modelo": "Macbook M4 15pulgadas"
+  },
+  {
+    "id": 14,
+    "img": "assets/img/productos/xboxjoystic.png",
+    "name": "JoyStick Xbox",
+    "description": "JoyStick compatible con one, series s y x.",
+    "precio": 127000,
+    "categoria": "Accesorios",
+    "stock": 11,
+    "marca": "Xbox",
+    "modelo": "Joystick Xbox"
+  },
+  {
+    "id": 15,
+    "img": "assets/img/productos/ps5dualsense.webp",
+    "name": "JoyStick Xbox",
+    "description": "JoyStick compatible con PS5, moviles pc y mas.",
+    "precio": 162000,
+    "categoria": "Accesorios",
+    "stock": 11,
+    "marca": "PlayStation",
+    "modelo": "PS5 DualSense"
+  },
+  {
+    "id": 16,
+    "img": "assets/img/productos/ps4joystic.png",
+    "name": "JoyStick PS4",
+    "description": "JoyStick compatible con PS4, PS5, moviles pc y mas.",
+    "precio": 133000,
+    "categoria": "Accesorios",
+    "stock": 11,
+    "marca": "PlayStation",
+    "modelo": "PS4 JoyStick"
+  },
+  {
+    "id": 17,
+    "img": "assets/img/productos/360joystic.png",
+    "name": "JoyStick Xbox 360",
+    "description": "JoyStick compatible con Xbox 360.",
+    "precio": 81000,
+    "categoria": "Accesorios",
+    "stock": 11,
+    "marca": "Xbox",
+    "modelo": "360 joystick"
+  },
+  {
+    "id": 18,
+    "img": "assets/img/productos/joycons.png",
+    "name": "Joycons Nintendo Switch",
+    "description": "JoyStick compatible con Nintendo Switch y Nintendo Switch OLED.",
+    "precio": 81000,
+    "categoria": "Accesorios",
+    "stock": 11,
+    "marca": "Nintendo",
+    "modelo": "Joycons Nintendo Switch"
+  },
+  {
+    "id": 19,
+    "img": "assets/img/productos/joycons2.png",
+    "name": "Joycons Nintendo Switch 2",
+    "description": "JoyStick compatible con Nintendo Switch 2.",
+    "precio": 81000,
+    "categoria": "Accesorios",
+    "stock": 11,
+    "marca": "Nintendo",
+    "modelo": "Joycons Nintendo Switch 2"
   }
+
 ]
