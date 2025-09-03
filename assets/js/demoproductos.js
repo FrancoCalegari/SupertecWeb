@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const productosContainer = document.getElementById("productos-container");
     const ofertasContainer = document.getElementById("ofertas-container");
 
+    // 🔹 Número de WhatsApp (cámbialo por el tuyo con código de país, sin + ni 00)
+    const whatsappNumber = "5492617735869";  
+
     // Loader HTML
     const loaderHTML = `
         <div class="loader">
@@ -68,8 +71,15 @@ document.addEventListener("DOMContentLoaded", () => {
                                    </p>`
                                 : `<p class="precio">$${producto.precio.toLocaleString("es-AR")}</p>`
                             }
-                            <button class="btn">Comprar</button>
+                            <button class="btn btn-comprar">Comprar</button>
                         `;
+
+                        // 🔹 Evento botón WhatsApp
+                        card.querySelector(".btn-comprar").addEventListener("click", () => {
+                            const mensaje = `Buen dia quisiera consultar sobre este producto:\n\n📌 *${producto.name}*\n🏷️ Marca: ${producto.marca}\n🔖 Modelo: ${producto.modelo}\n💰 Precio: $${precioFinal.toLocaleString("es-AR")}`;
+                            const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
+                            window.open(url, "_blank");
+                        });
 
                         grid.appendChild(card);
                     });
@@ -111,8 +121,15 @@ document.addEventListener("DOMContentLoaded", () => {
                                </p>`
                             : `<p class="precio">$${producto.precio.toLocaleString("es-AR")}</p>`
                         }
-                        <button class="btn">Comprar</button>
+                        <button class="btn btn-comprar">Comprar</button>
                     `;
+
+                    // 🔹 Evento botón WhatsApp
+                    ofertaCard.querySelector(".btn-comprar").addEventListener("click", () => {
+                        const mensaje = `Quisiera consultar sobre este producto:\n\n📌 *${producto.name}*\n🏷️ Marca: ${producto.marca}\n🔖 Modelo: ${producto.modelo}\n💰 Precio: $${precioFinal.toLocaleString("es-AR")}`;
+                        const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
+                        window.open(url, "_blank");
+                    });
 
                     ofertasContainer.appendChild(ofertaCard);
                 });
