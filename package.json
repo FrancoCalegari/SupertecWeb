@@ -1,0 +1,25 @@
+{
+  "name": "supertecweb",
+  "version": "1.0.0",
+  "description": "Web de Super tec para administrar landingpage",
+  "main": "app.js",
+  "scripts": {
+    "test": "dev",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FrancoCalegari/SupertecWeb.git"
+  },
+  "author": "Franco Calegari",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FrancoCalegari/SupertecWeb/issues"
+  },
+  "homepage": "https://github.com/FrancoCalegari/SupertecWeb#readme",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2"
+  }
+}
