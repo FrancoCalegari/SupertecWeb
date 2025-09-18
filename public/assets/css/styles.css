@@ -715,7 +715,7 @@ footer p {
 
 .precio-original {
     text-decoration: line-through;
-    color: var(--color-claro);
+    color: var(--color-oscuro);
     margin-right: 5px;
 }
 .precio-descuento {

@@ -208,16 +208,5 @@
     "stock": 11,
     "marca": "Nintendo",
     "modelo": "Joycons Nintendo Switch 2"
-  },
-  {
-    "id": 20,
-    "img": "https://i.pinimg.com/1200x/b0/8a/f3/b08af3e0423e0593825f858bc9052206.jpg",
-    "name": "test",
-    "description": "Test de test",
-    "precio": 1000,
-    "categoria": "Test",
-    "stock": 2,
-    "marca": "test",
-    "modelo": "test"
   }
 ]
