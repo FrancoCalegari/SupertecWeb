@@ -53,8 +53,9 @@
     footer {
         padding: 2rem 1rem;
     }
-
-
+    .textlogo {
+        font-size: smaller;
+    }
 }
 
 /* Movil mediano / tablet pequeño: hasta 768px */
@@ -87,6 +88,15 @@
         width: 120px;
         max-height: 70px;
     }
+
+    .ofertas-carousel {
+        justify-content: flex-start; /* Alinear al inicio */
+        scroll-snap-type: x mandatory; /* Hace que se “enganchen” los cards */
+    }
+
+    .oferta-card {
+        scroll-snap-align: start; /* Cada card se alinea al borde izquierdo */
+    }
 }
 
 /* Tablets medianas: hasta 1024px */
@@ -106,6 +116,14 @@
 
     #faqs details {
         max-width: 700px;
+    }
+    .ofertas-carousel {
+        justify-content: flex-start; /* Alinear al inicio */
+        scroll-snap-type: x mandatory; /* Hace que se “enganchen” los cards */
+    }
+
+    .oferta-card {
+        scroll-snap-align: start; /* Cada card se alinea al borde izquierdo */
     }
 }
 
