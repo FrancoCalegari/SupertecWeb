@@ -1,16 +1,5 @@
 [
   {
-    "id": 1,
-    "img": "assets/img/productos/lenovo-tinkpad-img1.avif",
-    "name": "Lenovo ThinkPad",
-    "description": "Notebook Lenovo ThinkPad, ideal para trabajo y productividad.",
-    "precio": 250000,
-    "categoria": "Notebooks",
-    "stock": 12,
-    "marca": "Lenovo",
-    "modelo": "ThinkPad"
-  },
-  {
     "id": 2,
     "img": "assets/img/productos/Microsoft-Xbox-One-S-img1.png",
     "name": "Microsoft Xbox One S",
@@ -208,5 +197,16 @@
     "stock": 11,
     "marca": "Nintendo",
     "modelo": "Joycons Nintendo Switch 2"
+  },
+  {
+    "id": 20,
+    "name": "test",
+    "description": "Test de test",
+    "precio": "12",
+    "categoria": "Test",
+    "stock": "1222",
+    "marca": "Test",
+    "modelo": "Test",
+    "img": "/assets/img/productos/1758404635925-387405755.png"
   }
 ]
