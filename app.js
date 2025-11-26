@@ -35,11 +35,20 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000
 }));
 
-// Inicializar DB (sqlite/libsql)
-initDb().catch((err) => {
-  console.error('No se pudo inicializar la base de datos', err);
-  process.exit(1);
-});
+// Inicializar DB (Blob Vercel)
+initDb()
+  .then(() => console.log('[DB] Blob listo'))
+  .catch((err) => {
+    console.error('No se pudo inicializar la base de datos', err);
+    process.exit(1);
+  });
+
+// Estado del blob store
+if (process.env.BLOB_READ_WRITE_TOKEN) {
+  console.log('[Blob] Token configurado, se intentarán subidas a Vercel Blob');
+} else {
+  console.warn('[Blob] Sin token BLOB_READ_WRITE_TOKEN, se usará ruta local si está permitido');
+}
 
 // Usuarios de ejemplo (ahora por env)
 const users = [{ username: ADMIN_USER, password: ADMIN_PASS }];
@@ -53,7 +62,9 @@ function isAuthenticated(req, res, next) {
 // Rutas CRUD productos
 app.get('/api/productos', async (req, res) => {
     try {
+        console.log('[API] GET /api/productos');
         const productos = await listProductos();
+        console.log(`[API] Productos cargados: ${productos.length}`);
         res.json(productos);
     } catch (err) {
         console.error('Error listando productos', err);
@@ -107,14 +118,17 @@ app.post('/api/productos', upload.single('imgFile'), async (req, res) => {
                 if (!buffer) {
                     return res.status(400).json({ ok: false, error: 'No se pudo leer el archivo subido' });
                 }
+                console.log(`[Blob] Subiendo ${fileName} (${mime})`);
                 const blob = await put(fileName, buffer, {
                     access: 'public',
                     token: process.env.BLOB_READ_WRITE_TOKEN,
                     contentType: mime
                 });
+                console.log(`[Blob] Subida OK ${blob.url}`);
                 imageUrl = blob.url;
             } else if (!process.env.VERCEL) {
                 imageUrl = '/assets/img/productos/' + req.file.filename;
+                console.log(`[Blob] Uso de ruta local ${imageUrl}`);
             } else {
                 return res.status(400).json({ ok: false, error: 'Configure BLOB_READ_WRITE_TOKEN o use una URL pública' });
             }
@@ -122,6 +136,7 @@ app.post('/api/productos', upload.single('imgFile'), async (req, res) => {
         producto.img = imageUrl;
 
         const saved = await upsertProducto(producto);
+        console.log(`[API] Producto ${saved.id} guardado/actualizado`);
         res.json({ ok: true, producto: saved });
     } catch (err) {
         console.error('Error guardando producto', err);
@@ -137,6 +152,7 @@ app.delete('/api/productos/:id', async (req, res) => {
         if (!deleted) {
             return res.status(404).json({ ok: false, error: 'Producto no encontrado' });
         }
+        console.log(`[API] Producto ${id} eliminado`);
         res.json({ ok: true });
     } catch (err) {
         console.error('Error eliminando producto', err);
@@ -169,10 +185,10 @@ app.post('/login', (req, res) => {
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Iniciar servidor
-if (!process.env.VERCEL) {
+// Iniciar servidor cuando se ejecuta directamente
+if (require.main === module) {
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Servidor iniciado en http://localhost:${PORT}`));
+    app.listen(PORT, () => console.log(`Servidor Express iniciado en http://localhost:${PORT}`));
 }
 
 module.exports = app;

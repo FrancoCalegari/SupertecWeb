@@ -1,141 +1,124 @@
-const path = require('path');
 const fs = require('fs');
-const { createClient } = require('@libsql/client');
+const path = require('path');
+const { list, put } = require('@vercel/blob');
 
-// Configuración de conexión: local file (en /tmp en Vercel) o remoto (Turso/libsql)
-const localDir = process.env.VERCEL ? '/tmp/supertec-db' : path.join(__dirname, 'var');
-const localDbPath = path.join(localDir, 'data.sqlite');
-const dbUrl = process.env.DB_URL || `file:${localDbPath}`;
-const dbAuthToken = process.env.DB_AUTH_TOKEN;
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
+const BLOB_PREFIX = process.env.BLOB_PREFIX || 'db/';
+const BLOB_KEY = process.env.BLOB_PRODUCTS_KEY || 'productos.json';
+const BLOB_PATH = `${BLOB_PREFIX}${BLOB_KEY}`;
 
-if (dbUrl.startsWith('file:')) {
-  fs.mkdirSync(path.dirname(localDbPath), { recursive: true });
+if (!BLOB_TOKEN) {
+  console.warn('[DB] Falta BLOB_READ_WRITE_TOKEN, no se podrán persistir productos en Vercel Blob.');
 }
 
-const client = createClient({
-  url: dbUrl,
-  authToken: dbAuthToken
-});
-
-const ready = client.execute(`
-  CREATE TABLE IF NOT EXISTS productos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description TEXT DEFAULT '',
-    precio REAL DEFAULT 0,
-    categoria TEXT DEFAULT '',
-    stock INTEGER DEFAULT 0,
-    marca TEXT DEFAULT '',
-    modelo TEXT DEFAULT '',
-    img TEXT DEFAULT '',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
-`);
-
-async function initDb() {
-  await ready;
-  await seedIfEmpty();
+function ensureToken() {
+  if (!BLOB_TOKEN) {
+    throw new Error('BLOB_READ_WRITE_TOKEN no definido');
+  }
 }
 
-const normalizeProducto = (row) => ({
-  id: Number(row.id),
-  name: row.name,
-  description: row.description,
-  precio: Number(row.precio) || 0,
-  categoria: row.categoria,
-  stock: Number(row.stock) || 0,
-  marca: row.marca,
-  modelo: row.modelo,
-  img: row.img || ''
+const normalizeProducto = (p) => ({
+  id: Number(p.id),
+  name: p.name,
+  description: p.description || '',
+  precio: Number(p.precio) || 0,
+  categoria: p.categoria || '',
+  stock: Number(p.stock) || 0,
+  marca: p.marca || '',
+  modelo: p.modelo || '',
+  img: p.img || ''
 });
 
-async function seedIfEmpty() {
-  const countRes = await client.execute('SELECT COUNT(*) AS total FROM productos');
-  const total = Number(countRes.rows[0].total);
-  if (total > 0) return;
+async function getBlobUrl() {
+  ensureToken();
+  const { blobs } = await list({ prefix: BLOB_PATH, token: BLOB_TOKEN });
+  const exact = blobs?.find(b => b.pathname === BLOB_PATH);
+  return (exact || blobs?.[0])?.url || null;
+}
 
+async function readProductos() {
+  ensureToken();
+  const url = await getBlobUrl();
+  if (!url) return null;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Blob fetch status ${res.status}`);
+  return res.json();
+}
+
+async function writeProductos(productos) {
+  ensureToken();
+  await put(BLOB_PATH, JSON.stringify(productos, null, 2), {
+    access: 'public',
+    contentType: 'application/json',
+    token: BLOB_TOKEN,
+    addRandomSuffix: false
+  });
+}
+
+async function seedFromFile() {
   const seedPath = path.join(__dirname, 'public', 'assets', 'json', 'productos.json');
-  if (!fs.existsSync(seedPath)) return;
-
+  if (!fs.existsSync(seedPath)) return [];
   try {
     const seed = JSON.parse(fs.readFileSync(seedPath, 'utf-8'));
-    for (const p of seed) {
-      await client.execute({
-        sql: `INSERT INTO productos (id, name, description, precio, categoria, stock, marca, modelo, img)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-              ON CONFLICT(id) DO NOTHING`,
-        args: [
-          p.id,
-          p.name,
-          p.description || '',
-          Number(p.precio) || 0,
-          p.categoria || '',
-          Number(p.stock) || 0,
-          p.marca || '',
-          p.modelo || '',
-          p.img || ''
-        ]
-      });
-    }
+    console.log(`[DB] Sembrando Blob con ${seed.length} productos iniciales`);
+    await writeProductos(seed);
+    return seed;
   } catch (err) {
-    console.error('No se pudo inicializar la DB con productos.json', err);
+    console.error('[DB] No se pudo leer seed productos.json', err);
+    return [];
+  }
+}
+
+async function initDb() {
+  try {
+    const existing = await readProductos();
+    if (existing) {
+      console.log(`[DB] Conectado a Blob y datos existentes encontrados (${existing.length}) en ${BLOB_PATH}`);
+      return;
+    }
+    await seedFromFile();
+    console.log(`[DB] Conectado a Blob y base inicial creada en ${BLOB_PATH}`);
+  } catch (err) {
+    console.error('[DB] Error inicializando Blob store', err);
+    throw err;
   }
 }
 
 async function listProductos() {
-  await ready;
-  const { rows } = await client.execute('SELECT * FROM productos ORDER BY id DESC');
-  return rows.map(normalizeProducto);
+  const productos = await readProductos();
+  if (!productos) return [];
+  return productos.map(normalizeProducto);
 }
 
 async function upsertProducto(producto) {
-  await ready;
+  let productos = await readProductos();
+  if (!productos) productos = await seedFromFile();
+
   if (producto.id) {
-    await client.execute({
-      sql: `UPDATE productos
-            SET name = ?, description = ?, precio = ?, categoria = ?, stock = ?, marca = ?, modelo = ?, img = COALESCE(?, img)
-            WHERE id = ?`,
-      args: [
-        producto.name,
-        producto.description || '',
-        producto.precio,
-        producto.categoria || '',
-        producto.stock,
-        producto.marca || '',
-        producto.modelo || '',
-        producto.img ?? null,
-        producto.id
-      ]
-    });
-    return { ...producto, id: Number(producto.id) };
+    const idx = productos.findIndex(p => Number(p.id) === Number(producto.id));
+    if (idx !== -1) {
+      productos[idx] = normalizeProducto({ ...productos[idx], ...producto });
+    } else {
+      productos.push(normalizeProducto(producto));
+    }
+  } else {
+    const nextId = productos.length ? Math.max(...productos.map(p => Number(p.id))) + 1 : 1;
+    productos.push(normalizeProducto({ ...producto, id: nextId }));
+    producto.id = nextId;
   }
 
-  const result = await client.execute({
-    sql: `INSERT INTO productos (name, description, precio, categoria, stock, marca, modelo, img)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    args: [
-      producto.name,
-      producto.description || '',
-      producto.precio,
-      producto.categoria || '',
-      producto.stock,
-      producto.marca || '',
-      producto.modelo || '',
-      producto.img || ''
-    ]
-  });
-
-  const newId = Number(result.lastInsertRowid);
-  return { ...producto, id: newId };
+  await writeProductos(productos);
+  return normalizeProducto(producto);
 }
 
 async function deleteProductoById(id) {
-  await ready;
-  const { rowsAffected } = await client.execute({
-    sql: 'DELETE FROM productos WHERE id = ?',
-    args: [id]
-  });
-  return rowsAffected > 0;
+  let productos = await readProductos();
+  if (!productos) productos = [];
+  const before = productos.length;
+  productos = productos.filter(p => Number(p.id) !== Number(id));
+  if (productos.length === before) return false;
+  await writeProductos(productos);
+  return true;
 }
 
 module.exports = {
