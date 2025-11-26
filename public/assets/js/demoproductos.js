@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (productosContainer) productosContainer.innerHTML = loaderHTML;
     if (ofertasContainer) ofertasContainer.innerHTML = loaderHTML;
 
-    fetch("./assets/json/productos.json")
+    fetch("/api/productos")
         .then(response => {
             if (!response.ok) throw new Error("Error al cargar el JSON");
             return response.json();

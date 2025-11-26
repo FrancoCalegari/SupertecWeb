@@ -109,7 +109,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("productos-container");
 
-    fetch("./assets/json/productos.json")
+    fetch("/api/productos")
         .then(res => res.json())
         .then(data => {
             data.forEach(producto => {

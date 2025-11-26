@@ -1,29 +1,48 @@
 const express = require('express');
 const path = require('path');
-const session = require('express-session');
 const fs = require('fs');
 const multer = require('multer');
+const cookieSession = require('cookie-session');
+const { put } = require('@vercel/blob');
+const {
+  listProductos,
+  upsertProducto,
+  deleteProductoById,
+  initDb
+} = require('./db');
 
 const app = express();
-const productosPath = path.join(__dirname, 'public','assets','json','productos.json');
-
 
 // Carpeta de uploads
-const uploadDir = path.join(__dirname, 'public', 'assets','img','productos');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, 'public', 'assets', 'img', 'productos');
+if (!process.env.VERCEL && !fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'admin123';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'supertec_secret_key';
 
 // Middleware para recibir JSON y formularios
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(session({
-    secret: 'supertec_secret_key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false }
+app.use(cookieSession({
+  name: 'supertec_session',
+  secret: SESSION_SECRET,
+  sameSite: 'lax',
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  maxAge: 24 * 60 * 60 * 1000
 }));
 
-// Usuarios de ejemplo
-const users = [{ username: 'admin', password: 'admin123' }];
+// Inicializar DB (sqlite/libsql)
+initDb().catch((err) => {
+  console.error('No se pudo inicializar la base de datos', err);
+  process.exit(1);
+});
+
+// Usuarios de ejemplo (ahora por env)
+const users = [{ username: ADMIN_USER, password: ADMIN_PASS }];
 
 // Middleware de autenticación
 function isAuthenticated(req, res, next) {
@@ -32,9 +51,14 @@ function isAuthenticated(req, res, next) {
 }
 
 // Rutas CRUD productos
-app.get('/api/productos', (req, res) => {
-    const data = fs.readFileSync(productosPath, 'utf-8');
-    res.json(JSON.parse(data));
+app.get('/api/productos', async (req, res) => {
+    try {
+        const productos = await listProductos();
+        res.json(productos);
+    } catch (err) {
+        console.error('Error listando productos', err);
+        res.status(500).json({ ok: false, error: 'No se pudieron obtener los productos' });
+    }
 });
 
 // Configuración de multer
@@ -46,47 +70,78 @@ const storage = multer.diskStorage({
         cb(null, uniqueName);
     }
 });
-const upload = multer({ storage });
+const uploadConfig = process.env.VERCEL
+    ? { storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }
+    : { storage, limits: { fileSize: 5 * 1024 * 1024 } };
+const upload = multer(uploadConfig);
 
 // Ruta POST con soporte de archivo
-app.post('/api/productos', upload.single('imgFile'), (req, res) => {
-    const producto = req.body;
-    const data = fs.readFileSync(productosPath, 'utf-8');
-    let productos = JSON.parse(data);
+app.post('/api/productos', upload.single('imgFile'), async (req, res) => {
+    try {
+        const body = req.body;
+        const producto = {
+            id: body.id ? Number(body.id) : undefined,
+            name: body.name,
+            description: body.description,
+            precio: Number(body.precio) || 0,
+            categoria: body.categoria,
+            stock: Number(body.stock) || 0,
+            marca: body.marca,
+            modelo: body.modelo,
+            img: body.img || null
+        };
 
-    // Si vino un archivo, usamos la ruta relativa
-    if (req.file) {
-        producto.img = '/assets/img/productos/' + req.file.filename;
-    }
-
-    if (producto.id) {
-        const idx = productos.findIndex(p => p.id === Number(producto.id));
-        if (idx !== -1) {
-            productos[idx] = { ...productos[idx], ...producto };
+        if (!producto.name || !producto.description || !producto.categoria) {
+            return res.status(400).json({ ok: false, error: 'Faltan campos obligatorios (nombre, descripción o categoría)' });
         }
-    } else {
-        producto.id = productos.length ? Math.max(...productos.map(p => p.id)) + 1 : 1;
-        productos.push(producto);
-    }
 
-    fs.writeFileSync(productosPath, JSON.stringify(productos, null, 2));
-    res.json({ ok: true });
+        // Manejo de imagen
+        let imageUrl = producto.img;
+        if (req.file) {
+            const ext = path.extname(req.file.originalname) || '';
+            const fileName = `productos/${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`;
+            const mime = req.file.mimetype || 'application/octet-stream';
+
+            if (process.env.BLOB_READ_WRITE_TOKEN) {
+                const buffer = req.file.buffer || (req.file.path ? fs.readFileSync(req.file.path) : null);
+                if (!buffer) {
+                    return res.status(400).json({ ok: false, error: 'No se pudo leer el archivo subido' });
+                }
+                const blob = await put(fileName, buffer, {
+                    access: 'public',
+                    token: process.env.BLOB_READ_WRITE_TOKEN,
+                    contentType: mime
+                });
+                imageUrl = blob.url;
+            } else if (!process.env.VERCEL) {
+                imageUrl = '/assets/img/productos/' + req.file.filename;
+            } else {
+                return res.status(400).json({ ok: false, error: 'Configure BLOB_READ_WRITE_TOKEN o use una URL pública' });
+            }
+        }
+        producto.img = imageUrl;
+
+        const saved = await upsertProducto(producto);
+        res.json({ ok: true, producto: saved });
+    } catch (err) {
+        console.error('Error guardando producto', err);
+        res.status(500).json({ ok: false, error: 'No se pudo guardar el producto' });
+    }
 });
 
-app.delete('/api/productos/:id', (req, res) => {
+app.delete('/api/productos/:id', async (req, res) => {
     const id = Number(req.params.id); // convertir siempre a número
-    const data = fs.readFileSync(productosPath, 'utf-8');
-    let productos = JSON.parse(data);
 
-    const inicial = productos.length;
-    productos = productos.filter(p => Number(p.id) !== id);
-
-    if (productos.length === inicial) {
-        return res.status(404).json({ ok: false, error: 'Producto no encontrado' });
+    try {
+        const deleted = await deleteProductoById(id);
+        if (!deleted) {
+            return res.status(404).json({ ok: false, error: 'Producto no encontrado' });
+        }
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Error eliminando producto', err);
+        res.status(500).json({ ok: false, error: 'No se pudo eliminar el producto' });
     }
-
-    fs.writeFileSync(productosPath, JSON.stringify(productos, null, 2));
-    res.json({ ok: true });
 });
 
 
@@ -96,7 +151,8 @@ app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html'))
 app.get('/tienda', (req, res) => res.sendFile(path.join(__dirname, 'tienda.html')));
 app.get('/admindashboard', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'admindashboard.html')));
 app.get('/logout', (req, res) => {
-    req.session.destroy(() => res.redirect('/'));
+    req.session = null;
+    res.redirect('/');
 });
 
 // Login POST
@@ -114,5 +170,9 @@ app.post('/login', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Iniciar servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor iniciado en http://localhost:${PORT}`));
+if (!process.env.VERCEL) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`Servidor iniciado en http://localhost:${PORT}`));
+}
+
+module.exports = app;
