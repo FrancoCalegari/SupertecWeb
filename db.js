@@ -2,8 +2,9 @@ const path = require('path');
 const fs = require('fs');
 const { createClient } = require('@libsql/client');
 
-// Configuración de conexión: local file:./var/data.sqlite o remoto (Turso/libsql)
-const localDbPath = path.join(__dirname, 'var', 'data.sqlite');
+// Configuración de conexión: local file (en /tmp en Vercel) o remoto (Turso/libsql)
+const localDir = process.env.VERCEL ? '/tmp/supertec-db' : path.join(__dirname, 'var');
+const localDbPath = path.join(localDir, 'data.sqlite');
 const dbUrl = process.env.DB_URL || `file:${localDbPath}`;
 const dbAuthToken = process.env.DB_AUTH_TOKEN;
 

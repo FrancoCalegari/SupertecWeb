@@ -3,7 +3,7 @@
 ## Variables de entorno
 - `SESSION_SECRET`: secreto para la cookie de sesión.
 - `ADMIN_USER` / `ADMIN_PASS`: credenciales del dashboard.
-- `DB_URL`: URL SQLite/libsql. Local por defecto: `file:./var/data.sqlite`. Para remoto (recomendado en Vercel) usa un endpoint LibSQL/Turso, ej. `libsql://<tu-db>.turso.io`.
+- `DB_URL`: URL SQLite/libsql. Local por defecto: `file:./var/data.sqlite` (en Vercel se usa `/tmp/supertec-db/data.sqlite`). Para remoto (recomendado en Vercel) usa un endpoint LibSQL/Turso, ej. `libsql://<tu-db>.turso.io`.
 - `DB_AUTH_TOKEN`: token para la base remota (si aplica).
 - `BLOB_READ_WRITE_TOKEN`: token de Vercel Blob para subir imágenes desde el dashboard.
 - `UPLOAD_DIR` (opcional): carpeta de subidas en local. En Vercel el filesystem es efímero; las imágenes se suben a Blob si `BLOB_READ_WRITE_TOKEN` está configurado.
