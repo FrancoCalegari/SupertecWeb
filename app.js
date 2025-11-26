@@ -24,6 +24,7 @@ const ADMIN_PASS = process.env.ADMIN_PASS || 'admin123';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'supertec_secret_key';
 
 // Middleware para recibir JSON y formularios
+app.set('trust proxy', 1); // necesario para que secure cookies funcionen detrás de proxy/https
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieSession({
@@ -35,9 +36,9 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000
 }));
 
-// Inicializar DB (Blob Vercel)
+// Inicializar DB (Blob o local)
 initDb()
-  .then(() => console.log('[DB] Blob listo'))
+  .then(() => console.log('[DB] Almacenamiento listo (Blob o local)'))
   .catch((err) => {
     console.error('No se pudo inicializar la base de datos', err);
     process.exit(1);
@@ -47,7 +48,7 @@ initDb()
 if (process.env.BLOB_READ_WRITE_TOKEN) {
   console.log('[Blob] Token configurado, se intentarán subidas a Vercel Blob');
 } else {
-  console.warn('[Blob] Sin token BLOB_READ_WRITE_TOKEN, se usará ruta local si está permitido');
+  console.warn('[Blob] Sin token BLOB_READ_WRITE_TOKEN, se usará almacenamiento local en var/productos.local.json');
 }
 
 // Usuarios de ejemplo (ahora por env)
@@ -177,8 +178,10 @@ app.post('/login', (req, res) => {
     const user = users.find(u => u.username === username && u.password === password);
     if (user) {
         req.session.user = user.username;
+        console.log(`[Auth] Login OK para ${user.username}`);
         return res.redirect('/admindashboard');
     }
+    console.warn(`[Auth] Login fallido para ${username}`);
     res.redirect('/login?error=1');
 });
 

@@ -6,16 +6,10 @@ const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
 const BLOB_PREFIX = process.env.BLOB_PREFIX || 'db/';
 const BLOB_KEY = process.env.BLOB_PRODUCTS_KEY || 'productos.json';
 const BLOB_PATH = `${BLOB_PREFIX}${BLOB_KEY}`;
+const useBlob = Boolean(BLOB_TOKEN);
 
-if (!BLOB_TOKEN) {
-  console.warn('[DB] Falta BLOB_READ_WRITE_TOKEN, no se podrán persistir productos en Vercel Blob.');
-}
-
-function ensureToken() {
-  if (!BLOB_TOKEN) {
-    throw new Error('BLOB_READ_WRITE_TOKEN no definido');
-  }
-}
+const localStorePath = process.env.LOCAL_STORE_PATH || path.join(__dirname, 'var', 'productos.local.json');
+const seedPath = path.join(__dirname, 'public', 'assets', 'json', 'productos.json');
 
 const normalizeProducto = (p) => ({
   id: Number(p.id),
@@ -30,37 +24,47 @@ const normalizeProducto = (p) => ({
 });
 
 async function getBlobUrl() {
-  ensureToken();
+  if (!useBlob) return null;
   const { blobs } = await list({ prefix: BLOB_PATH, token: BLOB_TOKEN });
   const exact = blobs?.find(b => b.pathname === BLOB_PATH);
   return (exact || blobs?.[0])?.url || null;
 }
 
 async function readProductos() {
-  ensureToken();
-  const url = await getBlobUrl();
-  if (!url) return null;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Blob fetch status ${res.status}`);
-  return res.json();
+  if (useBlob) {
+    const url = await getBlobUrl();
+    if (!url) return null;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Blob fetch status ${res.status}`);
+    return res.json();
+  }
+
+  if (fs.existsSync(localStorePath)) {
+    return JSON.parse(fs.readFileSync(localStorePath, 'utf-8'));
+  }
+  return null;
 }
 
 async function writeProductos(productos) {
-  ensureToken();
-  await put(BLOB_PATH, JSON.stringify(productos, null, 2), {
-    access: 'public',
-    contentType: 'application/json',
-    token: BLOB_TOKEN,
-    addRandomSuffix: false
-  });
+  if (useBlob) {
+    await put(BLOB_PATH, JSON.stringify(productos, null, 2), {
+      access: 'public',
+      contentType: 'application/json',
+      token: BLOB_TOKEN,
+      addRandomSuffix: false
+    });
+    return;
+  }
+
+  fs.mkdirSync(path.dirname(localStorePath), { recursive: true });
+  fs.writeFileSync(localStorePath, JSON.stringify(productos, null, 2));
 }
 
 async function seedFromFile() {
-  const seedPath = path.join(__dirname, 'public', 'assets', 'json', 'productos.json');
   if (!fs.existsSync(seedPath)) return [];
   try {
     const seed = JSON.parse(fs.readFileSync(seedPath, 'utf-8'));
-    console.log(`[DB] Sembrando Blob con ${seed.length} productos iniciales`);
+    console.log(`[DB] Sembrando almacenamiento con ${seed.length} productos iniciales`);
     await writeProductos(seed);
     return seed;
   } catch (err) {
@@ -73,13 +77,21 @@ async function initDb() {
   try {
     const existing = await readProductos();
     if (existing) {
-      console.log(`[DB] Conectado a Blob y datos existentes encontrados (${existing.length}) en ${BLOB_PATH}`);
+      if (useBlob) {
+        console.log(`[DB] Conectado a Blob y datos existentes encontrados (${existing.length}) en ${BLOB_PATH}`);
+      } else {
+        console.log(`[DB] Con almacenamiento local en ${localStorePath} con ${existing.length} productos`);
+      }
       return;
     }
     await seedFromFile();
-    console.log(`[DB] Conectado a Blob y base inicial creada en ${BLOB_PATH}`);
+    if (useBlob) {
+      console.log(`[DB] Conectado a Blob y base inicial creada en ${BLOB_PATH}`);
+    } else {
+      console.log(`[DB] Base local inicial creada en ${localStorePath}`);
+    }
   } catch (err) {
-    console.error('[DB] Error inicializando Blob store', err);
+    console.error('[DB] Error inicializando almacenamiento', err);
     throw err;
   }
 }
