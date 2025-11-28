@@ -36,6 +36,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- Safari iOS -->
 </head>
 <body>
+        <!-- Intro / Loading -->
+    <div id="intro-overlay" aria-hidden="true">
+        <div class="intro-logo">
+            <img src="./assets/img/logo.png" alt="Supertec logo">
+            <p>SuperTec</p>
+        </div>
+    </div>
         <!-- Fondo dinámico -->
     <div class="background-container">
         <img id="bgImage" src="assets/img/fondos/fondo1.jpg" alt="Background">
@@ -44,7 +51,7 @@
     <header>
         <nav>
             <a href="./">
-                <img src="./assets/img/logo.png" alt="Supertec Logo" style="height:3rem;">
+                <img id="nav-logo" src="./assets/img/logo.png" alt="Supertec Logo" style="height:3rem;">
             </a>
 
             <!-- Botón hamburguesa -->
@@ -228,6 +235,57 @@
 
     <script src="./assets/js/background.js"></script>
     <script src="./assets/js/demoproductos.js" defer></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const overlay = document.getElementById('intro-overlay');
+        const DEBUG_ALWAYS_SHOW = Number(localStorage.getItem('supertec_intro_debug') || 0) === 1;
+        const LAST_KEY = 'supertec_intro_seen_at';
+        const TEN_MIN_MS = 10 * 60 * 1000;
+        const last = Number(localStorage.getItem(LAST_KEY) || 0);
+        const shouldShow = DEBUG_ALWAYS_SHOW || !last || (Date.now() - last) > TEN_MIN_MS;
+        const navLogo = document.getElementById('nav-logo');
+        const introImg = overlay ? overlay.querySelector('img') : null;
+
+        if (!overlay) return;
+
+        if (!shouldShow) {
+            overlay.remove();
+            return;
+        }
+
+        overlay.classList.add('show');
+        document.body.classList.add('intro-active');
+
+        // Marcar tiempo tras finalizar animación (salida)
+        const finish = () => {
+            overlay.classList.add('hide');
+            document.body.classList.remove('intro-active');
+            setTimeout(() => overlay.remove(), 600);
+            if (!DEBUG_ALWAYS_SHOW) {
+                localStorage.setItem(LAST_KEY, Date.now().toString());
+            }
+        };
+
+        const animateToNav = () => {
+            if (!navLogo || !introImg) return finish();
+            const navRect = navLogo.getBoundingClientRect();
+            const introRect = introImg.getBoundingClientRect();
+            const dx = (navRect.left + navRect.width / 2) - (introRect.left + introRect.width / 2);
+            const dy = (navRect.top + navRect.height / 2) - (introRect.top + introRect.height / 2);
+            const scale = (navRect.width || 1) / (introRect.width || 1);
+            introImg.style.transition = 'transform 0.7s ease, opacity 0.7s ease';
+            introImg.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+            // Ocultar texto durante el vuelo
+            const introText = overlay.querySelector('.intro-logo p');
+            if (introText) introText.style.transition = 'opacity 0.4s ease'; 
+            if (introText) introText.style.opacity = '0';
+            setTimeout(finish, 700);
+        };
+
+        // Mostrar overlay 4s antes de volar el logo al navbar
+        setTimeout(animateToNav, 700);
+    });
+    </script>
 
 </body>
 </html>

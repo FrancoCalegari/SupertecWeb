@@ -20,11 +20,88 @@
   --color-blanco: #ffffff;
 }
 
+/* Intro / loading */
+#intro-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0e0f10;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+}
+
+#intro-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+#intro-overlay.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#intro-overlay .intro-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    animation: pop-in 0.8s ease forwards;
+    position: relative;
+}
+
+#intro-overlay img {
+    width: 120px;
+    height: auto;
+    opacity: 0;
+    animation: fade-slide 0.9s ease forwards;
+    will-change: transform, opacity;
+}
+
+#intro-overlay p {
+    font-size: 1.4rem;
+    color: var(--color-claro);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fade-up 0.8s ease forwards 0.4s;
+}
+
+@keyframes fade-slide {
+    0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fade-up {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pop-in {
+    0% { transform: scale(0.96); }
+    100% { transform: scale(1); }
+}
+
 /* ====== Fondo ====== */
 body {
     background-color: var(--color-oscuro-trasparent);
     color: var(--color-claro);
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Evitar scroll/flash mientras está la intro */
+body.intro-active {
+    overflow: hidden;
+}
+
+body.intro-active header,
+body.intro-active main,
+body.intro-active section,
+body.intro-active footer {
+    filter: blur(3px);
 }
 
 html {
