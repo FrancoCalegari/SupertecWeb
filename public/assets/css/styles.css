@@ -31,7 +31,7 @@
     z-index: 9999;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.6s ease;
+    transition: opacity 0.6s ease, background-color 0.6s ease;
 }
 
 #intro-overlay.show {
@@ -40,7 +40,7 @@
 }
 
 #intro-overlay.hide {
-    opacity: 0;
+    background-color: transparent;
     pointer-events: none;
 }
 
@@ -254,96 +254,137 @@ nav ul li a:focus {
 
 
 /* ====== Hero Section ====== */
-.tagline {
-    margin-top: 100px;
-}
-
 #hero {
+    position: relative;
+    width: 100%;
+    height: 100vh; /* Ocupa toda la pantalla */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Capa 3: Carrusel de Fondo */
+.hero-carousel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.hero-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    animation: slideShow 20s infinite;
+}
+
+/* Animación del carrusel (4 imágenes) */
+.hero-slide:nth-child(1) { animation-delay: 0s; }
+.hero-slide:nth-child(2) { animation-delay: 4s; }
+.hero-slide:nth-child(3) { animation-delay: 8s; }
+
+@keyframes slideShow {
+    0% { opacity: 0; transform: scale(1); }
+    5% { opacity: 1; }
+    25% { opacity: 1; }
+    30% { opacity: 0; transform: scale(1.1); }
+    100% { opacity: 0; }
+}
+
+/* Capa 2: Blur Overlay */
+.hero-blur {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.5); /* Oscurecer un poco */
+}
+
+/* Capa 1: Contenido */
+.hero-content {
+    position: relative;
+    z-index: 3;
     text-align: center;
-    padding: 8rem 2rem 1rem 2rem;
+    width: 100%;
 }
 
-#hero h1 {
-    font-size: 2.5rem;
-    color: var(--color-rojo);
-    margin-bottom: 1.5rem;
-}
-
-#hero .tagtext {
-    max-width: 800px;
-    margin: auto;
-    font-size: 1.2rem;
-    
-}
-/*logo div*/
+/* Logo Reveal Animation */
 #logo {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    gap: 0.2rem;
-    font-size: 2.5rem;
+    justify-content: center;
     margin-bottom: 2rem;
-    font-family: 'SupertecFont';
-    position: relative;
-    overflow: hidden;
 }
 
-#logo .textlogo {
-    display: flex;
-    gap: 0.2rem;
-    align-items: center;
-    text-transform: uppercase;
-    position: relative;
-    width: 100%;
-    justify-content: center;
-}
-
-#logo #p1,
-#logo #p2 {
+.logo-reveal {
+    overflow: hidden; /* Clave para el efecto de aparecer desde abajo */
     display: inline-block;
-    opacity: 0;
-    transform: translateX(0);
-    animation: logoJoin 1.2s cubic-bezier(.7,.2,.3,1) forwards;
 }
 
-#logo #p1 {
-    color: var(--color-claro);
-    font-weight: bold;
-    letter-spacing: 1px;
-    animation-delay: 0.1s;
-    transform: translateX(-120px);
+.hero-logo-img {
+    height: 180px; /* Ajusta tamaño según necesites */
+    width: auto;
+    transform: translateY(100%); /* Inicialmente oculto abajo */
+    animation: slideUpLogo 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    animation-delay: 0.5s; /* Espera un poco tras cargar */
 }
 
-#logo #p2 {
-    color: var(--color-rojo);
-    font-weight: bold;
-    letter-spacing: 1px;
-    animation-delay: 0.3s;
-    transform: translateX(120px);
-}
-
-@keyframes logoJoin {
-    0% {
-        opacity: 0;
-    }
-    40% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 1;
-        transform: translateX(0);
-    }
+@keyframes slideUpLogo {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 #logo .logoSubtext {
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: var(--color-claro);
-    margin-top: 0.3rem;
+    margin-top: 1rem;
     font-weight: 500;
-    letter-spacing: 0.5px;
-    text-align: center;
-    font-family: sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeInSubtext 1s ease forwards 1.5s;
+}
+
+@keyframes fadeInSubtext {
+    to { opacity: 1; }
+}
+
+/* Hero Button */
+.hero-btn {
+    margin-top: 2rem;
+    opacity: 0;
+    font-size: 1.1rem;
+    padding: 1rem 2rem;
+    background: var(--color-rojo);
+    color: var(--color-blanco);
+    border: 2px solid var(--color-rojo);
+    box-shadow: 0 0 10px rgba(251, 56, 58, 0.3);
+    animation: fadeInBtn 1s ease forwards 2s; /* Aparece después del texto */
+    transition: all 0.3s ease;
+}
+
+.hero-btn:hover {
+    background: transparent;
+    color: var(--color-rojo);
+    box-shadow: 0 0 20px rgba(251, 56, 58, 0.6), inset 0 0 10px rgba(251, 56, 58, 0.2);
+    transform: translateY(-2px);
+}
+
+@keyframes fadeInBtn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* ====== Servicios ====== */

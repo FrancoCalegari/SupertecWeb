@@ -39,7 +39,7 @@
         <!-- Intro / Loading -->
     <div id="intro-overlay" aria-hidden="true">
         <div class="intro-logo">
-            <img src="./assets/img/logo.png" alt="Supertec logo">
+            <img src="./assets/img/hero-logo.png" id="intro-logo" alt="Supertec logo">
             <p>SuperTec</p>
         </div>
     </div>
@@ -72,15 +72,27 @@
 
     <!-- Hero Section -->
      
-    <section id="hero" >
-        <div id="logo">
-            <div class="textlogo">
-                <p id="p1">super</p>
-                <p id="p2">tec</p>
-            </div>
-            <p class="logoSubtext"> Servicio Tecnico - Ventas</p>
+    <section id="hero">
+        <!-- Capa 3: Carrusel de fondo -->
+        <div class="hero-carousel">
+            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto1.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto2.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto3.jpg');"></div>
         </div>
-       
+
+        <!-- Capa 2: Efecto Blur -->
+        <div class="hero-blur"></div>
+
+        <!-- Capa 1: Contenido -->
+        <div class="hero-content">
+            <div id="logo">
+                <div class="logo-reveal">
+                    <img src="./assets/img/hero-logo.png" alt="Supertec Logo" class="hero-logo-img">
+                </div>
+                <p class="logoSubtext"> Servicio Tecnico - Ventas</p>
+            </div>
+            
+        </div>
     </section>
 
 
@@ -89,6 +101,7 @@
         <div class="ofertas-header">
             <h2>Nuestras Ofertas</h2>
             <p>Aprovecha los mejores descuentos en tecnología y gaming.</p>
+            <a href="#" class="btn hero-btn" target="_blank">Ir a TiendaNube</a>
             <!-- <a href="./tienda" class="tienda-btn">Ver todas las ofertas</a> -->
         </div>
 
@@ -238,13 +251,14 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const overlay = document.getElementById('intro-overlay');
-        const DEBUG_ALWAYS_SHOW = Number(localStorage.getItem('supertec_intro_debug') || 0) === 1;
+        const debugVal = localStorage.getItem('supertec_intro_debug');
+        const DEBUG_ALWAYS_SHOW = debugVal === 'true' || debugVal === '1';
         const LAST_KEY = 'supertec_intro_seen_at';
         const TEN_MIN_MS = 10 * 60 * 1000;
         const last = Number(localStorage.getItem(LAST_KEY) || 0);
         const shouldShow = DEBUG_ALWAYS_SHOW || !last || (Date.now() - last) > TEN_MIN_MS;
         const navLogo = document.getElementById('nav-logo');
-        const introImg = overlay ? overlay.querySelector('img') : null;
+        const introImg = document.getElementById('intro-logo'); // Usar el ID específico
 
         if (!overlay) return;
 
@@ -253,37 +267,57 @@
             return;
         }
 
+        // Si se muestra la intro, ocultamos el logo del navbar inicialmente
+        if (navLogo) navLogo.style.opacity = '0';
+
         overlay.classList.add('show');
         document.body.classList.add('intro-active');
 
-        // Marcar tiempo tras finalizar animación (salida)
+        // Función final para limpiar
         const finish = () => {
-            overlay.classList.add('hide');
+            if (navLogo) navLogo.style.opacity = '1'; // Asegurar que se vea al final
+            overlay.remove();
             document.body.classList.remove('intro-active');
-            setTimeout(() => overlay.remove(), 600);
             if (!DEBUG_ALWAYS_SHOW) {
                 localStorage.setItem(LAST_KEY, Date.now().toString());
             }
         };
 
-        const animateToNav = () => {
+        const startAnimationSequence = () => {
             if (!navLogo || !introImg) return finish();
-            const navRect = navLogo.getBoundingClientRect();
-            const introRect = introImg.getBoundingClientRect();
-            const dx = (navRect.left + navRect.width / 2) - (introRect.left + introRect.width / 2);
-            const dy = (navRect.top + navRect.height / 2) - (introRect.top + introRect.height / 2);
-            const scale = (navRect.width || 1) / (introRect.width || 1);
-            introImg.style.transition = 'transform 0.7s ease, opacity 0.7s ease';
-            introImg.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-            // Ocultar texto durante el vuelo
-            const introText = overlay.querySelector('.intro-logo p');
-            if (introText) introText.style.transition = 'opacity 0.4s ease'; 
-            if (introText) introText.style.opacity = '0';
-            setTimeout(finish, 700);
+
+            // 1. A los 3 segundos: Desvanecer texto
+            setTimeout(() => {
+                const introText = overlay.querySelector('.intro-logo p');
+                if (introText) {
+                    introText.style.transition = 'opacity 0.6s ease'; 
+                    introText.style.opacity = '0';
+                }
+
+                // 2. Poco después (3.6s): Iniciar vuelo
+                setTimeout(() => {
+                    const navRect = navLogo.getBoundingClientRect();
+                    const introRect = introImg.getBoundingClientRect();
+                    const dx = (navRect.left + navRect.width / 2) - (introRect.left + introRect.width / 2);
+                    const dy = (navRect.top + navRect.height / 2) - (introRect.top + introRect.height / 2);
+                    const scale = (navRect.width || 1) / (introRect.width || 1);
+
+                    overlay.classList.add('hide'); // Fondo transparente
+                    
+                    // Asegurar Z-Index y posición
+                    introImg.style.position = 'relative'; 
+                    introImg.style.zIndex = '1200';
+                    introImg.style.transition = 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease';
+                    introImg.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+                    
+                    // 3. Al terminar el vuelo (3.6s + 0.8s = 4.4s aprox): Mostrar logo nav y limpiar
+                    setTimeout(finish, 800);
+
+                }, 600); // Espera 600ms tras iniciar fade de texto
+            }, 3000);
         };
 
-        // Mostrar overlay 4s antes de volar el logo al navbar
-        setTimeout(animateToNav, 700);
+        startAnimationSequence();
     });
     </script>
 
