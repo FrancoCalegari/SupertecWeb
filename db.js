@@ -99,43 +99,99 @@ async function initDb() {
 async function listProductos() {
   const productos = await readProductos();
   if (!productos) return [];
-  return productos.map(normalizeProducto);
+  return productos;
 }
 
-async function upsertProducto(producto) {
-  let productos = await readProductos();
-  if (!productos) productos = await seedFromFile();
-
-  if (producto.id) {
-    const idx = productos.findIndex(p => Number(p.id) === Number(producto.id));
-    if (idx !== -1) {
-      productos[idx] = normalizeProducto({ ...productos[idx], ...producto });
+async function upsertProducto(p) {
+  const productos = await readProductos() || [];
+  let nuevo;
+  
+  if (p.id) {
+    const idx = productos.findIndex(x => x.id === p.id);
+    if (idx >= 0) {
+      productos[idx] = { ...productos[idx], ...normalizeProducto(p), id: p.id };
+      nuevo = productos[idx];
     } else {
-      productos.push(normalizeProducto(producto));
+      nuevo = normalizeProducto(p);
+      productos.push(nuevo);
     }
   } else {
-    const nextId = productos.length ? Math.max(...productos.map(p => Number(p.id))) + 1 : 1;
-    productos.push(normalizeProducto({ ...producto, id: nextId }));
-    producto.id = nextId;
+    const maxId = productos.reduce((max, item) => Math.max(max, item.id), 0);
+    nuevo = normalizeProducto({ ...p, id: maxId + 1 });
+    productos.push(nuevo);
   }
 
   await writeProductos(productos);
-  return normalizeProducto(producto);
+  return nuevo;
 }
 
 async function deleteProductoById(id) {
-  let productos = await readProductos();
-  if (!productos) productos = [];
-  const before = productos.length;
-  productos = productos.filter(p => Number(p.id) !== Number(id));
-  if (productos.length === before) return false;
-  await writeProductos(productos);
-  return true;
+  let productos = await readProductos() || [];
+  const initLen = productos.length;
+  productos = productos.filter(p => p.id !== id);
+  
+  if (productos.length !== initLen) {
+    await writeProductos(productos);
+    return true;
+  }
+  return false;
+}
+
+// --- Horarios Logic ---
+const BLOB_HORARIOS_KEY = process.env.BLOB_HORARIOS_KEY || 'horarios.json';
+const BLOB_HORARIOS_PATH = `${BLOB_PREFIX}${BLOB_HORARIOS_KEY}`;
+const localHorariosPath = path.join(__dirname, 'var', 'horarios.json');
+
+const DEFAULT_HORARIOS = [
+    { day: "Lunes", open: "10:00", close: "18:00", closed: false },
+    { day: "Martes", open: "10:00", "close": "18:00", closed: false },
+    { day: "Miércoles", open: "10:00", "close": "18:00", closed: false },
+    { day: "Jueves", open: "10:00", "close": "18:00", closed: false },
+    { day: "Viernes", open: "10:00", "close": "18:00", closed: false },
+    { day: "Sábado", open: "", "close": "", closed: true },
+    { day: "Domingo", open: "", "close": "", closed: true }
+];
+
+async function readHorarios() {
+  if (useBlob) {
+    const { blobs } = await list({ prefix: BLOB_HORARIOS_PATH, token: BLOB_TOKEN });
+    const exact = blobs?.find(b => b.pathname === BLOB_HORARIOS_PATH);
+    const url = (exact || blobs?.[0])?.url;
+    
+    if (!url) return DEFAULT_HORARIOS;
+    
+    const res = await fetch(url);
+    if (!res.ok) return DEFAULT_HORARIOS;
+    return res.json();
+  }
+
+  if (fs.existsSync(localHorariosPath)) {
+    return JSON.parse(fs.readFileSync(localHorariosPath, 'utf-8'));
+  }
+  return DEFAULT_HORARIOS;
+}
+
+async function writeHorarios(horarios) {
+  if (useBlob) {
+    await put(BLOB_HORARIOS_PATH, JSON.stringify(horarios, null, 2), {
+      access: 'public',
+      contentType: 'application/json',
+      token: BLOB_TOKEN,
+      addRandomSuffix: false
+    });
+    return;
+  }
+
+  fs.mkdirSync(path.dirname(localHorariosPath), { recursive: true });
+  fs.writeFileSync(localHorariosPath, JSON.stringify(horarios, null, 2));
 }
 
 module.exports = {
   initDb,
   listProductos,
   upsertProducto,
-  deleteProductoById
+  deleteProductoById,
+  readHorarios,
+  writeHorarios
 };
+

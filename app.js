@@ -8,7 +8,9 @@ const {
   listProductos,
   upsertProducto,
   deleteProductoById,
-  initDb
+  initDb,
+  readHorarios,
+  writeHorarios
 } = require('./db');
 
 const app = express();
@@ -73,34 +75,26 @@ app.get('/api/productos', async (req, res) => {
 });
 
 // Rutas Horarios
-const HORARIOS_FILE = path.join(__dirname, 'var', 'horarios.json');
 
 // GET Horarios
-app.get('/api/horarios', (req, res) => {
-    if (fs.existsSync(HORARIOS_FILE)) {
-        res.sendFile(HORARIOS_FILE);
-    } else {
-        // Default si no existe
-        res.json([
-            { day: "Lunes", open: "10:00", close: "18:00", closed: false },
-            { day: "Martes", open: "10:00", "close": "18:00", closed: false },
-            { day: "Miércoles", open: "10:00", "close": "18:00", closed: false },
-            { day: "Jueves", open: "10:00", "close": "18:00", closed: false },
-            { day: "Viernes", open: "10:00", "close": "18:00", closed: false },
-            { day: "Sábado", open: "", "close": "", closed: true },
-            { day: "Domingo", open: "", "close": "", closed: true }
-        ]);
+app.get('/api/horarios', async (req, res) => {
+    try {
+        const horarios = await readHorarios();
+        res.json(horarios);
+    } catch (err) {
+        console.error('Error leyendo horarios', err);
+        res.status(500).json({ error: 'Error interno' });
     }
 });
 
 // POST Horarios (Protegido)
-app.post('/api/horarios', isAuthenticated, (req, res) => {
+app.post('/api/horarios', isAuthenticated, async (req, res) => {
     try {
         const newHorarios = req.body; // Array de objetos
         if (!Array.isArray(newHorarios)) {
             return res.status(400).json({ error: 'Formato inválido' });
         }
-        fs.writeFileSync(HORARIOS_FILE, JSON.stringify(newHorarios, null, 2));
+        await writeHorarios(newHorarios);
         res.json({ ok: true });
     } catch (err) {
         console.error('Error guardando horarios', err);
