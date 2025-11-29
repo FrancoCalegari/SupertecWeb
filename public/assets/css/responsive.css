@@ -63,7 +63,7 @@
         object-fit: contain;
     }
 
-    #logo .logoSubtext {
+    h1.logoSubtext {
         font-size: 0.9rem;
     }
 
@@ -101,7 +101,7 @@
         height: 100%;
         object-fit: contain;
     }
-    #logo .logoSubtext {
+    h1.logoSubtext {
         font-size: 1rem;
     }
 
@@ -170,7 +170,7 @@
     }
 
     #hero h1 {
-        font-size: 2.3rem;
+        font-size: 1.3rem;
     }
 
     .card-services .brand-logos img {

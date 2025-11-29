@@ -12,18 +12,18 @@
     
     <meta name="robots" content="index, follow">
     
-    <link rel="canonical" href="https://www.tusitioweb.com/index.html">
+    <link rel="canonical" href="https://supertec-web.vercel.app/index.html">
     
     <meta property="og:title" content="Supertec - Servicio Técnico de Consolas y PC">
     <meta property="og:description" content="Servicio técnico profesional en Mendoza para consolas, PC, laptops, celulares y tablets. ¡Encuentra la solución a tus problemas tecnológicos!">
-    <meta property="og:image" content="https://www.tusitioweb.com/assets/img/imagen-og.jpg">
-    <meta property="og:url" content="https://www.tusitioweb.com/">
+    <meta property="og:image" content="https://supertec-web.vercel.app/assets/img/linkphoto.png">
+    <meta property="og:url" content="https://supertec-web.vercel.app/index.html">
     <meta property="og:type" content="website">
     
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Supertec - Servicio Técnico de Consolas y PC">
     <meta name="twitter:description" content="Servicio técnico profesional en Mendoza para consolas, PC, laptops, celulares y tablets. ¡Encuentra la solución a tus problemas tecnológicos!">
-    <meta name="twitter:image" content="https://www.tusitioweb.com/assets/img/imagen-twitter.jpg">
+    <meta name="twitter:image" content="https://supertec-web.vercel.app/assets/img/linkphoto.png">
     
     <link rel="icon" type="image/png" href="assets/img/logo.png">
     
@@ -34,17 +34,52 @@
     <meta name="theme-color" content="#fb383a"> <!-- Chrome, Android -->
     <meta name="msapplication-navbutton-color" content="#fb383a"> <!-- IE, Edge -->
     <meta name="apple-mobile-web-app-status-bar-style" content="#fb383a"> <!-- Safari iOS -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Supertec",
+      "image": "https://supertec-web.vercel.app/assets/img/logo.png",
+      "description": "Servicio técnico profesional en Mendoza para consolas, PC, laptops, celulares y tablets.",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Brasil 341 Local 4",
+        "addressLocality": "Godoy Cruz",
+        "addressRegion": "Mendoza",
+        "postalCode": "M5501",
+        "addressCountry": "AR"
+      },
+      "telephone": "+5492615031101",
+      "url": "https://supertec-web.vercel.app/",
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday"
+        ],
+        "opens": "09:00",
+        "closes": "18:00"
+      },
+      "sameAs": [
+        "https://www.facebook.com/profile.php?id=100003893068135",
+        "https://www.instagram.com/supertecmza/"
+      ]
+    }
+    </script>
 </head>
 <body>
         <!-- Fondo dinámico -->
     <div class="background-container">
-        <img id="bgImage" src="assets/img/fondos/fondo1.jpg" alt="Background">
+        <img id="bgImage" src="assets/img/fondos/fondo1.jpg" alt="Fondo tecnológico Supertec">
         <div class="bg-overlay"></div>
     </div>
     <header>
         <nav>
             <a href="./">
-                <img id="nav-logo" src="./assets/img/logo.png" alt="Supertec Logo" style="height:3rem;">
+                <img id="nav-logo" src="./assets/img/logo.png" alt="Supertec Logo - Servicio Técnico Mendoza" style="height:3rem;">
             </a>
 
             <!-- Botón hamburguesa -->
@@ -68,9 +103,9 @@
     <section id="hero">
         <!-- Capa 3: Carrusel de fondo -->
         <div class="hero-carousel">
-            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto1.webp');"></div>
-            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto2.webp');"></div>
-            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto3.webp');"></div>
+            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto1.webp');" role="img" aria-label="Interior del local Supertec - Área de atención"></div>
+            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto2.webp');" role="img" aria-label="Taller de reparación de consolas y PC"></div>
+            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto3.webp');" role="img" aria-label="Exhibición de productos gaming en Mendoza"></div>
         </div>
 
         <!-- Capa 2: Efecto Blur -->
@@ -80,9 +115,9 @@
         <div class="hero-content">
             <div id="logo">
                 <div class="logo-reveal">
-                    <img src="./assets/img/hero-logo.png" alt="Supertec Logo" class="hero-logo-img">
+                    <img src="./assets/img/hero-logo.png" alt="Supertec Logo Grande" class="hero-logo-img">
                 </div>
-                <p class="logoSubtext"> Servicio Tecnico - Ventas</p>
+                <h1 class="logoSubtext"> Servicio Tecnico - Ventas</h1>
             </div>
             
         </div>
@@ -207,6 +242,19 @@
     </section>
 
 <!-- Footer Section -->
+    <!-- Horarios Section -->
+    <section id="horarios">
+        <div class="horarios-container">
+            <h2>Nuestros Horarios</h2>
+            <div id="status-container">
+                <!-- Se llena dinámicamente con JS -->
+            </div>
+            <div class="schedule-grid">
+                <!-- Se llena dinámicamente con JS -->
+            </div>
+        </div>
+    </section>
+
     <!-- Ubicacion Section -->
     <section id="ubicacion">
         <div class="ubicacion-container">
@@ -272,6 +320,7 @@
 
     <script src="./assets/js/background.js"></script>
     <script src="./assets/js/demoproductos.js" defer></script>
+    <script src="./assets/js/hours.js" defer></script>
 
 </body>
 </html>

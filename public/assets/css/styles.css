@@ -265,7 +265,7 @@ nav ul li a:focus {
     animation-delay: 0.2s;
 }
 
-#logo .logoSubtext {
+h1.logoSubtext {
     font-size: 1.2rem;
     color: var(--color-claro);
     margin-top: 1rem;
@@ -276,6 +276,7 @@ nav ul li a:focus {
     transform: scale(0);
     animation: zoomIn 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     animation-delay: 0.8s; /* Aparece después del logo */
+    margin-bottom: 0; /* Reset default h1 margin */
 }
 
 @keyframes zoomIn {
@@ -452,6 +453,93 @@ nav ul li a:focus {
     cursor: pointer;
     color: var(--color-oscuro);
     margin-bottom: 0.5rem;
+}
+
+/* ====== Horarios Section ====== */
+#horarios {
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.horarios-container {
+    max-width: 800px;
+    margin: auto;
+    background: var(--color-oscuro-trasparent);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+#horarios h2 {
+    color: var(--color-rojo);
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+#status-container {
+    margin-bottom: 2rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.status-open {
+    color: #25d366;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(37, 211, 102, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    border: 1px solid #25d366;
+}
+
+.status-closed {
+    color: var(--color-rojo);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(251, 56, 58, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    border: 1px solid var(--color-rojo);
+}
+
+.status-closed a {
+    color: var(--color-claro);
+    text-decoration: underline;
+    font-weight: normal;
+}
+
+.schedule-grid {
+    display: grid;
+    gap: 0.8rem;
+    text-align: left;
+}
+
+.schedule-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.8rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.schedule-item:last-child {
+    border-bottom: none;
+}
+
+.schedule-item .day {
+    font-weight: bold;
+    color: var(--color-claro);
+}
+
+.schedule-item .time {
+    color: #aaa;
+}
+
+.schedule-item.closed .time {
+    color: var(--color-rojo);
 }
 
 /* ====== Ubicacion Section ====== */

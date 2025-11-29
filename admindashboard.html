@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Admin Dashboard - Productos</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="assets/img/logo.png">
 <style>
 * { box-sizing: border-box; }
 body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f8; }
@@ -156,9 +157,21 @@ table, thead, tbody, th, td, tr {
     flex-direction: column;
     gap: 0.5rem;
   }
+  .modal-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 
+/* Tabs */
+.tabs { display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #ddd; padding-bottom: 0.5rem; }
+.tab-btn { background: none; border: none; font-size: 1.1rem; padding: 0.5rem 1rem; cursor: pointer; color: #555; font-weight: 600; border-bottom: 3px solid transparent; transition: all 0.3s; }
+.tab-btn:hover { color: #000; }
+.tab-btn.active { color: #007bff; border-bottom-color: #007bff; }
+.tab-content { display: none; animation: fadeIn 0.3s ease; }
+.tab-content.active { display: block; }
 
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
 </head>
 <body>
@@ -178,24 +191,48 @@ table, thead, tbody, th, td, tr {
 </div>
 
 <div class="container">
-    <button class="add-btn" onclick="showForm()">Agregar Producto</button>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Imagen</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Precio</th>
-                <th>Categoría</th>
-                <th>Stock</th>
-                <th>Marca</th>
-                <th>Modelo</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="productsTable"></tbody>
-    </table>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('tab-productos')">Productos</button>
+        <button class="tab-btn" onclick="openTab('tab-horarios')">Horarios</button>
+    </div>
+
+    <!-- Tab Productos -->
+    <div id="tab-productos" class="tab-content active">
+        <button class="add-btn" onclick="showForm()">Agregar Producto</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="productsTable"></tbody>
+        </table>
+    </div>
+    </div>
+
+    <!-- Tab Horarios -->
+    <div id="tab-horarios" class="tab-content">
+        <div style="background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px #0001; max-width: 600px; margin: auto;">
+            <h3>Gestionar Horarios de Atención</h3>
+            <form id="horariosForm" onsubmit="saveHorarios(event)">
+                <div id="horariosList" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <!-- Se llena con JS -->
+                </div>
+                <div class="modal-actions" style="margin-top: 1.5rem; justify-content: flex-end;">
+                    <button type="submit" class="save-btn">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- Modal -->
@@ -397,6 +434,95 @@ async function deleteProduct(id) {
 
 // Inicializar tabla
 loadProductos();
+
+// --- Tabs Logic ---
+function openTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+
+    if (tabId === 'tab-horarios') {
+        loadHorarios();
+    }
+}
+
+// --- Lógica de Horarios ---
+let horarios = [];
+
+async function loadHorarios() {
+    try {
+        const res = await fetch('/api/horarios');
+        horarios = await res.json();
+        renderHorariosForm();
+    } catch (err) {
+        alert('Error cargando horarios');
+    }
+}
+
+function renderHorariosForm() {
+    const container = document.getElementById('horariosList');
+    container.innerHTML = '';
+    
+    horarios.forEach((h, index) => {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.gap = '0.5rem';
+        div.style.padding = '0.5rem';
+        div.style.background = '#f9f9f9';
+        div.style.borderRadius = '4px';
+        
+        div.innerHTML = `
+            <span style="width: 80px; font-weight: bold;">${h.day}</span>
+            <label style="display: flex; align-items: center; gap: 0.3rem; margin: 0;">
+                <input type="checkbox" ${h.closed ? 'checked' : ''} onchange="toggleClosed(${index}, this.checked)"> Cerrado
+            </label>
+            <input type="time" value="${h.open}" ${h.closed ? 'disabled' : ''} id="open-${index}" style="width: auto;">
+            <span>a</span>
+            <input type="time" value="${h.close}" ${h.closed ? 'disabled' : ''} id="close-${index}" style="width: auto;">
+        `;
+        container.appendChild(div);
+    });
+}
+
+function toggleClosed(index, isClosed) {
+    const openInput = document.getElementById(`open-${index}`);
+    const closeInput = document.getElementById(`close-${index}`);
+    openInput.disabled = isClosed;
+    closeInput.disabled = isClosed;
+    horarios[index].closed = isClosed;
+}
+
+async function saveHorarios(e) {
+    e.preventDefault();
+    
+    // Actualizar array con valores de inputs
+    horarios.forEach((h, index) => {
+        if (!h.closed) {
+            h.open = document.getElementById(`open-${index}`).value;
+            h.close = document.getElementById(`close-${index}`).value;
+        }
+    });
+
+    try {
+        const res = await fetch('/api/horarios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(horarios)
+        });
+        
+        if (res.ok) {
+            alert('Horarios guardados correctamente');
+        } else {
+            alert('Error al guardar');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Error de conexión');
+    }
+}
 </script>
 </body>
 </html>

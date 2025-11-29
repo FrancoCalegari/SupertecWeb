@@ -4,76 +4,112 @@
     <meta charset="UTF-8">
     <title>Login - SupertecWeb</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/img/logo.png">
     <style>
         *{ box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #007bff, #00c6ff);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0e0f10;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            position: relative;
+            overflow: hidden;
         }
+        
+        /* Fondo con imagen y overlay igual que el home */
+        .bg-image {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('assets/img/fondos/fondo1.jpg') no-repeat center center/cover;
+            z-index: -2;
+        }
+        .bg-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
+
         .login-container {
-            width: 320px;
+            width: 350px;
             padding: 40px 30px;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            animation: fadeIn 0.6s ease-in-out;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            animation: fadeIn 0.8s ease-out;
+            text-align: center;
         }
         .login-container h2 {
-            text-align: center;
             margin-bottom: 25px;
-            color: #007bff;
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: 1px;
         }
         .login-container input {
             width: 100%;
             padding: 12px;
             margin: 10px 0;
-            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 6px;
             font-size: 14px;
+            color: #fff;
             transition: all 0.3s ease;
         }
+        .login-container input::placeholder {
+            color: #aaa;
+        }
         .login-container input:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 6px rgba(0,123,255,0.3);
+            border-color: #fb383a;
+            box-shadow: 0 0 10px rgba(251, 56, 58, 0.3);
             outline: none;
+            background: rgba(255, 255, 255, 0.15);
         }
         .login-container button {
             width: 100%;
             padding: 12px;
-            margin-top: 10px;
-            background: #007bff;
+            margin-top: 20px;
+            background: #fb383a;
             color: #fff;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
-            transition: background 0.3s ease, transform 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(251, 56, 58, 0.4);
         }
         .login-container button:hover {
-            background: #0056b3;
-            transform: scale(1.03);
+            background: #e02e30;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 56, 58, 0.6);
         }
         .login-container .error {
-            color: red;
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
+            color: #ff6b6b;
+            margin-top: 15px;
+            font-size: 0.9rem;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
     <div class="login-container">
-        <h2>🔒 Iniciar Sesión</h2>
+        <div style="margin-bottom: 1rem;">
+            <img src="assets/img/logo.png" alt="Supertec Logo" style="height: 60px;">
+        </div>
+        <h2>Iniciar Sesión</h2>
         <form id="loginForm" action="/login" method="POST">
             <input type="text" name="username" placeholder="Usuario" required>
             <input type="password" name="password" placeholder="Contraseña" required>
