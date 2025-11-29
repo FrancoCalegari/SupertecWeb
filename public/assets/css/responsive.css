@@ -70,6 +70,13 @@
     #intro-overlay img {
         max-width: 60%;
     }
+    .socialMedia {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+    }
 }
 
 /* Movil mediano / tablet pequeño: hasta 768px */
@@ -119,6 +126,40 @@
 
     .oferta-card {
         scroll-snap-align: start; /* Cada card se alinea al borde izquierdo */
+    }
+
+    /* Ubicacion Responsive */
+    .ubicacion-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .ubicacion-text {
+        text-align: center;
+    }
+
+    .ubicacion-gallery {
+        grid-template-columns: 1fr; /* Una sola columna de fotos */
+        grid-template-rows: auto;
+    }
+
+    .ubicacion-gallery img:first-child {
+        grid-row: auto;
+    }
+
+    /* Footer Responsive */
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-column {
+        min-width: 100%;
+        margin-bottom: 2rem;
+    }
+
+    .footer-column p, .footer-link {
+        justify-content: center;
     }
 }
 
