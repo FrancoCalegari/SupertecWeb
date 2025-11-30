@@ -180,11 +180,18 @@ nav ul li a:focus {
 #hero {
     position: relative;
     width: 100%;
-    height: 100vh; /* Ocupa toda la pantalla */
+    height: 100vh; /* Ocupa toda la pantalla inicialmente */
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    animation: reduceHeroHeight 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    animation-delay: 2.2s; /* Espera a que terminen las otras animaciones */
+}
+
+@keyframes reduceHeroHeight {
+    from { height: 100vh; }
+    to { height: 80vh; }
 }
 
 /* Capa 3: Carrusel de Fondo */

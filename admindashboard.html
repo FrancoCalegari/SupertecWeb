@@ -263,12 +263,17 @@ table, thead, tbody, th, td, tr {
 let productos = [];
 
 // Cargar productos desde JSON
+// Cargar productos desde JSON
 async function loadProductos() {
+    const tbody = document.getElementById('productsTable');
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 2rem;">Cargando productos...</td></tr>';
+    
     try {
         const res = await fetch('/api/productos');
         productos = await res.json();
         renderTable();
     } catch(err) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color: red;">Error al cargar productos</td></tr>';
         alert('Error al cargar productos');
     }
 }
@@ -362,25 +367,7 @@ function editProduct(id) {
 
 // Eliminar producto
 
-async function deleteProduct(id) {
-    if (!confirm('¿Seguro que deseas eliminar este producto?')) return;
 
-    try {
-        const res = await fetch(`/api/productos/${id}`, { method: 'DELETE' });
-
-        if (!res.ok) {
-            const errorData = await res.json();
-            alert('Error: ' + (errorData.error || 'No se pudo eliminar el producto'));
-            return;
-        }
-
-        // Si elimina bien, volvemos a cargar los productos
-        await loadProductos();
-    } catch (err) {
-        console.error('Error en deleteProduct:', err);
-        alert('Error al eliminar producto');
-    }
-}
 
 
 // Cerrar modal al hacer clic fuera del contenido
