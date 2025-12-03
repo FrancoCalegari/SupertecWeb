@@ -1,326 +1,518 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Supertec - Servicio Técnico</title>
-    
-    <meta name="description" content="Supertec ofrece servicio técnico profesional en Mendoza para consolas (PlayStation, Xbox, Nintendo), computadoras, laptops, celulares y tablets. ¡Diagnóstico y presupuesto gratis!">
-    
-    <meta name="keywords" content="servicio técnico, Mendoza, reparación de consolas, PlayStation, Xbox, Nintendo, reparación de PC, arreglo de computadoras, reparación de celulares, tablets, servicio técnico de notebooks">
-    
-    <meta name="robots" content="index, follow">
-    
-    <link rel="canonical" href="https://supertec-web.vercel.app/index.html">
-    
-    <meta property="og:title" content="Supertec - Servicio Técnico de Consolas y PC">
-    <meta property="og:description" content="Servicio técnico profesional en Mendoza para consolas, PC, laptops, celulares y tablets. ¡Encuentra la solución a tus problemas tecnológicos!">
-    <meta property="og:image" content="https://supertec-web.vercel.app/assets/img/linkphoto.png">
-    <meta property="og:url" content="https://supertec-web.vercel.app/index.html">
-    <meta property="og:type" content="website">
-    
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Supertec - Servicio Técnico de Consolas y PC">
-    <meta name="twitter:description" content="Servicio técnico profesional en Mendoza para consolas, PC, laptops, celulares y tablets. ¡Encuentra la solución a tus problemas tecnológicos!">
-    <meta name="twitter:image" content="https://supertec-web.vercel.app/assets/img/linkphoto.png">
-    
-    <link rel="icon" type="image/png" href="assets/img/logo.png">
-    
-    <link rel="stylesheet" href="./assets/css/styles.css">
-    <link rel="stylesheet" href="./assets/css/responsive.css">
-    <script src="https://kit.fontawesome.com/274f77f0e3.js" crossorigin="anonymous"></script>
-    <!-- Meta tags para personalizar la barra de estado en móviles y navegadores -->
-    <meta name="theme-color" content="#fb383a"> <!-- Chrome, Android -->
-    <meta name="msapplication-navbutton-color" content="#fb383a"> <!-- IE, Edge -->
-    <meta name="apple-mobile-web-app-status-bar-style" content="#fb383a"> <!-- Safari iOS -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "Supertec",
-      "image": "https://supertec-web.vercel.app/assets/img/logo.png",
-      "description": "Servicio técnico profesional en Mendoza para consolas, PC, laptops, celulares y tablets.",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Brasil 341 Local 4",
-        "addressLocality": "Godoy Cruz",
-        "addressRegion": "Mendoza",
-        "postalCode": "M5501",
-        "addressCountry": "AR"
-      },
-      "telephone": "+5492615031101",
-      "url": "https://supertec-web.vercel.app/",
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday"
-        ],
-        "opens": "09:00",
-        "closes": "18:00"
-      },
-      "sameAs": [
-        "https://www.facebook.com/profile.php?id=100003893068135",
-        "https://www.instagram.com/supertecmza/"
-      ]
-    }
-    </script>
-</head>
-<body>
-        <!-- Fondo dinámico -->
-    <div class="background-container">
-        <img id="bgImage" src="assets/img/fondos/fondo1.jpg" alt="Fondo tecnológico Supertec">
-        <div class="bg-overlay"></div>
-    </div>
-    <header>
-        <nav>
-            <a href="./">
-                <img id="nav-logo" src="./assets/img/logo.png" alt="Supertec Logo - Servicio Técnico Mendoza" style="height:3rem;">
-            </a>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-            <!-- Botón hamburguesa -->
-            <div class="hamburger" id="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+		<title>Supertec - Servicio Técnico</title>
 
-            <ul id="nav-menu">
-                <li><a href="#hero">Inicio</a></li>
-                <li><a href="#servicios">Servicios</a></li>
-                <li><a href="#faqs">FAQs</a></li>
-                <li><a href="#contacto">Contacto</a></li>
-            </ul>
-        </nav>
-    </header>
+		<meta
+			name="description"
+			content="Supertec ofrece servicio técnico profesional en Mendoza para consolas (PlayStation, Xbox, Nintendo), computadoras, laptops, celulares y tablets. ¡Diagnóstico y presupuesto gratis!"
+		/>
 
-    <!-- Hero Section -->
-     
-    <section id="hero">
-        <!-- Capa 3: Carrusel de fondo -->
-        <div class="hero-carousel">
-            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto1.webp');" role="img" aria-label="Interior del local Supertec - Área de atención"></div>
-            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto2.webp');" role="img" aria-label="Taller de reparación de consolas y PC"></div>
-            <div class="hero-slide" style="background-image: url('assets/img/localphotos/LocalPhoto3.webp');" role="img" aria-label="Exhibición de productos gaming en Mendoza"></div>
-        </div>
+		<meta
+			name="keywords"
+			content="servicio técnico, Mendoza, reparación de consolas, PlayStation, Xbox, Nintendo, reparación de PC, arreglo de computadoras, reparación de celulares, tablets, servicio técnico de notebooks"
+		/>
 
-        <!-- Capa 2: Efecto Blur -->
-        <div class="hero-blur"></div>
+		<meta name="robots" content="index, follow" />
 
-        <!-- Capa 1: Contenido -->
-        <div class="hero-content">
-            <div id="logo">
-                <div class="logo-reveal">
-                    <img src="./assets/img/hero-logo.png" alt="Supertec Logo Grande" class="hero-logo-img">
-                </div>
-                <h1 class="logoSubtext"> Servicio Tecnico - Ventas</h1>
-            </div>
-            
-        </div>
-    </section>
+		<link rel="canonical" href="https://supertec-web.vercel.app/index.html" />
 
+		<meta
+			property="og:title"
+			content="Supertec - Servicio Técnico de Consolas y PC"
+		/>
+		<meta
+			property="og:description"
+			content="Servicio técnico profesional en Mendoza para consolas, PC, laptops, celulares y tablets. ¡Encuentra la solución a tus problemas tecnológicos!"
+		/>
+		<meta
+			property="og:image"
+			content="https://supertec-web.vercel.app/assets/img/linkphoto.png"
+		/>
+		<meta
+			property="og:url"
+			content="https://supertec-web.vercel.app/index.html"
+		/>
+		<meta property="og:type" content="website" />
 
-     <!-- Ofertas Section -->
-    <section id="ofertas">
-        <div class="ofertas-header">
-            <h2>Nuestras Ofertas</h2>
-            <p>Aprovecha los mejores descuentos en tecnología y gaming.</p>
-            <a href="#" class="btn hero-btn" target="_blank">Tienda</a>
-            <!-- <a href="./tienda" class="tienda-btn">Ver todas las ofertas</a> -->
-        </div>
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta
+			name="twitter:title"
+			content="Supertec - Servicio Técnico de Consolas y PC"
+		/>
+		<meta
+			name="twitter:description"
+			content="Servicio técnico profesional en Mendoza para consolas, PC, laptops, celulares y tablets. ¡Encuentra la solución a tus problemas tecnológicos!"
+		/>
+		<meta
+			name="twitter:image"
+			content="https://supertec-web.vercel.app/assets/img/linkphoto.png"
+		/>
 
-        <div class="ofertas-carousel" id="ofertas-container">
-            <!-- Ofertas se insertan dinámicamente -->
-        </div>
-    </section>
+		<link rel="icon" type="image/png" href="assets/img/logo.png" />
 
+		<link rel="stylesheet" href="./assets/css/styles.css" />
+		<link rel="stylesheet" href="./assets/css/responsive.css" />
+		<script
+			src="https://kit.fontawesome.com/274f77f0e3.js"
+			crossorigin="anonymous"
+		></script>
+		<!-- Meta tags para personalizar la barra de estado en móviles y navegadores -->
+		<meta name="theme-color" content="#fb383a" />
+		<!-- Chrome, Android -->
+		<meta name="msapplication-navbutton-color" content="#fb383a" />
+		<!-- IE, Edge -->
+		<meta name="apple-mobile-web-app-status-bar-style" content="#fb383a" />
+		<!-- Safari iOS -->
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "LocalBusiness",
+				"name": "Supertec",
+				"image": "https://supertec-web.vercel.app/assets/img/logo.png",
+				"description": "Servicio técnico profesional en Mendoza para consolas, PC, laptops, celulares y tablets.",
+				"address": {
+					"@type": "PostalAddress",
+					"streetAddress": "Brasil 341 Local 4",
+					"addressLocality": "Godoy Cruz",
+					"addressRegion": "Mendoza",
+					"postalCode": "M5501",
+					"addressCountry": "AR"
+				},
+				"telephone": "+5492615031101",
+				"url": "https://supertec-web.vercel.app/",
+				"openingHoursSpecification": {
+					"@type": "OpeningHoursSpecification",
+					"dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+					"opens": "09:00",
+					"closes": "18:00"
+				},
+				"sameAs": [
+					"https://www.facebook.com/profile.php?id=100003893068135",
+					"https://www.instagram.com/supertecmza/"
+				]
+			}
+		</script>
+	</head>
+	<body>
+		<!-- Fondo dinámico -->
+		<div class="background-container">
+			<img
+				id="bgImage"
+				src="assets/img/fondos/FondoIATest.png"
+				alt="Fondo tecnológico Supertec"
+			/>
+			<div class="bg-overlay"></div>
+		</div>
+		<header>
+			<nav>
+				<a href="./">
+					<img
+						id="nav-logo"
+						src="./assets/img/logo.png"
+						alt="Supertec Logo - Servicio Técnico Mendoza"
+						style="height: 3rem"
+					/>
+				</a>
 
+				<!-- Botón hamburguesa -->
+				<div class="hamburger" id="hamburger">
+					<span></span>
+					<span></span>
+					<span></span>
+				</div>
 
+				<ul id="nav-menu">
+					<li><a href="#hero">Inicio</a></li>
+					<li><a href="#servicios">Servicios</a></li>
+					<li><a href="#faqs">FAQs</a></li>
+					<li><a href="#contacto">Contacto</a></li>
+				</ul>
+			</nav>
+		</header>
 
-   <!-- Servicios Section -->
-    <section id="servicios">
-        <div class="card-services">
-            <div class="text-services">
-                <h2>Consolas y Accesorios: ¡Vuelve a jugar sin límites!</h2>
-                <div class="brand-logos-wrapper">
-                    <div class="brand-logos" id="brand-logos">
-                        <img src="./assets/img/marcas/playstation-logo.png" alt="PlayStation">
-                        <img src="./assets/img/marcas/playstation-4.svg" alt="PlayStation 4">
-                        <img src="./assets/img/marcas/playstation5-logo.png" alt="PlayStation 5">
-                        <img src="./assets/img/marcas/PlayStation_3.png" alt="PlayStation 3">
-                        <img src="./assets/img/marcas/xbox-logo.png" alt="Xbox">
-                        <img src="./assets/img/marcas/xbox-one-logo.png" style="width: 120px;" alt="Xbox One">
-                        <img src="./assets/img/marcas/Xbox_Series_X_Logo.svg" alt="Xbox Series X">
-                        <img src="./assets/img/marcas/Xbox_Series_X_S_black.svg.png" alt="Xbox Series S">
-                        <img src="./assets/img/marcas/nintendo.png" alt="Nintendo">
-                        <img src="./assets/img/marcas/Nintendo_Switch_Logo.png" alt="Nintendo Switch">
-                        <img src="./assets/img/marcas/Nintendo_Switch_2_logo.png" alt="Nintendo Switch 2">
-                    </div>
-                </div>
-                <p>
-                    <strong>¿Tu consola te está dando problemas?</strong> No te preocupes. En Supertec, somos expertos en la reparación de PlayStation, Xbox y Nintendo. 
-                    Solucionamos desde los errores más comunes (fallas de encendido, sobrecalentamiento, lectura de discos) hasta los más complejos, como reparaciones de puertos HDMI, reballing y cortocircuitos.
-                </p>
-                <p>
-                    Además, entendemos que tu experiencia de juego depende de tu control. Por eso, también reparamos joysticks con problemas de drift, botones que no responden o fallas de conexión. 
-                    Y si quieres optimizar tu consola, realizamos mantenimientos preventivos con pasta térmica y metal líquido de las mejores marcas, para que nunca te quedes a mitad de una partida.
-                </p>
-            </div>
-            <div class="text-services">
-                <h2>Notebooks, PCs y Dispositivos Móviles: Recupera el control</h2>
+		<!-- Hero Section -->
 
-                <!-- Grid de logos de PC y móviles -->
-                <div class="brand-logos-wrapper">
-                    <div class="brand-logos" id="brand-logos">
-                        <img src="./assets/img/marcas/windows-logo.png" alt="Windows">
-                        <img src="./assets/img/marcas/apple-logo.png" alt="Apple">
-                        <img src="./assets/img/marcas/xiaomi-logo.png" alt="Xiaomi">
-                        <img src="./assets/img/marcas/samsung-logo.png" alt="Samsung">
-                        <img src="./assets/img/marcas/motorola-logo.png" alt="Motorola">
-                        <img src="./assets/img/marcas/hp-logo.png" alt="HP">
-                        <img src="./assets/img/marcas/lenovo-logo.png" alt="Lenovo">
-                        <img src="./assets/img/marcas/gigabite.png" alt="Gigabyte">
-                        <img src="./assets/img/marcas/sony-logo.png" alt="Sony">
-                        <img src="./assets/img/marcas/andorid-logo.png" alt="Android">
-                    </div>
-                </div>
+		<section id="hero">
+			<!-- Capa 3: Carrusel de fondo -->
+			<div class="hero-carousel">
+				<div
+					class="hero-slide"
+					style="
+						background-image: url('assets/img/localphotos/LocalPhoto1.webp');
+					"
+					role="img"
+					aria-label="Interior del local Supertec - Área de atención"
+				></div>
+				<div
+					class="hero-slide"
+					style="
+						background-image: url('assets/img/localphotos/LocalPhoto2.webp');
+					"
+					role="img"
+					aria-label="Taller de reparación de consolas y PC"
+				></div>
+				<div
+					class="hero-slide"
+					style="
+						background-image: url('assets/img/localphotos/LocalPhoto3.webp');
+					"
+					role="img"
+					aria-label="Exhibición de productos gaming en Mendoza"
+				></div>
+			</div>
 
-                <p>
-                    Más allá de los videojuegos, tu vida digital también importa. Ofrecemos un servicio integral para notebooks, laptops, ultrabooks y Macbooks. 
-                    Ya sea que necesites reemplazar una pantalla, un teclado, una batería o solucionar problemas de rendimiento y software, estamos aquí para ayudarte.
-                </p>
-                <p>
-                    <strong>¿Tu PC de escritorio o tu placa de video están fallando?</strong> Somos especialistas en reparaciones avanzadas a nivel de componente, incluyendo reballing y reparación de motherboards. 
-                    Y si tu iPhone, tablet o smartphone sufrió un accidente, confía en nuestros expertos para cambiar la pantalla, reparar el puerto de carga o solucionar fallas complejas de la placa base, incluso en casos de daño por líquidos.
-                </p>
-                <p>
-                    En Supertec, tu tecnología está en las mejores manos.
-                </p>
-            </div>
-        </div>
-       
-    </section>
+			<!-- Capa 2: Efecto Blur -->
+			<div class="hero-blur"></div>
 
+			<!-- Capa 1: Contenido -->
+			<div class="hero-content">
+				<div id="logo">
+					<div class="logo-reveal">
+						<img
+							src="./assets/img/hero-logo.png"
+							alt="Supertec Logo Grande"
+							class="hero-logo-img"
+						/>
+					</div>
+					<h1 class="logoSubtext">Servicio Tecnico - Ventas</h1>
+				</div>
+			</div>
+		</section>
 
-    <!-- FAQs Section -->
-    <section id="faqs">
-        <div class="card-services">
-            <h2>Preguntas Frecuentes</h2>
-            <details>
-                <summary>¿Qué tipo de equipos reparan en Supertec?</summary>
-                <p>Reparamos una amplia gama de equipos electrónicos, incluyendo consolas de videojuegos (PlayStation, Xbox, Nintendo, etc.), notebooks y computadoras portátiles, motherboards, CPUs, placas de video (GPU) y teléfonos móviles y tablets (con especialización en iPhone). También ofrecemos servicio de reparación de joysticks.</p>
-            </details>
-            <details>
-                <summary>¿Tienen experiencia en reparaciones complejas a nivel de placa?</summary>
-                <p>Sí, nuestra especialidad es la reparación microelectrónica de alta complejidad. Contamos con un laboratorio de última generación y técnicos certificados para realizar trabajos como reballing, reemplazo de chipsets y diagnósticos avanzados en placas base y GPUs.</p>
-            </details>
-            <details>
-                <summary>¿Ofrecen servicios para el gremio o solo para clientes finales?</summary>
-                <p>Atendemos a ambos. Brindamos soporte técnico de alta calidad a clientes finales que buscan soluciones confiables para sus dispositivos personales, y también ofrecemos servicios especializados para el gremio, con tarifas preferenciales y soporte técnico avanzado.</p>
-            </details>
-            <details>
-                <summary>¿Cómo es el proceso si estoy en otra provincia y quiero enviarles un equipo?</summary>
-                <p>Si te encuentras fuera de Godoy Cruz, Mendoza, podés enviarnos tus equipos con total confianza. Contamos con un sistema logístico optimizado para recibir y devolver dispositivos de todo el país. Una vez que recibimos tu equipo, realizamos el diagnóstico, te informamos sobre la reparación y, una vez finalizada, te lo enviamos de vuelta en perfectas condiciones. Te guiaremos en cada paso del proceso de envío.</p>
-            </details>
-            <details>
-                <summary>¿Cuál es el tiempo estimado de reparación?</summary>
-                <p>El tiempo de reparación varía según la complejidad de la falla y la disponibilidad de componentes. Una vez realizado el diagnóstico inicial, te brindaremos un plazo estimado para la entrega de tu equipo. Podrás acceder a un sistema web para ver el estado de tu equipo.</p>
-            </details>
-            <details>
-                <summary>¿Ofrecen garantía sobre las reparaciones?</summary>
-                <p>Sí, todas nuestras reparaciones cuentan con garantía, cubriendo la falla específica reparada y los componentes reemplazados. Los detalles de la garantía se especificarán al momento de la entrega del equipo reparado.</p>
-            </details>
-            <details>
-                <summary>¿Cómo puedo contactarlos para solicitar un servicio o hacer una consulta?</summary>
-                <p>Podés contactarnos a través de whatsapp al 2615031101. Estaremos encantados de asesorarte y resolver tus dudas.</p>
-            </details>
-        </div>
-    </section>
+		<!-- Ofertas Section -->
+		<section id="ofertas">
+			<div class="ofertas-header">
+				<h2>Nuestras Ofertas</h2>
+				<p>Aprovecha los mejores descuentos en tecnología y gaming.</p>
+				<a
+					href="https://supertec16.mitiendanube.com/"
+					class="btn hero-btn"
+					target="_blank"
+					>Tienda</a
+				>
+				<!-- <a href="./tienda" class="tienda-btn">Ver todas las ofertas</a> -->
+			</div>
 
-<!-- Footer Section -->
-    <!-- Horarios Section -->
-    <section id="horarios">
-        <div class="horarios-container">
-            <h2>Nuestros Horarios</h2>
-            <div id="status-container">
-                <!-- Se llena dinámicamente con JS -->
-            </div>
-            <div class="schedule-grid">
-                <!-- Se llena dinámicamente con JS -->
-            </div>
-        </div>
-    </section>
+			<div class="ofertas-carousel" id="ofertas-container">
+				<!-- Ofertas se insertan dinámicamente -->
+			</div>
+		</section>
 
-    <!-- Ubicacion Section -->
-    <section id="ubicacion">
-        <div class="ubicacion-container">
-            <div class="ubicacion-text">
-                <h2>¿Cómo encontrarnos?</h2>
-                <p>Visita nuestro local y conoce el laboratorio donde ocurre la magia. Estamos listos para recibirte.</p>
-                <a href="https://maps.app.goo.gl/4w85V9tjvPkYLWJLA" target="_blank" class="btn btn-map">
-                    <i class="fa-solid fa-location-dot"></i> Ver en Google Maps
-                </a>
-            </div>
-            <div class="ubicacion-gallery">
-                <img src="./assets/img/localphotos/LocalPhoto1.webp" alt="Local Supertec 1">
-                <img src="./assets/img/localphotos/LocalPhoto2.webp" alt="Local Supertec 2">
-                <img src="./assets/img/localphotos/LocalPhoto3.webp" alt="Local Supertec 3">
-            </div>
-        </div>
-    </section>
+		<!-- Servicios Section -->
+		<section id="servicios">
+			<div class="card-services">
+				<div class="text-services">
+					<h2>Consolas y Accesorios: ¡Vuelve a jugar sin límites!</h2>
+					<div class="brand-logos-wrapper">
+						<div class="brand-logos" id="brand-logos">
+							<img
+								src="./assets/img/marcas/playstation-logo.png"
+								alt="PlayStation"
+							/>
+							<img
+								src="./assets/img/marcas/playstation-4.svg"
+								alt="PlayStation 4"
+							/>
+							<img
+								src="./assets/img/marcas/playstation5-logo.png"
+								alt="PlayStation 5"
+							/>
+							<img
+								src="./assets/img/marcas/PlayStation_3.png"
+								alt="PlayStation 3"
+							/>
+							<img src="./assets/img/marcas/xbox-logo.png" alt="Xbox" />
+							<img
+								src="./assets/img/marcas/xbox-one-logo.png"
+								style="width: 120px"
+								alt="Xbox One"
+							/>
+							<img
+								src="./assets/img/marcas/Xbox_Series_X_Logo.svg"
+								alt="Xbox Series X"
+							/>
+							<img
+								src="./assets/img/marcas/Xbox_Series_X_S_black.svg.png"
+								alt="Xbox Series S"
+							/>
+							<img src="./assets/img/marcas/nintendo.png" alt="Nintendo" />
+							<img
+								src="./assets/img/marcas/Nintendo_Switch_Logo.png"
+								alt="Nintendo Switch"
+							/>
+							<img
+								src="./assets/img/marcas/Nintendo_Switch_2_logo.png"
+								alt="Nintendo Switch 2"
+							/>
+						</div>
+					</div>
+					<p>
+						<strong>¿Tu consola te está dando problemas?</strong> No te
+						preocupes. En Supertec, somos expertos en la reparación de
+						PlayStation, Xbox y Nintendo. Solucionamos desde los errores más
+						comunes (fallas de encendido, sobrecalentamiento, lectura de discos)
+						hasta los más complejos, como reparaciones de puertos HDMI,
+						reballing y cortocircuitos.
+					</p>
+					<p>
+						Además, entendemos que tu experiencia de juego depende de tu
+						control. Por eso, también reparamos joysticks con problemas de
+						drift, botones que no responden o fallas de conexión. Y si quieres
+						optimizar tu consola, realizamos mantenimientos preventivos con
+						pasta térmica y metal líquido de las mejores marcas, para que nunca
+						te quedes a mitad de una partida.
+					</p>
+				</div>
+				<div class="text-services">
+					<h2>Notebooks, PCs y Dispositivos Móviles: Recupera el control</h2>
 
-    <!-- Footer Section -->
-    <footer id="contacto">
-        <div class="footer-content">
-            <div class="footer-column">
-                <h3>Contacto</h3>
-                <p><i class="fa-solid fa-envelope"></i> info@supertec.com.ar</p>
-                <p><i class="fa-brands fa-whatsapp"></i> +54 9 261 503-1101</p>
-            </div>
+					<!-- Grid de logos de PC y móviles -->
+					<div class="brand-logos-wrapper">
+						<div class="brand-logos" id="brand-logos">
+							<img src="./assets/img/marcas/windows-logo.png" alt="Windows" />
+							<img src="./assets/img/marcas/apple-logo.png" alt="Apple" />
+							<img src="./assets/img/marcas/xiaomi-logo.png" alt="Xiaomi" />
+							<img src="./assets/img/marcas/samsung-logo.png" alt="Samsung" />
+							<img src="./assets/img/marcas/motorola-logo.png" alt="Motorola" />
+							<img src="./assets/img/marcas/hp-logo.png" alt="HP" />
+							<img src="./assets/img/marcas/lenovo-logo.png" alt="Lenovo" />
+							<img src="./assets/img/marcas/gigabite.png" alt="Gigabyte" />
+							<img src="./assets/img/marcas/sony-logo.png" alt="Sony" />
+							<img src="./assets/img/marcas/andorid-logo.png" alt="Android" />
+						</div>
+					</div>
 
-            <div class="footer-column">
-                <h3>Ubicación</h3>
-                <p>Brasil 341 Local 4, M5501 Godoy Cruz, Mendoza</p>
-                <a href="https://maps.app.goo.gl/4w85V9tjvPkYLWJLA" target="_blank" class="footer-link">
-                    <i class="fa-solid fa-map-location-dot"></i> Ver ubicación
-                </a>
-            </div>
+					<p>
+						Más allá de los videojuegos, tu vida digital también importa.
+						Ofrecemos un servicio integral para notebooks, laptops, ultrabooks y
+						Macbooks. Ya sea que necesites reemplazar una pantalla, un teclado,
+						una batería o solucionar problemas de rendimiento y software,
+						estamos aquí para ayudarte.
+					</p>
+					<p>
+						<strong
+							>¿Tu PC de escritorio o tu placa de video están fallando?</strong
+						>
+						Somos especialistas en reparaciones avanzadas a nivel de componente,
+						incluyendo reballing y reparación de motherboards. Y si tu iPhone,
+						tablet o smartphone sufrió un accidente, confía en nuestros expertos
+						para cambiar la pantalla, reparar el puerto de carga o solucionar
+						fallas complejas de la placa base, incluso en casos de daño por
+						líquidos.
+					</p>
+					<p>En Supertec, tu tecnología está en las mejores manos.</p>
+				</div>
+			</div>
+		</section>
 
-            <div class="footer-column">
-                <h3>Síguenos</h3>
-                <div class="socialMedia">
-                    <a href="https://www.facebook.com/profile.php?id=100003893068135" target="_blank"><i class="fa-brands fa-facebook"></i></a>
-                    <a href="https://www.threads.com/@supertecmza" target="_blank"><i class="fa-brands fa-square-x-twitter"></i></a>
-                    <a href="https://www.instagram.com/supertecmza/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-                </div>
-            </div>
-            
-            <div class="footer-column logo-col">
-                <img src="./assets/img/logo.png" alt="Supertec Logo" class="footer-logo">
-            </div>
-        </div>
+		<!-- FAQs Section -->
+		<section id="faqs">
+			<div class="card-services">
+				<h2>Preguntas Frecuentes</h2>
+				<details>
+					<summary>¿Qué tipo de equipos reparan en Supertec?</summary>
+					<p>
+						Reparamos una amplia gama de equipos electrónicos, incluyendo
+						consolas de videojuegos (PlayStation, Xbox, Nintendo, etc.),
+						notebooks y computadoras portátiles, motherboards, CPUs, placas de
+						video (GPU) y teléfonos móviles y tablets (con especialización en
+						iPhone). También ofrecemos servicio de reparación de joysticks.
+					</p>
+				</details>
+				<details>
+					<summary>
+						¿Tienen experiencia en reparaciones complejas a nivel de placa?
+					</summary>
+					<p>
+						Sí, nuestra especialidad es la reparación microelectrónica de alta
+						complejidad. Contamos con un laboratorio de última generación y
+						técnicos certificados para realizar trabajos como reballing,
+						reemplazo de chipsets y diagnósticos avanzados en placas base y
+						GPUs.
+					</p>
+				</details>
+				<details>
+					<summary>
+						¿Ofrecen servicios para el gremio o solo para clientes finales?
+					</summary>
+					<p>
+						Atendemos a ambos. Brindamos soporte técnico de alta calidad a
+						clientes finales que buscan soluciones confiables para sus
+						dispositivos personales, y también ofrecemos servicios
+						especializados para el gremio, con tarifas preferenciales y soporte
+						técnico avanzado.
+					</p>
+				</details>
+				<details>
+					<summary>
+						¿Cómo es el proceso si estoy en otra provincia y quiero enviarles un
+						equipo?
+					</summary>
+					<p>
+						Si te encuentras fuera de Godoy Cruz, Mendoza, podés enviarnos tus
+						equipos con total confianza. Contamos con un sistema logístico
+						optimizado para recibir y devolver dispositivos de todo el país. Una
+						vez que recibimos tu equipo, realizamos el diagnóstico, te
+						informamos sobre la reparación y, una vez finalizada, te lo enviamos
+						de vuelta en perfectas condiciones. Te guiaremos en cada paso del
+						proceso de envío.
+					</p>
+				</details>
+				<details>
+					<summary>¿Cuál es el tiempo estimado de reparación?</summary>
+					<p>
+						El tiempo de reparación varía según la complejidad de la falla y la
+						disponibilidad de componentes. Una vez realizado el diagnóstico
+						inicial, te brindaremos un plazo estimado para la entrega de tu
+						equipo. Podrás acceder a un sistema web para ver el estado de tu
+						equipo.
+					</p>
+				</details>
+				<details>
+					<summary>¿Ofrecen garantía sobre las reparaciones?</summary>
+					<p>
+						Sí, todas nuestras reparaciones cuentan con garantía, cubriendo la
+						falla específica reparada y los componentes reemplazados. Los
+						detalles de la garantía se especificarán al momento de la entrega
+						del equipo reparado.
+					</p>
+				</details>
+				<details>
+					<summary>
+						¿Cómo puedo contactarlos para solicitar un servicio o hacer una
+						consulta?
+					</summary>
+					<p>
+						Podés contactarnos a través de whatsapp al 2615031101. Estaremos
+						encantados de asesorarte y resolver tus dudas.
+					</p>
+				</details>
+			</div>
+		</section>
 
-        <div class="footer-bottom">
-            <p>&copy; 2025 Supertec. Todos los derechos reservados.</p>
-            <div class="footer-credit">
-                <a href="https://francocalegari.github.io/PortfolioFrancoCalegari/" target="_blank">
-                    Code by Franco Calegari
-                </a>
-            </div>
-        </div>
-    </footer>
+		<!-- Footer Section -->
+		<!-- Horarios Section -->
+		<section id="horarios">
+			<div class="horarios-container">
+				<h2>Nuestros Horarios</h2>
+				<div id="status-container">
+					<!-- Se llena dinámicamente con JS -->
+				</div>
+				<div class="schedule-grid">
+					<!-- Se llena dinámicamente con JS -->
+				</div>
+			</div>
+		</section>
 
-    <a href="https://wa.me/5492615031101" class="btn-whatsapp" target="_blank" aria-label="Chat on WhatsApp">
-        <i class="fa-brands fa-whatsapp"></i>
-    </a>
+		<!-- Ubicacion Section -->
+		<section id="ubicacion">
+			<div class="ubicacion-container">
+				<div class="ubicacion-text">
+					<h2>¿Cómo encontrarnos?</h2>
+					<p>
+						Visita nuestro local y conoce el laboratorio donde ocurre la magia.
+						Estamos listos para recibirte.
+					</p>
+					<a
+						href="https://maps.app.goo.gl/4w85V9tjvPkYLWJLA"
+						target="_blank"
+						class="btn btn-map"
+					>
+						<i class="fa-solid fa-location-dot"></i> Ver en Google Maps
+					</a>
+				</div>
+				<div class="ubicacion-gallery">
+					<img
+						src="./assets/img/localphotos/LocalPhoto1.webp"
+						alt="Local Supertec 1"
+					/>
+					<img
+						src="./assets/img/localphotos/LocalPhoto2.webp"
+						alt="Local Supertec 2"
+					/>
+					<img
+						src="./assets/img/localphotos/LocalPhoto3.webp"
+						alt="Local Supertec 3"
+					/>
+				</div>
+			</div>
+		</section>
 
-    <script src="./assets/js/background.js"></script>
-    <script src="./assets/js/demoproductos.js" defer></script>
-    <script src="./assets/js/hours.js" defer></script>
+		<!-- Footer Section -->
+		<footer id="contacto">
+			<div class="footer-content">
+				<div class="footer-column">
+					<h3>Contacto</h3>
+					<p><i class="fa-solid fa-envelope"></i> info@supertec.com.ar</p>
+					<p><i class="fa-brands fa-whatsapp"></i> +54 9 261 503-1101</p>
+				</div>
 
-</body>
+				<div class="footer-column">
+					<h3>Ubicación</h3>
+					<p>Brasil 341 Local 4, M5501 Godoy Cruz, Mendoza</p>
+					<a
+						href="https://maps.app.goo.gl/4w85V9tjvPkYLWJLA"
+						target="_blank"
+						class="footer-link"
+					>
+						<i class="fa-solid fa-map-location-dot"></i> Ver ubicación
+					</a>
+				</div>
+
+				<div class="footer-column">
+					<h3>Síguenos</h3>
+					<div class="socialMedia">
+						<a
+							href="https://www.facebook.com/profile.php?id=100003893068135"
+							target="_blank"
+							><i class="fa-brands fa-facebook"></i
+						></a>
+						<a href="https://www.threads.com/@supertecmza" target="_blank"
+							><i class="fa-brands fa-square-x-twitter"></i
+						></a>
+						<a href="https://www.instagram.com/supertecmza/" target="_blank"
+							><i class="fa-brands fa-instagram"></i
+						></a>
+					</div>
+				</div>
+
+				<div class="footer-column logo-col">
+					<img
+						src="./assets/img/logo.png"
+						alt="Supertec Logo"
+						class="footer-logo"
+					/>
+				</div>
+			</div>
+
+			<div class="footer-bottom">
+				<p>&copy; 2025 Supertec. Todos los derechos reservados.</p>
+				<div class="footer-credit">
+					<a
+						href="https://francocalegari.github.io/PortfolioFrancoCalegari/"
+						target="_blank"
+					>
+						Code by F.C
+					</a>
+				</div>
+			</div>
+		</footer>
+
+		<a
+			href="https://wa.me/5492615031101"
+			class="btn-whatsapp"
+			target="_blank"
+			aria-label="Chat on WhatsApp"
+		>
+			<i class="fa-brands fa-whatsapp"></i>
+		</a>
+
+		<script src="./assets/js/background.js"></script>
+		<script src="./assets/js/demoproductos.js" defer></script>
+		<script src="./assets/js/hours.js" defer></script>
+	</body>
 </html>
