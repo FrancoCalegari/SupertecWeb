@@ -13,6 +13,8 @@
 
 :root {
 	/* Paleta */
+
+	--color-negro: #000000;
 	--color-oscuro: #2e3439;
 	--color-oscuro-trasparent: #2e3439c2;
 	--color-rojo: #fb383a;
@@ -419,13 +421,15 @@ h1.logoSubtext {
 	max-width: 100%;
 	/* Mantiene los logos centrados */
 	margin: 0 auto;
+	z-index: 1;
+	position: relative;
 }
 
 .brand-logos {
 	/* Organiza los logos en una fila horizontal */
 	display: flex;
 	/* Elimina cualquier espacio entre las imágenes */
-	gap: 0;
+	gap: 20px;
 	/* Evita que los logos se apilen verticalmente */
 	flex-wrap: nowrap;
 	/* Transición suave para el movimiento */
