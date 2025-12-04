@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "name": "test",
+    "description": "test",
+    "precio": 23,
+    "categoria": "Test",
+    "stock": 23,
+    "marca": "test",
+    "modelo": "test",
+    "img": "https://i.pinimg.com/1200x/b0/8a/f3/b08af3e0423e0593825f858bc9052206.jpg"
+  }
+]

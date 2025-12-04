@@ -193,12 +193,14 @@ table, thead, tbody, th, td, tr {
 <div class="container">
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab('tab-productos')">Productos</button>
+        <button class="tab-btn" onclick="openTab('tab-ventas')">Ventas Local</button>
+        <button class="tab-btn" onclick="openTab('tab-servicios')">Servicios</button>
         <button class="tab-btn" onclick="openTab('tab-horarios')">Horarios</button>
     </div>
 
     <!-- Tab Productos -->
     <div id="tab-productos" class="tab-content active">
-        <button class="add-btn" onclick="showForm()">Agregar Producto</button>
+        <button class="add-btn" onclick="showForm('productos')">Agregar Producto</button>
         <table>
             <thead>
                 <tr>
@@ -217,6 +219,50 @@ table, thead, tbody, th, td, tr {
             <tbody id="productsTable"></tbody>
         </table>
     </div>
+    </div>
+
+    <!-- Tab Ventas -->
+    <div id="tab-ventas" class="tab-content">
+        <button class="add-btn" onclick="showForm('ventas')">Agregar Venta</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="ventasTable"></tbody>
+        </table>
+    </div>
+
+    <!-- Tab Servicios -->
+    <div id="tab-servicios" class="tab-content">
+        <button class="add-btn" onclick="showForm('servicios')">Agregar Servicio</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="serviciosTable"></tbody>
+        </table>
     </div>
 
     <!-- Tab Horarios -->
@@ -261,8 +307,10 @@ table, thead, tbody, th, td, tr {
 
 <script>
 let productos = [];
+let ventas = [];
+let servicios = [];
+let currentType = 'productos'; // 'productos', 'ventas', 'servicios'
 
-// Cargar productos desde JSON
 // Cargar productos desde JSON
 async function loadProductos() {
     const tbody = document.getElementById('productsTable');
@@ -271,17 +319,41 @@ async function loadProductos() {
     try {
         const res = await fetch('/api/productos');
         productos = await res.json();
-        renderTable();
+        renderTable('productos', productos, 'productsTable');
     } catch(err) {
         tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color: red;">Error al cargar productos</td></tr>';
         alert('Error al cargar productos');
     }
 }
 
-function renderTable() {
-    const tbody = document.getElementById('productsTable');
+async function loadVentas() {
+    const tbody = document.getElementById('ventasTable');
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 2rem;">Cargando ventas...</td></tr>';
+    try {
+        const res = await fetch('/api/ventas');
+        ventas = await res.json();
+        renderTable('ventas', ventas, 'ventasTable');
+    } catch(err) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color: red;">Error al cargar ventas</td></tr>';
+    }
+}
+
+async function loadServicios() {
+    const tbody = document.getElementById('serviciosTable');
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 2rem;">Cargando servicios...</td></tr>';
+    try {
+        const res = await fetch('/api/servicios');
+        servicios = await res.json();
+        renderTable('servicios', servicios, 'serviciosTable');
+    } catch(err) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color: red;">Error al cargar servicios</td></tr>';
+    }
+}
+
+function renderTable(type, data, tableId) {
+    const tbody = document.getElementById(tableId);
     tbody.innerHTML = '';
-    productos.forEach(p => {
+    data.forEach(p => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td data-label="ID">${p.id}</td>
@@ -294,8 +366,8 @@ function renderTable() {
             <td>${p.marca}</td>
             <td>${p.modelo}</td>
             <td data-label="Acciones" class="actions">
-                <button class="edit-btn" onclick="editProduct(${p.id})">Editar</button>
-                <button class="delete-btn" onclick="console.log('Eliminar', ${p.id}); deleteProduct(${p.id})">Eliminar</button>
+                <button class="edit-btn" onclick="editItem('${type}', ${p.id})">Editar</button>
+                <button class="delete-btn" onclick="deleteItem('${type}', ${p.id})">Eliminar</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -303,9 +375,10 @@ function renderTable() {
 }
 
 // Mostrar modal
-function showForm(edit = false) {
+function showForm(type, edit = false) {
+    currentType = type;
     document.getElementById('productModal').style.display = 'flex';
-    document.getElementById('modalTitle').textContent = edit ? 'Editar Producto' : 'Agregar Producto';
+    document.getElementById('modalTitle').textContent = edit ? `Editar ${type}` : `Agregar ${type}`;
     if (!edit) document.getElementById('productForm').reset();
 }
 
@@ -314,7 +387,7 @@ function hideForm() {
     document.getElementById('productModal').style.display = 'none';
 }
 
-// Guardar producto
+// Guardar producto/venta/servicio
 async function saveProduct(event) {
     event.preventDefault();
 
@@ -336,39 +409,42 @@ async function saveProduct(event) {
         formData.append("img", document.getElementById("img").value);
     }
 
+    const endpoint = `/api/${currentType}`;
+
     try {
-        await fetch('/api/productos', {
+        await fetch(endpoint, {
             method: 'POST',
             body: formData
         });
         hideForm();
-        loadProductos();
+        if (currentType === 'productos') loadProductos();
+        if (currentType === 'ventas') loadVentas();
+        if (currentType === 'servicios') loadServicios();
     } catch (err) {
-        alert('Error al guardar producto');
+        alert('Error al guardar');
     }
 }
 
 
-// Editar producto
-function editProduct(id) {
-    const p = productos.find(prod => prod.id === id);
-    if (!p) return;
-    showForm(true);
-    document.getElementById('productId').value = p.id;
-    document.getElementById('name').value = p.name;
-    document.getElementById('img').value = p.img;
-    document.getElementById('description').value = p.description;
-    document.getElementById('precio').value = p.precio;
-    document.getElementById('categoria').value = p.categoria;
-    document.getElementById('stock').value = p.stock;
-    document.getElementById('marca').value = p.marca;
-    document.getElementById('modelo').value = p.modelo;
+// Editar item
+function editItem(type, id) {
+    let item;
+    if (type === 'productos') item = productos.find(p => p.id === id);
+    if (type === 'ventas') item = ventas.find(p => p.id === id);
+    if (type === 'servicios') item = servicios.find(p => p.id === id);
+
+    if (!item) return;
+    showForm(type, true);
+    document.getElementById('productId').value = item.id;
+    document.getElementById('name').value = item.name;
+    document.getElementById('img').value = item.img;
+    document.getElementById('description').value = item.description;
+    document.getElementById('precio').value = item.precio;
+    document.getElementById('categoria').value = item.categoria;
+    document.getElementById('stock').value = item.stock;
+    document.getElementById('marca').value = item.marca;
+    document.getElementById('modelo').value = item.modelo;
 }
-
-// Eliminar producto
-
-
-
 
 // Cerrar modal al hacer clic fuera del contenido
 window.onclick = function(event) {
@@ -398,11 +474,11 @@ function showConfirmModal(message, onConfirm) {
     };
 }
 
-// Eliminar producto con modal
-async function deleteProduct(id) {
-    showConfirmModal("¿Seguro que deseas eliminar este producto?", async () => {
+// Eliminar item con modal
+async function deleteItem(type, id) {
+    showConfirmModal(`¿Seguro que deseas eliminar este item de ${type}?`, async () => {
         try {
-            const res = await fetch(`/api/productos/${id}`, { method: 'DELETE' });
+            const res = await fetch(`/api/${type}/${id}`, { method: 'DELETE' });
 
             if (!res.ok) {
                 const errorData = await res.json();
@@ -410,10 +486,12 @@ async function deleteProduct(id) {
                 return;
             }
 
-            await loadProductos();
+            if (type === 'productos') await loadProductos();
+            if (type === 'ventas') await loadVentas();
+            if (type === 'servicios') await loadServicios();
         } catch (err) {
-            console.error("Error en deleteProduct:", err);
-            showConfirmModal("Error al eliminar producto", () => {});
+            console.error("Error en deleteItem:", err);
+            showConfirmModal("Error al eliminar", () => {});
         }
     });
 }
@@ -428,11 +506,14 @@ function openTab(tabId) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     
     document.getElementById(tabId).classList.add('active');
-    event.target.classList.add('active');
+    // Find button that calls this function and add active class
+    // (Simpler: iterate buttons and check text or onclick, but here we can just rely on the click event if passed, or just re-select)
+    // Actually the event.target might not work if called programmatically, but here it's onclick.
+    if (event) event.target.classList.add('active');
 
-    if (tabId === 'tab-horarios') {
-        loadHorarios();
-    }
+    if (tabId === 'tab-horarios') loadHorarios();
+    if (tabId === 'tab-ventas') loadVentas();
+    if (tabId === 'tab-servicios') loadServicios();
 }
 
 // --- Lógica de Horarios ---
