@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
 																		"es-AR"
 																  )}</p>`
 														}
-                            <button class="btn btn-comprar">Comprar</button>
+                            <button class="btn btn-comprar">Consultar</button>
                         `;
 
 						// 🔹 Evento botón WhatsApp
@@ -128,40 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <img src="${producto.img}" alt="${producto.name}">
                         <h3>${producto.name}</h3>
                         <p class="descripcion">${producto.description}</p>
-                        ${
-													producto.descuento > 0
-														? `<p class="precio">
-                                <span class="precio-original">$${producto.precio.toLocaleString(
-																	"es-AR"
-																)}</span>
-                                <span class="precio-descuento">$${precioFinal.toLocaleString(
-																	"es-AR"
-																)}</span>
-                                <span class="badge-descuento">-${
-																	producto.descuento
-																}%</span>
-                               </p>`
-														: `<p class="precio">$${producto.precio.toLocaleString(
-																"es-AR"
-														  )}</p>`
-												}
-                        <button class="btn btn-comprar">Comprar</button>
                     `;
-
-					// 🔹 Evento botón WhatsApp
-					ofertaCard
-						.querySelector(".btn-comprar")
-						.addEventListener("click", () => {
-							const mensaje = `Quisiera consultar sobre este producto:\n\n📌 *${
-								producto.name
-							}*\n🏷️ Marca: ${producto.marca}\n🔖 Modelo: ${
-								producto.modelo
-							}\n💰 Precio: $${precioFinal.toLocaleString("es-AR")}`;
-							const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-								mensaje
-							)}`;
-							window.open(url, "_blank");
-						});
 
 					ofertasContainer.appendChild(ofertaCard);
 				});
@@ -191,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <p class="precio">$${venta.precio.toLocaleString(
 													"es-AR"
 												)}</p>
-                        <button class="btn btn-comprar">Comprar</button>
+                        <button class="btn btn-comprar">Consultar</button>
                     `;
 					// 🔹 Evento botón WhatsApp
 					card.querySelector(".btn-comprar").addEventListener("click", () => {

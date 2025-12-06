@@ -172,6 +172,16 @@ table, thead, tbody, th, td, tr {
 .tab-content.active { display: block; }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Config Styles */
+.config-section { border-bottom: 1px solid #eee; padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+.config-section:last-child { border-bottom: none; margin-bottom: 0; }
+.config-section h4 { margin-top: 0; margin-bottom: 1rem; color: #333; }
+.config-actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+.btn-export { background: #17a2b8; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+.btn-import { background: #007bff; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+.btn-clear { background: #dc3545; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin-left: auto; }
+.import-box { display: flex; gap: 0.5rem; align-items: center; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; }
 </style>
 </head>
 <body>
@@ -196,6 +206,7 @@ table, thead, tbody, th, td, tr {
         <button class="tab-btn" onclick="openTab('tab-ventas')">Ventas Local</button>
         <button class="tab-btn" onclick="openTab('tab-servicios')">Servicios</button>
         <button class="tab-btn" onclick="openTab('tab-horarios')">Horarios</button>
+        <button class="tab-btn" onclick="openTab('tab-config')">Configuración</button>
     </div>
 
     <!-- Tab Productos -->
@@ -277,6 +288,68 @@ table, thead, tbody, th, td, tr {
                     <button type="submit" class="save-btn">Guardar Cambios</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Tab Configuración -->
+    <div id="tab-config" class="tab-content">
+        <div style="background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px #0001; max-width: 800px; margin: auto;">
+            <h3>Configuración de Datos</h3>
+            <p style="color: #666; margin-bottom: 2rem;">Gestiona la importación, exportación y limpieza de datos.</p>
+
+            <div style="display: grid; gap: 2rem;">
+                <!-- Productos -->
+                <div class="config-section">
+                    <h4>Productos</h4>
+                    <div class="config-actions">
+                        <button class="btn-export" onclick="exportData('productos')">Exportar JSON</button>
+                        <div class="import-box">
+                            <input type="file" id="import-productos" accept=".json">
+                            <button class="btn-import" onclick="importData('productos')">Importar</button>
+                        </div>
+                        <button class="btn-clear" onclick="clearData('productos')">Limpiar Todo</button>
+                    </div>
+                </div>
+
+                <!-- Ventas -->
+                <div class="config-section">
+                    <h4>Ventas Local</h4>
+                    <div class="config-actions">
+                        <button class="btn-export" onclick="exportData('ventas')">Exportar JSON</button>
+                        <div class="import-box">
+                            <input type="file" id="import-ventas" accept=".json">
+                            <button class="btn-import" onclick="importData('ventas')">Importar</button>
+                        </div>
+                        <button class="btn-clear" onclick="clearData('ventas')">Limpiar Todo</button>
+                    </div>
+                </div>
+
+                <!-- Servicios -->
+                <div class="config-section">
+                    <h4>Servicios</h4>
+                    <div class="config-actions">
+                        <button class="btn-export" onclick="exportData('servicios')">Exportar JSON</button>
+                        <div class="import-box">
+                            <input type="file" id="import-servicios" accept=".json">
+                            <button class="btn-import" onclick="importData('servicios')">Importar</button>
+                        </div>
+                        <button class="btn-clear" onclick="clearData('servicios')">Limpiar Todo</button>
+                    </div>
+                </div>
+
+                <!-- Horarios -->
+                <div class="config-section">
+                    <h4>Horarios</h4>
+                    <div class="config-actions">
+                        <button class="btn-export" onclick="exportData('horarios')">Exportar JSON</button>
+                        <div class="import-box">
+                            <input type="file" id="import-horarios" accept=".json">
+                            <button class="btn-import" onclick="importData('horarios')">Importar</button>
+                        </div>
+                        <button class="btn-clear" onclick="clearData('horarios')">Restaurar Default</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -590,6 +663,62 @@ async function saveHorarios(e) {
         console.error(err);
         alert('Error de conexión');
     }
+}
+
+// --- Config Logic ---
+function exportData(type) {
+    window.location.href = `/api/admin/export/${type}`;
+}
+
+async function importData(type) {
+    const fileInput = document.getElementById(`import-${type}`);
+    if (!fileInput.files.length) {
+        alert('Selecciona un archivo JSON primero');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    try {
+        const res = await fetch(`/api/admin/import/${type}`, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (data.ok) {
+            alert(`Importación exitosa. ${data.count} items procesados.`);
+            fileInput.value = ''; // Reset
+            // Reload if current tab matches
+            if (type === 'productos') loadProductos();
+            if (type === 'ventas') loadVentas();
+            if (type === 'servicios') loadServicios();
+            if (type === 'horarios') loadHorarios();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (err) {
+        alert('Error al importar');
+    }
+}
+
+function clearData(type) {
+    showConfirmModal(`¿ESTÁS SEGURO? Esto borrará TODOS los datos de ${type}. Esta acción no se puede deshacer.`, async () => {
+        try {
+            const res = await fetch(`/api/admin/clear/${type}`, { method: 'DELETE' });
+            if (res.ok) {
+                alert(`Datos de ${type} eliminados/restaurados.`);
+                if (type === 'productos') loadProductos();
+                if (type === 'ventas') loadVentas();
+                if (type === 'servicios') loadServicios();
+                if (type === 'horarios') loadHorarios();
+            } else {
+                alert('Error al limpiar datos');
+            }
+        } catch (err) {
+            alert('Error de conexión');
+        }
+    });
 }
 </script>
 </body>

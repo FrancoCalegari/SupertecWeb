@@ -375,3 +375,58 @@ async function deleteServicioById(id) {
 	}
 	return false;
 }
+
+// --- Bulk & Clear Logic ---
+async function saveAllProductos(data) {
+	await writeProductos(data);
+}
+async function clearProductos() {
+	await writeProductos([]);
+}
+
+async function saveAllVentas(data) {
+	await writeVentas(data);
+}
+async function clearVentas() {
+	await writeVentas([]);
+}
+
+async function saveAllServicios(data) {
+	await writeServicios(data);
+}
+async function clearServicios() {
+	await writeServicios([]);
+}
+
+async function saveAllHorarios(data) {
+	await writeHorarios(data);
+}
+async function clearHorarios() {
+	await writeHorarios(DEFAULT_HORARIOS); // Reset to default instead of empty
+}
+
+module.exports = {
+	initDb,
+	listProductos,
+	upsertProducto,
+	deleteProductoById,
+	readHorarios,
+	writeHorarios,
+	// Ventas
+	listVentas,
+	upsertVenta,
+	deleteVentaById,
+	// Servicios
+	listServicios,
+	upsertServicio,
+	deleteServicioById,
+	// Bulk & Clear
+	saveAllProductos,
+	clearProductos,
+	saveAllVentas,
+	clearVentas,
+	saveAllServicios,
+	clearServicios,
+	saveAllHorarios,
+	clearHorarios,
+};

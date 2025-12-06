@@ -368,6 +368,88 @@ app.delete("/api/servicios/:id", async (req, res) => {
 	}
 });
 
+// --- Admin Config Routes ---
+const {
+	saveAllProductos,
+	clearProductos,
+	saveAllVentas,
+	clearVentas,
+	saveAllServicios,
+	clearServicios,
+	saveAllHorarios,
+	clearHorarios,
+} = require("./db");
+
+// Export Data
+app.get("/api/admin/export/:type", isAuthenticated, async (req, res) => {
+	const { type } = req.params;
+	try {
+		let data;
+		if (type === "productos") data = await listProductos();
+		else if (type === "ventas") data = await listVentas();
+		else if (type === "servicios") data = await listServicios();
+		else if (type === "horarios") data = await readHorarios();
+		else return res.status(400).json({ error: "Tipo inválido" });
+
+		res.setHeader("Content-Disposition", `attachment; filename=${type}.json`);
+		res.setHeader("Content-Type", "application/json");
+		res.send(JSON.stringify(data, null, 2));
+	} catch (err) {
+		console.error("Error exportando", err);
+		res.status(500).json({ error: "Error exportando datos" });
+	}
+});
+
+// Import Data
+app.post(
+	"/api/admin/import/:type",
+	isAuthenticated,
+	upload.single("file"),
+	async (req, res) => {
+		const { type } = req.params;
+		if (!req.file)
+			return res.status(400).json({ error: "No se subió archivo" });
+
+		try {
+			const content = req.file.buffer
+				? req.file.buffer.toString()
+				: fs.readFileSync(req.file.path, "utf-8");
+			const data = JSON.parse(content);
+
+			if (!Array.isArray(data))
+				return res.status(400).json({ error: "El JSON debe ser un array" });
+
+			if (type === "productos") await saveAllProductos(data);
+			else if (type === "ventas") await saveAllVentas(data);
+			else if (type === "servicios") await saveAllServicios(data);
+			else if (type === "horarios") await saveAllHorarios(data);
+			else return res.status(400).json({ error: "Tipo inválido" });
+
+			res.json({ ok: true, count: data.length });
+		} catch (err) {
+			console.error("Error importando", err);
+			res.status(500).json({ error: "Error procesando archivo importado" });
+		}
+	}
+);
+
+// Clear Data
+app.delete("/api/admin/clear/:type", isAuthenticated, async (req, res) => {
+	const { type } = req.params;
+	try {
+		if (type === "productos") await clearProductos();
+		else if (type === "ventas") await clearVentas();
+		else if (type === "servicios") await clearServicios();
+		else if (type === "horarios") await clearHorarios();
+		else return res.status(400).json({ error: "Tipo inválido" });
+
+		res.json({ ok: true });
+	} catch (err) {
+		console.error("Error limpiando datos", err);
+		res.status(500).json({ error: "Error limpiando datos" });
+	}
+});
+
 app.delete("/api/productos/:id", async (req, res) => {
 	const id = Number(req.params.id); // convertir siempre a número
 
