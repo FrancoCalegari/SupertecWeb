@@ -872,20 +872,77 @@ footer {
 	text-align: center;
 }
 
-.ofertas-header,
+/* Ofertas Redesign */
+.ofertas-layout {
+	display: flex;
+	flex-direction: column;
+	gap: 3rem;
+	align-items: center;
+	justify-content: center;
+}
+
+.ofertas-grid-container {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1.5rem;
+	width: 100%;
+	max-width: 600px;
+}
+
+.ofertas-info {
+	text-align: center;
+	max-width: 500px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.ofertas-info h2 {
+	font-size: 2.5rem;
+	color: var(--color-rojo);
+	margin-bottom: 1rem;
+	line-height: 1.2;
+}
+
+.ofertas-info p {
+	font-size: 1.2rem;
+	color: var(--color-claro);
+	margin-bottom: 2rem;
+}
+
+@media (min-width: 992px) {
+	.ofertas-layout {
+		flex-direction: row;
+		text-align: left;
+		gap: 5rem;
+	}
+
+	.ofertas-info {
+		text-align: left;
+		align-items: flex-start;
+	}
+}
+
+/* Override card style for grid */
+.ofertas-grid-container .oferta-card {
+	width: 100%;
+	flex: none;
+	margin: 0;
+}
+
+/* Headers for other sections */
 .ventas-header,
 .servicios-ventas-header {
 	margin-bottom: 2rem;
 }
 
-.ofertas-header h2,
 .ventas-header h2,
 .servicios-ventas-header h2 {
 	font-size: 2rem;
 	color: var(--color-rojo);
 }
 
-.ofertas-header p,
 .ventas-header p,
 .servicios-ventas-header p {
 	font-size: 1.1rem;
@@ -893,7 +950,7 @@ footer {
 	margin-bottom: 2.5rem;
 }
 
-.ofertas-carousel,
+/* Carousels (Ventas & Servicios only now) */
 .ventas-carousel,
 .servicios-ventas-carousel {
 	display: flex;
@@ -906,18 +963,15 @@ footer {
 	justify-content: center;
 }
 
-.ofertas-carousel::-webkit-scrollbar,
 .ventas-carousel::-webkit-scrollbar,
 .servicios-ventas-carousel::-webkit-scrollbar {
 	height: 8px;
 }
-.ofertas-carousel::-webkit-scrollbar-thumb,
 .ventas-carousel::-webkit-scrollbar-thumb,
 .servicios-ventas-carousel::-webkit-scrollbar-thumb {
 	background: var(--color-rojo);
 	border-radius: 4px;
 }
-.ofertas-carousel::-webkit-scrollbar-track,
 .ventas-carousel::-webkit-scrollbar-track,
 .servicios-ventas-carousel::-webkit-scrollbar-track {
 	background: transparent;

@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 				const productosAleatorios = [...productos]
 					.sort(() => 0.5 - Math.random())
-					.slice(0, 5);
+					.slice(0, 4);
 
 				productosAleatorios.forEach((producto) => {
 					const precioFinal =
