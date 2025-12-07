@@ -335,7 +335,7 @@ h1.logoSubtext {
 
 .hero-btn:hover {
 	background: transparent;
-	color: var(--color-rojo);
+	color: var(--color-blanco);
 	box-shadow: 0 0 20px rgba(251, 56, 58, 0.6),
 		inset 0 0 10px rgba(251, 56, 58, 0.2);
 	transform: translateY(-2px);
@@ -406,8 +406,8 @@ h1.logoSubtext {
 }
 
 .card-services .brand-logos img {
-	max-height: 80px;
-	max-width: 140px;
+	width: 8vw;
+	height: 8vh;
 	object-fit: contain;
 	filter: grayscale(30%) drop-shadow(0 0 3px rgba(0, 0, 0, 0.25));
 	transition: transform 0.2s ease, filter 0.2s ease;
@@ -438,12 +438,13 @@ h1.logoSubtext {
 	flex-wrap: nowrap;
 	/* Transición suave para el movimiento */
 	transition: transform 0.5s linear;
+	align-items: center;
 }
 
 .brand-logos img {
 	/* Define un ancho y alto para los logos */
-	width: 150px; /* Ajusta según tus necesidades */
-	height: auto;
+	width: 8vw;
+	height: 8vh;
 	/* Mantiene la proporción de los logos */
 	object-fit: contain;
 	/* Reduce la opacidad para el efecto de carrusel */
@@ -453,7 +454,6 @@ h1.logoSubtext {
 }
 .brand-logos img:hover {
 	transform: scale(1.1);
-	filter: grayscale(0%) drop-shadow(0 0 6px #fb383a);
 }
 
 .text-services {
@@ -638,7 +638,8 @@ h1.logoSubtext {
 	gap: 1rem;
 }
 
-.ubicacion-gallery img {
+.ubicacion-gallery img,
+.ubicacion-gallery video {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
@@ -647,13 +648,15 @@ h1.logoSubtext {
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Primera imagen ocupa 2 filas (grande) */
-.ubicacion-gallery img:first-child {
+/* Primera imagen/video ocupa 2 filas (grande) */
+.ubicacion-gallery img:first-child,
+.ubicacion-gallery video:first-child {
 	grid-row: span 2;
 	height: 100%;
 }
 
-.ubicacion-gallery img:hover {
+.ubicacion-gallery img:hover,
+.ubicacion-gallery video:hover {
 	transform: scale(1.03);
 }
 
