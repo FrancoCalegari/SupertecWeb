@@ -1,13 +1,35 @@
 [
   {
     "id": 1,
-    "name": "testServicio",
-    "description": "Instalación 1",
-    "precio": 23,
-    "categoria": "Test",
-    "stock": 23,
-    "marca": "test",
-    "modelo": "test",
-    "img": "https://i.pinimg.com/1200x/b0/8a/f3/b08af3e0423e0593825f858bc9052206.jpg"
+    "name": "Mantenimiento técnico",
+    "description": "Mantenimiento técnico a tu dispositivo, revisión de pasta térmica etc",
+    "precio": 650000,
+    "categoria": "Mantenimiento",
+    "stock": 15,
+    "marca": "Supertec",
+    "modelo": "Supertec",
+    "img": "/assets/img/productos/1765231038961-327639612.png"
+  },
+  {
+    "id": 2,
+    "name": "Cambio de pantalla",
+    "description": "Cambio de pantalla de celulares tablet PCS laptops televisores",
+    "precio": 90000,
+    "categoria": "Mantenimiento",
+    "stock": 20,
+    "marca": "Supertec",
+    "modelo": "Supertec",
+    "img": "/assets/img/productos/1765231434638-487160736.png"
+  },
+  {
+    "id": 3,
+    "name": "Reballing",
+    "description": "Si vemos que Tu dispositivo requiere de un reballing en SuperTec tenemos las herramientas para poder logrlo",
+    "precio": 95000,
+    "categoria": "Mantenimiento",
+    "stock": 20,
+    "marca": "Supertec",
+    "modelo": "Supertec",
+    "img": "/assets/img/productos/1765231770578-431319709.png"
   }
 ]

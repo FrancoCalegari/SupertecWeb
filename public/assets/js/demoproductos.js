@@ -194,22 +194,27 @@ document.addEventListener("DOMContentLoaded", () => {
 				servicios.forEach((servicio) => {
 					const card = document.createElement("div");
 					card.classList.add("oferta-card"); // Reutilizamos estilo
+
+					let priceHtml = "";
+					if (servicio.precio && servicio.precio > 0) {
+						priceHtml = `<p class="precio">$${servicio.precio.toLocaleString(
+							"es-AR"
+						)}</p>`;
+					}
+
 					card.innerHTML = `
                         <img src="${servicio.img}" alt="${servicio.name}">
                         <h3>${servicio.name}</h3>
                         <p class="descripcion">${servicio.description}</p>
-                        <p class="precio">$${servicio.precio.toLocaleString(
-													"es-AR"
-												)}</p>
+                        ${priceHtml}
                         <button class="btn btn-comprar">Consultar</button>
                     `;
 					// 🔹 Evento botón WhatsApp
 					card.querySelector(".btn-comprar").addEventListener("click", () => {
-						const mensaje = `Quisiera consultar sobre este servicio:\n\n📌 *${
-							servicio.name
-						}*\n🏷️ Marca: ${servicio.marca}\n🔖 Modelo: ${
-							servicio.modelo
-						}\n💰 Precio: $${servicio.precio.toLocaleString("es-AR")}`;
+						let mensaje = `Quisiera Consultar por el servicio de: ${servicio.name}`;
+						if (servicio.precio && servicio.precio > 0) {
+							mensaje += ` $${servicio.precio.toLocaleString("es-AR")}`;
+						}
 						const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
 							mensaje
 						)}`;
