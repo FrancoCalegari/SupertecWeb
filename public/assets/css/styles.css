@@ -905,7 +905,7 @@ footer {
 /* Ofertas Redesign */
 .ofertas-layout {
 	display: flex;
-	flex-direction: column;
+	flex-direction: column-reverse;
 	gap: 3rem;
 	align-items: center;
 	justify-content: center;

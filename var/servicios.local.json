@@ -31,5 +31,27 @@
     "marca": "Supertec",
     "modelo": "Supertec",
     "img": "/assets/img/productos/1765231770578-431319709.png"
+  },
+  {
+    "id": 4,
+    "name": "Mantenimiento de consolas",
+    "description": "Mantenimiento de consolas de videojuegos ",
+    "precio": 65000,
+    "categoria": "",
+    "stock": 0,
+    "marca": "",
+    "modelo": "",
+    "img": "/assets/img/productos/1765239974627-771873881.png"
+  },
+  {
+    "id": 5,
+    "name": "Cambio de sistema ",
+    "description": "Cambio de sistema operativo a tu laptop o pc",
+    "precio": 30000,
+    "categoria": "",
+    "stock": 0,
+    "marca": "",
+    "modelo": "",
+    "img": "/assets/img/productos/1765241418594-644439255.png"
   }
 ]
