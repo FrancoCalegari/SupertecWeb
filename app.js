@@ -35,15 +35,39 @@ const SESSION_SECRET = process.env.SESSION_SECRET || "supertec_secret_key";
 
 // Middleware para recibir JSON y formularios
 app.set("trust proxy", 1); // necesario para que secure cookies funcionen detrás de proxy/https
+
+// CORS Middleware
+app.use((req, res, next) => {
+	const origin = req.headers.origin;
+	// Allow any origin for now (or restrict to specific domains if needed)
+	if (origin) {
+		res.setHeader("Access-Control-Allow-Origin", origin);
+	}
+	res.setHeader(
+		"Access-Control-Allow-Methods",
+		"GET, POST, OPTIONS, PUT, PATCH, DELETE"
+	);
+	res.setHeader(
+		"Access-Control-Allow-Headers",
+		"X-Requested-With,content-type"
+	);
+	res.setHeader("Access-Control-Allow-Credentials", true);
+
+	if (req.method === "OPTIONS") {
+		return res.status(200).end();
+	}
+	next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
 	cookieSession({
 		name: "supertec_session",
 		secret: SESSION_SECRET,
-		sameSite: "lax",
+		sameSite: "none",
 		httpOnly: true,
-		secure: process.env.NODE_ENV === "production",
+		secure: true, // Required for SameSite=None
 		maxAge: 24 * 60 * 60 * 1000,
 	})
 );
