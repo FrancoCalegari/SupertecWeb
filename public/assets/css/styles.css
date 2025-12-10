@@ -756,8 +756,8 @@ footer {
 	position: fixed;
 	bottom: 20px;
 	right: 20px;
-	background-color: #25d366;
-	color: #fff;
+	background-color: #009f38;
+	color: #ffffff;
 	border-radius: 50px;
 	display: flex;
 	align-items: center;
@@ -779,8 +779,8 @@ footer {
 .btn-whatsapp:hover {
 	transform: scale(1.05);
 	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
-	background-color: #20bd5a;
-	color: #fff;
+	background-color: #009f38;
+	color: #ffffff;
 }
 
 @media (max-width: 768px) {
@@ -986,11 +986,11 @@ footer {
 	display: flex;
 	overflow-x: auto;
 	gap: 1rem;
-	padding: 1rem 0;
+	padding: 1rem;
 	scroll-behavior: smooth;
 	scrollbar-width: thin; /* Firefox */
 	scrollbar-color: var(--color-rojo) transparent;
-	justify-content: center;
+	justify-content: flex-start;
 }
 
 .ventas-carousel::-webkit-scrollbar,
