@@ -130,9 +130,20 @@ async function upsertProducto(p) {
 		return data;
 	} else {
 		// Insert new
+		// Manual ID generation (fallback if schema lacks auto-increment)
+		const { data: maxIdData } = await supabase
+			.from("productos")
+			.select("id")
+			.order("id", { ascending: false })
+			.limit(1)
+			.single();
+
+		const nextId = (maxIdData?.id || 0) + 1;
+
+		const { id, ...newProducto } = producto; // Clean any existing bad ID
 		const { data, error } = await supabase
 			.from("productos")
-			.insert([producto])
+			.insert([{ ...newProducto, id: nextId }])
 			.select()
 			.single();
 
@@ -176,7 +187,7 @@ async function readHorarios() {
 	const { data, error } = await supabase
 		.from("horarios")
 		.select("*")
-		.order("id", { ascending: true });
+		.order("day", { ascending: true }); // Order by day if id not present, or just remove order
 
 	if (error) {
 		console.error("[DB] Error reading horarios:", error);
@@ -254,9 +265,19 @@ async function upsertVenta(v) {
 		return data;
 	} else {
 		// Insert new
+		const { data: maxIdData } = await supabase
+			.from("ventas")
+			.select("id")
+			.order("id", { ascending: false })
+			.limit(1)
+			.single();
+
+		const nextId = (maxIdData?.id || 0) + 1;
+
+		const { id, ...newVenta } = venta;
 		const { data, error } = await supabase
 			.from("ventas")
-			.insert([venta])
+			.insert([{ ...newVenta, id: nextId }])
 			.select()
 			.single();
 
@@ -327,9 +348,19 @@ async function upsertServicio(s) {
 		return data;
 	} else {
 		// Insert new
+		const { data: maxIdData } = await supabase
+			.from("servicios")
+			.select("id")
+			.order("id", { ascending: false })
+			.limit(1)
+			.single();
+
+		const nextId = (maxIdData?.id || 0) + 1;
+
+		const { id, ...newServicio } = servicio;
 		const { data, error } = await supabase
 			.from("servicios")
-			.insert([servicio])
+			.insert([{ ...newServicio, id: nextId }])
 			.select()
 			.single();
 

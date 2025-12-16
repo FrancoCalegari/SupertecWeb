@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
@@ -63,12 +64,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
 	cookieSession({
-		name: "supertec_session",
-		secret: SESSION_SECRET,
-		sameSite: "none",
-		httpOnly: true,
-		secure: true, // Required for SameSite=None
+		name: "session",
+		keys: [SESSION_SECRET],
 		maxAge: 24 * 60 * 60 * 1000,
+		// Allow cross-site but disable 'secure' requirement if not on Vercel (local dev)
+		sameSite: process.env.VERCEL ? "none" : "lax",
+		secure: !!process.env.VERCEL,
+		httpOnly: true,
 	})
 );
 
