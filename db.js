@@ -168,14 +168,15 @@ async function deleteProductoById(id) {
 }
 
 // ========== HORARIOS ==========
+// ========== HORARIOS ==========
 const DEFAULT_HORARIOS = [
-	{ day: "Lunes", open: "10:00", close: "18:00", closed: false },
-	{ day: "Martes", open: "10:00", close: "18:00", closed: false },
-	{ day: "Miércoles", open: "10:00", close: "18:00", closed: false },
-	{ day: "Jueves", open: "10:00", close: "18:00", closed: false },
-	{ day: "Viernes", open: "10:00", close: "18:00", closed: false },
-	{ day: "Sábado", open: "", close: "", closed: true },
-	{ day: "Domingo", open: "", close: "", closed: true },
+	{ id: 1, day: "Lunes", open: "10:00", close: "18:00", closed: false },
+	{ id: 2, day: "Martes", open: "10:00", close: "18:00", closed: false },
+	{ id: 3, day: "Miércoles", open: "10:00", close: "18:00", closed: false },
+	{ id: 4, day: "Jueves", open: "10:00", close: "18:00", closed: false },
+	{ id: 5, day: "Viernes", open: "10:00", close: "18:00", closed: false },
+	{ id: 6, day: "Sábado", open: "", close: "", closed: true },
+	{ id: 7, day: "Domingo", open: "", close: "", closed: true },
 ];
 
 async function readHorarios() {
@@ -187,7 +188,7 @@ async function readHorarios() {
 	const { data, error } = await supabase
 		.from("horarios")
 		.select("*")
-		.order("day", { ascending: true }); // Order by day if id not present, or just remove order
+		.order("id", { ascending: true });
 
 	if (error) {
 		console.error("[DB] Error reading horarios:", error);
