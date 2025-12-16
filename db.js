@@ -62,7 +62,8 @@ function invalidateCache(key) {
 // ========== END CACHE CONFIGURATION ==========
 
 const normalizeProducto = (p) => ({
-	id: Number(p.id),
+	// id: include id only if present and truthy, otherwise undefined
+	...(p.id ? { id: Number(p.id) } : {}),
 	name: p.name,
 	description: p.description || "",
 	precio: Number(p.precio) || 0,
