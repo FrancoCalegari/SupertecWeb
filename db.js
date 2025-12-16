@@ -19,6 +19,49 @@ const seedPath = path.join(
 	"productos.json"
 );
 
+// ========== CACHE CONFIGURATION ==========
+// Cache TTL in milliseconds (default: 5 minutes)
+const CACHE_TTL = parseInt(process.env.CACHE_TTL) || 5 * 60 * 1000;
+
+// In-memory cache structure
+const cache = {
+	productos: { data: null, timestamp: 0 },
+	ventas: { data: null, timestamp: 0 },
+	servicios: { data: null, timestamp: 0 },
+	horarios: { data: null, timestamp: 0 },
+};
+
+function getCachedData(key) {
+	const cached = cache[key];
+	if (!cached.data) return null;
+
+	const now = Date.now();
+	if (now - cached.timestamp > CACHE_TTL) {
+		// Cache expired
+		cached.data = null;
+		cached.timestamp = 0;
+		return null;
+	}
+
+	console.log(
+		`[CACHE HIT] ${key} - age: ${Math.round((now - cached.timestamp) / 1000)}s`
+	);
+	return cached.data;
+}
+
+function setCachedData(key, data) {
+	cache[key].data = data;
+	cache[key].timestamp = Date.now();
+	console.log(`[CACHE SET] ${key}`);
+}
+
+function invalidateCache(key) {
+	cache[key].data = null;
+	cache[key].timestamp = 0;
+	console.log(`[CACHE INVALIDATE] ${key}`);
+}
+// ========== END CACHE CONFIGURATION ==========
+
 const normalizeProducto = (p) => ({
 	id: Number(p.id),
 	name: p.name,
@@ -39,21 +82,33 @@ async function getBlobUrl() {
 }
 
 async function readProductos() {
+	// Check cache first
+	const cached = getCachedData("productos");
+	if (cached !== null) return cached;
+
+	// Cache miss - fetch from blob or local
+	let data;
 	if (useBlob) {
 		const url = await getBlobUrl();
 		if (!url) return null;
 		const res = await fetch(url);
 		if (!res.ok) throw new Error(`Blob fetch status ${res.status}`);
-		return res.json();
+		data = await res.json();
+	} else if (fs.existsSync(localStorePath)) {
+		data = JSON.parse(fs.readFileSync(localStorePath, "utf-8"));
+	} else {
+		return null;
 	}
 
-	if (fs.existsSync(localStorePath)) {
-		return JSON.parse(fs.readFileSync(localStorePath, "utf-8"));
-	}
-	return null;
+	// Store in cache
+	setCachedData("productos", data);
+	return data;
 }
 
 async function writeProductos(productos) {
+	// Invalidate cache on write
+	invalidateCache("productos");
+
 	if (useBlob) {
 		await put(BLOB_PATH, JSON.stringify(productos, null, 2), {
 			access: "public",
@@ -169,6 +224,12 @@ const DEFAULT_HORARIOS = [
 ];
 
 async function readHorarios() {
+	// Check cache first
+	const cached = getCachedData("horarios");
+	if (cached !== null) return cached;
+
+	// Cache miss - fetch from blob or local
+	let data;
 	if (useBlob) {
 		const { blobs } = await list({
 			prefix: BLOB_HORARIOS_PATH,
@@ -177,20 +238,27 @@ async function readHorarios() {
 		const exact = blobs?.find((b) => b.pathname === BLOB_HORARIOS_PATH);
 		const url = (exact || blobs?.[0])?.url;
 
-		if (!url) return DEFAULT_HORARIOS;
-
-		const res = await fetch(url);
-		if (!res.ok) return DEFAULT_HORARIOS;
-		return res.json();
+		if (!url) {
+			data = DEFAULT_HORARIOS;
+		} else {
+			const res = await fetch(url);
+			data = res.ok ? await res.json() : DEFAULT_HORARIOS;
+		}
+	} else if (fs.existsSync(localHorariosPath)) {
+		data = JSON.parse(fs.readFileSync(localHorariosPath, "utf-8"));
+	} else {
+		data = DEFAULT_HORARIOS;
 	}
 
-	if (fs.existsSync(localHorariosPath)) {
-		return JSON.parse(fs.readFileSync(localHorariosPath, "utf-8"));
-	}
-	return DEFAULT_HORARIOS;
+	// Store in cache
+	setCachedData("horarios", data);
+	return data;
 }
 
 async function writeHorarios(horarios) {
+	// Invalidate cache on write
+	invalidateCache("horarios");
+
 	if (useBlob) {
 		await put(BLOB_HORARIOS_PATH, JSON.stringify(horarios, null, 2), {
 			access: "public",
@@ -228,6 +296,12 @@ const BLOB_VENTAS_PATH = `${BLOB_PREFIX}${BLOB_VENTAS_KEY}`;
 const localVentasPath = path.join(__dirname, "var", "ventas.local.json");
 
 async function readVentas() {
+	// Check cache first
+	const cached = getCachedData("ventas");
+	if (cached !== null) return cached;
+
+	// Cache miss - fetch from blob or local
+	let data;
 	if (useBlob) {
 		const { blobs } = await list({
 			prefix: BLOB_VENTAS_PATH,
@@ -235,18 +309,27 @@ async function readVentas() {
 		});
 		const exact = blobs?.find((b) => b.pathname === BLOB_VENTAS_PATH);
 		const url = (exact || blobs?.[0])?.url;
-		if (!url) return [];
-		const res = await fetch(url);
-		if (!res.ok) return [];
-		return res.json();
+		if (!url) {
+			data = [];
+		} else {
+			const res = await fetch(url);
+			data = res.ok ? await res.json() : [];
+		}
+	} else if (fs.existsSync(localVentasPath)) {
+		data = JSON.parse(fs.readFileSync(localVentasPath, "utf-8"));
+	} else {
+		data = [];
 	}
-	if (fs.existsSync(localVentasPath)) {
-		return JSON.parse(fs.readFileSync(localVentasPath, "utf-8"));
-	}
-	return [];
+
+	// Store in cache
+	setCachedData("ventas", data);
+	return data;
 }
 
 async function writeVentas(ventas) {
+	// Invalidate cache on write
+	invalidateCache("ventas");
+
 	if (useBlob) {
 		await put(BLOB_VENTAS_PATH, JSON.stringify(ventas, null, 2), {
 			access: "public",
@@ -305,6 +388,12 @@ const BLOB_SERVICIOS_PATH = `${BLOB_PREFIX}${BLOB_SERVICIOS_KEY}`;
 const localServiciosPath = path.join(__dirname, "var", "servicios.local.json");
 
 async function readServicios() {
+	// Check cache first
+	const cached = getCachedData("servicios");
+	if (cached !== null) return cached;
+
+	// Cache miss - fetch from blob or local
+	let data;
 	if (useBlob) {
 		const { blobs } = await list({
 			prefix: BLOB_SERVICIOS_PATH,
@@ -312,18 +401,27 @@ async function readServicios() {
 		});
 		const exact = blobs?.find((b) => b.pathname === BLOB_SERVICIOS_PATH);
 		const url = (exact || blobs?.[0])?.url;
-		if (!url) return [];
-		const res = await fetch(url);
-		if (!res.ok) return [];
-		return res.json();
+		if (!url) {
+			data = [];
+		} else {
+			const res = await fetch(url);
+			data = res.ok ? await res.json() : [];
+		}
+	} else if (fs.existsSync(localServiciosPath)) {
+		data = JSON.parse(fs.readFileSync(localServiciosPath, "utf-8"));
+	} else {
+		data = [];
 	}
-	if (fs.existsSync(localServiciosPath)) {
-		return JSON.parse(fs.readFileSync(localServiciosPath, "utf-8"));
-	}
-	return [];
+
+	// Store in cache
+	setCachedData("servicios", data);
+	return data;
 }
 
 async function writeServicios(servicios) {
+	// Invalidate cache on write
+	invalidateCache("servicios");
+
 	if (useBlob) {
 		await put(BLOB_SERVICIOS_PATH, JSON.stringify(servicios, null, 2), {
 			access: "public",
