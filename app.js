@@ -184,7 +184,46 @@ app.post("/api/productos", upload.single("imgFile"), async (req, res) => {
 			)}${ext}`;
 			const mime = req.file.mimetype || "application/octet-stream";
 
-			if (process.env.BLOB_READ_WRITE_TOKEN) {
+			// Check if Supabase envs are present
+			if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+				const { createClient } = require("@supabase/supabase-js");
+				const supabase = createClient(
+					process.env.SUPABASE_URL,
+					process.env.SUPABASE_SERVICE_ROLE_KEY
+				);
+
+				const buffer =
+					req.file.buffer ||
+					(req.file.path ? fs.readFileSync(req.file.path) : null);
+				if (!buffer) {
+					return res
+						.status(400)
+						.json({ ok: false, error: "No se pudo leer el archivo" });
+				}
+
+				console.log(`[Storage] Subiendo ${fileName} (${mime}) a Supabase`);
+				const { data, error } = await supabase.storage
+					.from("images")
+					.upload(fileName, buffer, {
+						contentType: mime,
+						upsert: false,
+					});
+
+				if (error) {
+					console.error("[Storage] Error subiendo imagen:", error);
+					return res
+						.status(500)
+						.json({ ok: false, error: "Error subiendo imagen" });
+				}
+
+				// Construct public URL
+				const {
+					data: { publicUrl },
+				} = supabase.storage.from("images").getPublicUrl(fileName);
+				imageUrl = publicUrl;
+				console.log(`[Storage] Subida OK: ${imageUrl}`);
+			} else if (process.env.BLOB_READ_WRITE_TOKEN) {
+				// Fallback to Vercel Blob if configured
 				const buffer =
 					req.file.buffer ||
 					(req.file.path ? fs.readFileSync(req.file.path) : null);
@@ -194,6 +233,7 @@ app.post("/api/productos", upload.single("imgFile"), async (req, res) => {
 						.json({ ok: false, error: "No se pudo leer el archivo subido" });
 				}
 				console.log(`[Blob] Subiendo ${fileName} (${mime})`);
+				const { put } = require("@vercel/blob");
 				const blob = await put(fileName, buffer, {
 					access: "public",
 					token: process.env.BLOB_READ_WRITE_TOKEN,
@@ -203,11 +243,11 @@ app.post("/api/productos", upload.single("imgFile"), async (req, res) => {
 				imageUrl = blob.url;
 			} else if (!process.env.VERCEL) {
 				imageUrl = "/assets/img/productos/" + req.file.filename;
-				console.log(`[Blob] Uso de ruta local ${imageUrl}`);
+				console.log(`[Local] Uso de ruta local ${imageUrl}`);
 			} else {
 				return res.status(400).json({
 					ok: false,
-					error: "Configure BLOB_READ_WRITE_TOKEN o use una URL pública",
+					error: "Configure SUPABASE o BLOB_READ_WRITE_TOKEN",
 				});
 			}
 		}
@@ -264,15 +304,53 @@ app.post("/api/ventas", upload.single("imgFile"), async (req, res) => {
 			)}${ext}`;
 			const mime = req.file.mimetype || "application/octet-stream";
 
-			if (process.env.BLOB_READ_WRITE_TOKEN) {
+			// Check if Supabase envs are present
+			if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+				const { createClient } = require("@supabase/supabase-js");
+				const supabase = createClient(
+					process.env.SUPABASE_URL,
+					process.env.SUPABASE_SERVICE_ROLE_KEY
+				);
+
 				const buffer =
 					req.file.buffer ||
 					(req.file.path ? fs.readFileSync(req.file.path) : null);
-				if (!buffer)
+				if (!buffer) {
 					return res
 						.status(400)
 						.json({ ok: false, error: "No se pudo leer el archivo" });
+				}
 
+				console.log(`[Storage] Subiendo ${fileName} (${mime}) a Supabase`);
+				const { data, error } = await supabase.storage
+					.from("images")
+					.upload(fileName, buffer, {
+						contentType: mime,
+						upsert: false,
+					});
+
+				if (error) {
+					console.error("[Storage] Error subiendo imagen:", error);
+					return res
+						.status(500)
+						.json({ ok: false, error: "Error subiendo imagen" });
+				}
+
+				// Construct public URL
+				const {
+					data: { publicUrl },
+				} = supabase.storage.from("images").getPublicUrl(fileName);
+				imageUrl = publicUrl;
+			} else if (process.env.BLOB_READ_WRITE_TOKEN) {
+				const buffer =
+					req.file.buffer ||
+					(req.file.path ? fs.readFileSync(req.file.path) : null);
+				if (!buffer) {
+					return res
+						.status(400)
+						.json({ ok: false, error: "No se pudo leer el archivo subido" });
+				}
+				const { put } = require("@vercel/blob");
 				const blob = await put(fileName, buffer, {
 					access: "public",
 					token: process.env.BLOB_READ_WRITE_TOKEN,
@@ -280,7 +358,11 @@ app.post("/api/ventas", upload.single("imgFile"), async (req, res) => {
 				});
 				imageUrl = blob.url;
 			} else if (!process.env.VERCEL) {
-				imageUrl = "/assets/img/productos/" + req.file.filename; // Reutilizamos carpeta productos localmente
+				imageUrl = "/assets/img/localphotos/" + req.file.filename;
+			} else {
+				return res
+					.status(400)
+					.json({ ok: false, error: "Falta configuración de storage" });
 			}
 		}
 		venta.img = imageUrl;
@@ -346,23 +428,62 @@ app.post("/api/servicios", upload.single("imgFile"), async (req, res) => {
 			)}${ext}`;
 			const mime = req.file.mimetype || "application/octet-stream";
 
-			if (process.env.BLOB_READ_WRITE_TOKEN) {
+			// Check if Supabase envs are present
+			if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+				const { createClient } = require("@supabase/supabase-js");
+				const supabase = createClient(
+					process.env.SUPABASE_URL,
+					process.env.SUPABASE_SERVICE_ROLE_KEY
+				);
+
 				const buffer =
 					req.file.buffer ||
 					(req.file.path ? fs.readFileSync(req.file.path) : null);
-				if (!buffer)
+				if (!buffer) {
 					return res
 						.status(400)
 						.json({ ok: false, error: "No se pudo leer el archivo" });
+				}
 
+				console.log(`[Storage] Subiendo ${fileName} (${mime}) a Supabase`);
+				const { data, error } = await supabase.storage
+					.from("images")
+					.upload(fileName, buffer, {
+						contentType: mime,
+						upsert: false,
+					});
+
+				if (error) {
+					console.error("[Storage] Error subiendo imagen:", error);
+					return res
+						.status(500)
+						.json({ ok: false, error: "Error subiendo imagen" });
+				}
+
+				// Construct public URL
+				const {
+					data: { publicUrl },
+				} = supabase.storage.from("images").getPublicUrl(fileName);
+				imageUrl = publicUrl;
+			} else if (process.env.BLOB_READ_WRITE_TOKEN) {
+				const buffer =
+					req.file.buffer ||
+					(req.file.path ? fs.readFileSync(req.file.path) : null);
+				if (!buffer) {
+					return res
+						.status(400)
+						.json({ ok: false, error: "No se pudo leer el archivo subido" });
+				}
+				const { put } = require("@vercel/blob");
 				const blob = await put(fileName, buffer, {
 					access: "public",
 					token: process.env.BLOB_READ_WRITE_TOKEN,
 					contentType: mime,
 				});
 				imageUrl = blob.url;
-			} else if (!process.env.VERCEL) {
-				imageUrl = "/assets/img/productos/" + req.file.filename;
+			} else {
+				// local fallback simple?
+				imageUrl = "/assets/img/servicios/" + req.file.filename;
 			}
 		}
 		servicio.img = imageUrl;

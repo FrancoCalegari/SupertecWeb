@@ -19,7 +19,7 @@ async function runSchema() {
 	try {
 		await client.connect();
 
-		const schemaPath = path.join(__dirname, "supabase_schema.sql");
+		const schemaPath = path.join(__dirname, "supabase_storage.sql");
 		const sql = fs.readFileSync(schemaPath, "utf8");
 
 		console.log("📝 Applying schema...");
