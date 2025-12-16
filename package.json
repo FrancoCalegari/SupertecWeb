@@ -19,6 +19,7 @@
   "homepage": "https://github.com/FrancoCalegari/SupertecWeb#readme",
   "dependencies": {
     "@libsql/client": "^0.7.0",
+    "@supabase/supabase-js": "^2.87.3",
     "@vercel/blob": "^0.23.4",
     "body-parser": "^2.2.0",
     "cookie-session": "^2.1.1",

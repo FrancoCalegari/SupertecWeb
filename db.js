@@ -1,23 +1,22 @@
-const fs = require("fs");
-const path = require("path");
-const { list, put } = require("@vercel/blob");
+const { createClient } = require("@supabase/supabase-js");
 
-const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
-const BLOB_PREFIX = process.env.BLOB_PREFIX || "db/";
-const BLOB_KEY = process.env.BLOB_PRODUCTS_KEY || "productos.json";
-const BLOB_PATH = `${BLOB_PREFIX}${BLOB_KEY}`;
-const useBlob = Boolean(BLOB_TOKEN);
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
-const localStorePath =
-	process.env.LOCAL_STORE_PATH ||
-	path.join(__dirname, "var", "productos.local.json");
-const seedPath = path.join(
-	__dirname,
-	"public",
-	"assets",
-	"json",
-	"productos.json"
-);
+// Initialize Supabase client
+// Use service role key for admin operations (bypasses RLS)
+const supabase = SUPABASE_SERVICE_KEY
+	? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+	: SUPABASE_ANON_KEY
+	? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+	: null;
+
+if (!supabase) {
+	console.error(
+		"[DB] SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY) must be set"
+	);
+}
 
 // ========== CACHE CONFIGURATION ==========
 // Cache TTL in milliseconds (default: 5 minutes)
@@ -74,145 +73,89 @@ const normalizeProducto = (p) => ({
 	img: p.img || "",
 });
 
-async function getBlobUrl() {
-	if (!useBlob) return null;
-	const { blobs } = await list({ prefix: BLOB_PATH, token: BLOB_TOKEN });
-	const exact = blobs?.find((b) => b.pathname === BLOB_PATH);
-	return (exact || blobs?.[0])?.url || null;
+// ========== INITIALIZATION ==========
+async function initDb() {
+	if (!supabase) {
+		console.error("[DB] Supabase client not initialized");
+		throw new Error("Supabase client not initialized");
+	}
+	console.log("[DB] Supabase client initialized successfully");
 }
 
+// ========== PRODUCTOS ==========
 async function readProductos() {
 	// Check cache first
 	const cached = getCachedData("productos");
 	if (cached !== null) return cached;
 
-	// Cache miss - fetch from blob or local
-	let data;
-	if (useBlob) {
-		const url = await getBlobUrl();
-		if (!url) return null;
-		const res = await fetch(url);
-		if (!res.ok) throw new Error(`Blob fetch status ${res.status}`);
-		data = await res.json();
-	} else if (fs.existsSync(localStorePath)) {
-		data = JSON.parse(fs.readFileSync(localStorePath, "utf-8"));
-	} else {
-		return null;
+	// Cache miss - fetch from Supabase
+	const { data, error } = await supabase
+		.from("productos")
+		.select("*")
+		.order("id", { ascending: true });
+
+	if (error) {
+		console.error("[DB] Error reading productos:", error);
+		return [];
 	}
 
 	// Store in cache
-	setCachedData("productos", data);
-	return data;
-}
-
-async function writeProductos(productos) {
-	// Invalidate cache on write
-	invalidateCache("productos");
-
-	if (useBlob) {
-		await put(BLOB_PATH, JSON.stringify(productos, null, 2), {
-			access: "public",
-			contentType: "application/json",
-			token: BLOB_TOKEN,
-			addRandomSuffix: false,
-		});
-		return;
-	}
-
-	fs.mkdirSync(path.dirname(localStorePath), { recursive: true });
-	fs.writeFileSync(localStorePath, JSON.stringify(productos, null, 2));
-}
-
-async function seedFromFile() {
-	if (!fs.existsSync(seedPath)) return [];
-	try {
-		const seed = JSON.parse(fs.readFileSync(seedPath, "utf-8"));
-		console.log(
-			`[DB] Sembrando almacenamiento con ${seed.length} productos iniciales`
-		);
-		await writeProductos(seed);
-		return seed;
-	} catch (err) {
-		console.error("[DB] No se pudo leer seed productos.json", err);
-		return [];
-	}
-}
-
-async function initDb() {
-	try {
-		const existing = await readProductos();
-		if (existing) {
-			if (useBlob) {
-				console.log(
-					`[DB] Conectado a Blob y datos existentes encontrados (${existing.length}) en ${BLOB_PATH}`
-				);
-			} else {
-				console.log(
-					`[DB] Con almacenamiento local en ${localStorePath} con ${existing.length} productos`
-				);
-			}
-			return;
-		}
-		await seedFromFile();
-		if (useBlob) {
-			console.log(
-				`[DB] Conectado a Blob y base inicial creada en ${BLOB_PATH}`
-			);
-		} else {
-			console.log(`[DB] Base local inicial creada en ${localStorePath}`);
-		}
-	} catch (err) {
-		console.error("[DB] Error inicializando almacenamiento", err);
-		throw err;
-	}
+	setCachedData("productos", data || []);
+	return data || [];
 }
 
 async function listProductos() {
-	const productos = await readProductos();
-	if (!productos) return [];
-	return productos;
+	return await readProductos();
 }
 
 async function upsertProducto(p) {
-	const productos = (await readProductos()) || [];
-	let nuevo;
+	invalidateCache("productos");
+
+	const producto = normalizeProducto(p);
 
 	if (p.id) {
-		const idx = productos.findIndex((x) => x.id === p.id);
-		if (idx >= 0) {
-			productos[idx] = { ...productos[idx], ...normalizeProducto(p), id: p.id };
-			nuevo = productos[idx];
-		} else {
-			nuevo = normalizeProducto(p);
-			productos.push(nuevo);
-		}
-	} else {
-		const maxId = productos.reduce((max, item) => Math.max(max, item.id), 0);
-		nuevo = normalizeProducto({ ...p, id: maxId + 1 });
-		productos.push(nuevo);
-	}
+		// Update existing
+		const { data, error } = await supabase
+			.from("productos")
+			.update(producto)
+			.eq("id", p.id)
+			.select()
+			.single();
 
-	await writeProductos(productos);
-	return nuevo;
+		if (error) {
+			console.error("[DB] Error updating producto:", error);
+			throw error;
+		}
+		return data;
+	} else {
+		// Insert new
+		const { data, error } = await supabase
+			.from("productos")
+			.insert([producto])
+			.select()
+			.single();
+
+		if (error) {
+			console.error("[DB] Error inserting producto:", error);
+			throw error;
+		}
+		return data;
+	}
 }
 
 async function deleteProductoById(id) {
-	let productos = (await readProductos()) || [];
-	const initLen = productos.length;
-	productos = productos.filter((p) => p.id !== id);
+	invalidateCache("productos");
 
-	if (productos.length !== initLen) {
-		await writeProductos(productos);
-		return true;
+	const { error } = await supabase.from("productos").delete().eq("id", id);
+
+	if (error) {
+		console.error("[DB] Error deleting producto:", error);
+		return false;
 	}
-	return false;
+	return true;
 }
 
-// --- Horarios Logic ---
-const BLOB_HORARIOS_KEY = process.env.BLOB_HORARIOS_KEY || "horarios.json";
-const BLOB_HORARIOS_PATH = `${BLOB_PREFIX}${BLOB_HORARIOS_KEY}`;
-const localHorariosPath = path.join(__dirname, "var", "horarios.json");
-
+// ========== HORARIOS ==========
 const DEFAULT_HORARIOS = [
 	{ day: "Lunes", open: "10:00", close: "18:00", closed: false },
 	{ day: "Martes", open: "10:00", close: "18:00", closed: false },
@@ -228,119 +171,61 @@ async function readHorarios() {
 	const cached = getCachedData("horarios");
 	if (cached !== null) return cached;
 
-	// Cache miss - fetch from blob or local
-	let data;
-	if (useBlob) {
-		const { blobs } = await list({
-			prefix: BLOB_HORARIOS_PATH,
-			token: BLOB_TOKEN,
-		});
-		const exact = blobs?.find((b) => b.pathname === BLOB_HORARIOS_PATH);
-		const url = (exact || blobs?.[0])?.url;
+	// Cache miss - fetch from Supabase
+	const { data, error } = await supabase
+		.from("horarios")
+		.select("*")
+		.order("id", { ascending: true });
 
-		if (!url) {
-			data = DEFAULT_HORARIOS;
-		} else {
-			const res = await fetch(url);
-			data = res.ok ? await res.json() : DEFAULT_HORARIOS;
-		}
-	} else if (fs.existsSync(localHorariosPath)) {
-		data = JSON.parse(fs.readFileSync(localHorariosPath, "utf-8"));
-	} else {
-		data = DEFAULT_HORARIOS;
+	if (error) {
+		console.error("[DB] Error reading horarios:", error);
+		return DEFAULT_HORARIOS;
 	}
 
+	const result = data && data.length > 0 ? data : DEFAULT_HORARIOS;
+
 	// Store in cache
-	setCachedData("horarios", data);
-	return data;
+	setCachedData("horarios", result);
+	return result;
 }
 
 async function writeHorarios(horarios) {
-	// Invalidate cache on write
 	invalidateCache("horarios");
 
-	if (useBlob) {
-		await put(BLOB_HORARIOS_PATH, JSON.stringify(horarios, null, 2), {
-			access: "public",
-			contentType: "application/json",
-			token: BLOB_TOKEN,
-			addRandomSuffix: false,
-		});
-		return;
-	}
+	// Update each horario by day
+	for (const h of horarios) {
+		const { error } = await supabase
+			.from("horarios")
+			.update({ open: h.open, close: h.close, closed: h.closed })
+			.eq("day", h.day);
 
-	fs.mkdirSync(path.dirname(localHorariosPath), { recursive: true });
-	fs.writeFileSync(localHorariosPath, JSON.stringify(horarios, null, 2));
+		if (error) {
+			console.error("[DB] Error updating horario:", error);
+			throw error;
+		}
+	}
 }
 
-module.exports = {
-	initDb,
-	listProductos,
-	upsertProducto,
-	deleteProductoById,
-	readHorarios,
-	writeHorarios,
-	// Ventas
-	listVentas,
-	upsertVenta,
-	deleteVentaById,
-	// Servicios
-	listServicios,
-	upsertServicio,
-	deleteServicioById,
-};
-
-// --- Ventas Logic ---
-const BLOB_VENTAS_KEY = process.env.BLOB_VENTAS_KEY || "ventas.json";
-const BLOB_VENTAS_PATH = `${BLOB_PREFIX}${BLOB_VENTAS_KEY}`;
-const localVentasPath = path.join(__dirname, "var", "ventas.local.json");
-
+// ========== VENTAS ==========
 async function readVentas() {
 	// Check cache first
 	const cached = getCachedData("ventas");
 	if (cached !== null) return cached;
 
-	// Cache miss - fetch from blob or local
-	let data;
-	if (useBlob) {
-		const { blobs } = await list({
-			prefix: BLOB_VENTAS_PATH,
-			token: BLOB_TOKEN,
-		});
-		const exact = blobs?.find((b) => b.pathname === BLOB_VENTAS_PATH);
-		const url = (exact || blobs?.[0])?.url;
-		if (!url) {
-			data = [];
-		} else {
-			const res = await fetch(url);
-			data = res.ok ? await res.json() : [];
-		}
-	} else if (fs.existsSync(localVentasPath)) {
-		data = JSON.parse(fs.readFileSync(localVentasPath, "utf-8"));
-	} else {
-		data = [];
+	// Cache miss - fetch from Supabase
+	const { data, error } = await supabase
+		.from("ventas")
+		.select("*")
+		.order("id", { ascending: true });
+
+	if (error) {
+		console.error("[DB] Error reading ventas:", error);
+		return [];
 	}
 
 	// Store in cache
-	setCachedData("ventas", data);
-	return data;
-}
-
-async function writeVentas(ventas) {
-	// Invalidate cache on write
-	invalidateCache("ventas");
-
-	if (useBlob) {
-		await put(BLOB_VENTAS_PATH, JSON.stringify(ventas, null, 2), {
-			access: "public",
-			contentType: "application/json",
-			token: BLOB_TOKEN,
-			addRandomSuffix: false,
-		});
-		return;
-	}
-	fs.mkdirSync(path.dirname(localVentasPath), { recursive: true });
-	fs.writeFileSync(localVentasPath, JSON.stringify(ventas, null, 2));
+	setCachedData("ventas", data || []);
+	return data || [];
 }
 
 async function listVentas() {
@@ -348,91 +233,72 @@ async function listVentas() {
 }
 
 async function upsertVenta(v) {
-	const ventas = (await readVentas()) || [];
-	let nuevo;
+	invalidateCache("ventas");
+
+	const venta = normalizeProducto(v);
 
 	if (v.id) {
-		const idx = ventas.findIndex((x) => x.id === v.id);
-		if (idx >= 0) {
-			ventas[idx] = { ...ventas[idx], ...normalizeProducto(v), id: v.id };
-			nuevo = ventas[idx];
-		} else {
-			nuevo = normalizeProducto(v);
-			ventas.push(nuevo);
-		}
-	} else {
-		const maxId = ventas.reduce((max, item) => Math.max(max, item.id), 0);
-		nuevo = normalizeProducto({ ...v, id: maxId + 1 });
-		ventas.push(nuevo);
-	}
+		// Update existing
+		const { data, error } = await supabase
+			.from("ventas")
+			.update(venta)
+			.eq("id", v.id)
+			.select()
+			.single();
 
-	await writeVentas(ventas);
-	return nuevo;
+		if (error) {
+			console.error("[DB] Error updating venta:", error);
+			throw error;
+		}
+		return data;
+	} else {
+		// Insert new
+		const { data, error } = await supabase
+			.from("ventas")
+			.insert([venta])
+			.select()
+			.single();
+
+		if (error) {
+			console.error("[DB] Error inserting venta:", error);
+			throw error;
+		}
+		return data;
+	}
 }
 
 async function deleteVentaById(id) {
-	let ventas = (await readVentas()) || [];
-	const initLen = ventas.length;
-	ventas = ventas.filter((p) => p.id !== id);
+	invalidateCache("ventas");
 
-	if (ventas.length !== initLen) {
-		await writeVentas(ventas);
-		return true;
+	const { error } = await supabase.from("ventas").delete().eq("id", id);
+
+	if (error) {
+		console.error("[DB] Error deleting venta:", error);
+		return false;
 	}
-	return false;
+	return true;
 }
 
-// --- Servicios Logic ---
-const BLOB_SERVICIOS_KEY = process.env.BLOB_SERVICIOS_KEY || "servicios.json";
-const BLOB_SERVICIOS_PATH = `${BLOB_PREFIX}${BLOB_SERVICIOS_KEY}`;
-const localServiciosPath = path.join(__dirname, "var", "servicios.local.json");
-
+// ========== SERVICIOS ==========
 async function readServicios() {
 	// Check cache first
 	const cached = getCachedData("servicios");
 	if (cached !== null) return cached;
 
-	// Cache miss - fetch from blob or local
-	let data;
-	if (useBlob) {
-		const { blobs } = await list({
-			prefix: BLOB_SERVICIOS_PATH,
-			token: BLOB_TOKEN,
-		});
-		const exact = blobs?.find((b) => b.pathname === BLOB_SERVICIOS_PATH);
-		const url = (exact || blobs?.[0])?.url;
-		if (!url) {
-			data = [];
-		} else {
-			const res = await fetch(url);
-			data = res.ok ? await res.json() : [];
-		}
-	} else if (fs.existsSync(localServiciosPath)) {
-		data = JSON.parse(fs.readFileSync(localServiciosPath, "utf-8"));
-	} else {
-		data = [];
+	// Cache miss - fetch from Supabase
+	const { data, error } = await supabase
+		.from("servicios")
+		.select("*")
+		.order("id", { ascending: true });
+
+	if (error) {
+		console.error("[DB] Error reading servicios:", error);
+		return [];
 	}
 
 	// Store in cache
-	setCachedData("servicios", data);
-	return data;
-}
-
-async function writeServicios(servicios) {
-	// Invalidate cache on write
-	invalidateCache("servicios");
-
-	if (useBlob) {
-		await put(BLOB_SERVICIOS_PATH, JSON.stringify(servicios, null, 2), {
-			access: "public",
-			contentType: "application/json",
-			token: BLOB_TOKEN,
-			addRandomSuffix: false,
-		});
-		return;
-	}
-	fs.mkdirSync(path.dirname(localServiciosPath), { recursive: true });
-	fs.writeFileSync(localServiciosPath, JSON.stringify(servicios, null, 2));
+	setCachedData("servicios", data || []);
+	return data || [];
 }
 
 async function listServicios() {
@@ -440,67 +306,114 @@ async function listServicios() {
 }
 
 async function upsertServicio(s) {
-	const servicios = (await readServicios()) || [];
-	let nuevo;
+	invalidateCache("servicios");
+
+	const servicio = normalizeProducto(s);
 
 	if (s.id) {
-		const idx = servicios.findIndex((x) => x.id === s.id);
-		if (idx >= 0) {
-			servicios[idx] = { ...servicios[idx], ...normalizeProducto(s), id: s.id };
-			nuevo = servicios[idx];
-		} else {
-			nuevo = normalizeProducto(s);
-			servicios.push(nuevo);
-		}
-	} else {
-		const maxId = servicios.reduce((max, item) => Math.max(max, item.id), 0);
-		nuevo = normalizeProducto({ ...s, id: maxId + 1 });
-		servicios.push(nuevo);
-	}
+		// Update existing
+		const { data, error } = await supabase
+			.from("servicios")
+			.update(servicio)
+			.eq("id", s.id)
+			.select()
+			.single();
 
-	await writeServicios(servicios);
-	return nuevo;
+		if (error) {
+			console.error("[DB] Error updating servicio:", error);
+			throw error;
+		}
+		return data;
+	} else {
+		// Insert new
+		const { data, error } = await supabase
+			.from("servicios")
+			.insert([servicio])
+			.select()
+			.single();
+
+		if (error) {
+			console.error("[DB] Error inserting servicio:", error);
+			throw error;
+		}
+		return data;
+	}
 }
 
 async function deleteServicioById(id) {
-	let servicios = (await readServicios()) || [];
-	const initLen = servicios.length;
-	servicios = servicios.filter((p) => p.id !== id);
+	invalidateCache("servicios");
 
-	if (servicios.length !== initLen) {
-		await writeServicios(servicios);
-		return true;
+	const { error } = await supabase.from("servicios").delete().eq("id", id);
+
+	if (error) {
+		console.error("[DB] Error deleting servicio:", error);
+		return false;
 	}
-	return false;
+	return true;
 }
 
-// --- Bulk & Clear Logic ---
+// ========== BULK & CLEAR OPERATIONS ==========
 async function saveAllProductos(data) {
-	await writeProductos(data);
+	invalidateCache("productos");
+	// Delete all
+	await supabase.from("productos").delete().neq("id", 0);
+	// Insert all
+	const { error } = await supabase.from("productos").insert(data);
+	if (error) throw error;
 }
+
 async function clearProductos() {
-	await writeProductos([]);
+	invalidateCache("productos");
+	const { error } = await supabase.from("productos").delete().neq("id", 0);
+	if (error) throw error;
 }
 
 async function saveAllVentas(data) {
-	await writeVentas(data);
+	invalidateCache("ventas");
+	await supabase.from("ventas").delete().neq("id", 0);
+	const { error } = await supabase.from("ventas").insert(data);
+	if (error) throw error;
 }
+
 async function clearVentas() {
-	await writeVentas([]);
+	invalidateCache("ventas");
+	const { error } = await supabase.from("ventas").delete().neq("id", 0);
+	if (error) throw error;
 }
 
 async function saveAllServicios(data) {
-	await writeServicios(data);
+	invalidateCache("servicios");
+	await supabase.from("servicios").delete().neq("id", 0);
+	const { error } = await supabase.from("servicios").insert(data);
+	if (error) throw error;
 }
+
 async function clearServicios() {
-	await writeServicios([]);
+	invalidateCache("servicios");
+	const { error } = await supabase.from("servicios").delete().neq("id", 0);
+	if (error) throw error;
 }
 
 async function saveAllHorarios(data) {
-	await writeHorarios(data);
+	invalidateCache("horarios");
+	// Update each by day
+	for (const h of data) {
+		await supabase
+			.from("horarios")
+			.update({ open: h.open, close: h.close, closed: h.closed })
+			.eq("day", h.day);
+	}
 }
+
 async function clearHorarios() {
-	await writeHorarios(DEFAULT_HORARIOS); // Reset to default instead of empty
+	invalidateCache("horarios");
+	// Reset to defaults
+	for (const h of DEFAULT_HORARIOS) {
+		await supabase
+			.from("horarios")
+			.update({ open: h.open, close: h.close, closed: h.closed })
+			.eq("day", h.day);
+	}
 }
 
 module.exports = {
