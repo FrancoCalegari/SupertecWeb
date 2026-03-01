@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sorteo Supertec</title>
+    <meta name="description" content="Participá en el Gran Sorteo de Supertec Mendoza. ¡Grandes premios te esperan!" />
+    <link rel="icon" type="image/png" href="./assets/img/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <script src="https://kit.fontawesome.com/274f77f0e3.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <meta name="theme-color" content="#fb383a" />
+
+    <style>
+        /* ─── RESET & BASE ─────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --red: #fb383a;
+            --red-dim: rgba(251, 56, 58, 0.15);
+            --red-glow: rgba(251, 56, 58, 0.4);
+            --bg: #0e0f11;
+            --bg2: #14161a;
+            --bg3: #1c1e24;
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text: #f0f2f5;
+            --text-muted: #868e96;
+            --gold: #ffd700;
+            --green: #2ecc71;
+            --radius: 18px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ─── ANIMATED BG ──────────────────────────────── */
+        .bg-orbs {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .bg-orbs span {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.18;
+            animation: drift 12s ease-in-out infinite;
+        }
+
+        .bg-orbs span:nth-child(1) {
+            width: 500px;
+            height: 500px;
+            background: var(--red);
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .bg-orbs span:nth-child(2) {
+            width: 350px;
+            height: 350px;
+            background: #7b2ff7;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -4s;
+        }
+
+        .bg-orbs span:nth-child(3) {
+            width: 280px;
+            height: 280px;
+            background: #ff8c00;
+            top: 40%;
+            left: 60%;
+            animation-delay: -8s;
+        }
+
+        @keyframes drift {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -20px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(-20px, 30px) scale(0.95);
+            }
+        }
+
+        /* ─── HEADER ───────────────────────────────────── */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(14, 15, 17, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .header-brand img {
+            height: 2.5rem;
+        }
+
+        .header-brand span {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .header-brand span em {
+            color: var(--red);
+            font-style: normal;
+        }
+
+        .header-back {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color .2s;
+        }
+
+        .header-back:hover {
+            color: var(--red);
+        }
+
+        /* ─── HERO ─────────────────────────────────────── */
+        #hero {
+            text-align: center;
+            padding: 5rem 1.5rem 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--red-dim);
+            border: 1px solid var(--red);
+            color: var(--red);
+            border-radius: 100px;
+            padding: 0.4rem 1.2rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--red);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.4);
+            }
+        }
+
+        #sorteo-title {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 30%, var(--red) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #sorteo-desc {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 560px;
+            margin: 0 auto 2.5rem;
+        }
+
+        /* ─── COUNTDOWN ────────────────────────────────── */
+        .countdown-box {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius);
+            padding: 1.5rem 2rem;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .countdown-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+        }
+
+        #countdown-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .countdown-unit {
+            text-align: center;
+        }
+
+        .countdown-unit span {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 900;
+            min-width: 60px;
+            background: var(--bg3);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.4rem;
+            background: linear-gradient(180deg, var(--bg3) 0%, #111 100%);
+        }
+
+        .countdown-unit label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 0.3rem;
+            display: block;
+        }
+
+        .countdown-sep {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--red);
+            align-self: flex-start;
+            padding-top: 0.3rem;
+        }
+
+        .countdown-expired {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--red);
+        }
+
+        /* ─── SECTION SHARED ───────────────────────────── */
+        .section {
+            padding: 3.5rem 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-inner {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .section-title i {
+            color: var(--red);
+        }
+
+        .section-sub {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        /* ─── PRIZES ───────────────────────────────────── */
+        #prizes {
+            background: var(--bg2);
+        }
+
+        .prizes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .prize-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform .3s, border-color .3s, box-shadow .3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prize-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--red-dim) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity .3s;
+        }
+
+        .prize-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--red);
+            box-shadow: 0 12px 30px var(--red-glow);
+        }
+
+        .prize-card:hover::before {
+            opacity: 1;
+        }
+
+        .prize-rank {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .prize-name {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg3) 25%, #22252d 50%, var(--bg3) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+            height: 80px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* ─── CONDITIONS ───────────────────────────────── */
+        .mode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+        }
+
+        .mode-badge.clientes {
+            background: rgba(46, 204, 113, 0.15);
+            border: 1px solid var(--green);
+            color: var(--green);
+        }
+
+        .mode-badge.ventas {
+            background: rgba(255, 193, 7, 0.15);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+        }
+
+        .conditions-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .conditions-list li {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.9rem 1.2rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+        }
+
+        .conditions-list li i {
+            color: var(--red);
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        /* ─── FORM ─────────────────────────────────────── */
+        #registro {
+            background: var(--bg2);
+        }
+
+        .form-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+        }
+
+        @media (max-width: 580px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .form-group label span {
+            color: var(--red);
+        }
+
+        .form-input {
+            background: var(--bg3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color .25s, box-shadow .25s;
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-input:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px var(--red-dim);
+        }
+
+        .form-input.error {
+            border-color: #ff4d4d;
+            box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.2);
+        }
+
+        /* Purchase field (hidden by default) */
+        #purchase-group {
+            display: none;
+        }
+
+        /* Terms checkbox */
+        .check-group {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 0.9rem 1.2rem;
+            cursor: pointer;
+        }
+
+        .check-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--red);
+            cursor: pointer;
+        }
+
+        .check-group span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--red), #c0392b);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            transition: transform .2s, box-shadow .2s;
+            box-shadow: 0 8px 24px var(--red-glow);
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px var(--red-glow);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .form-feedback {
+            display: none;
+            padding: 0.9rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .form-feedback.success {
+            display: block;
+            background: rgba(46, 204, 113, 0.15);
+            border: 1px solid var(--green);
+            color: var(--green);
+        }
+
+        .form-feedback.error {
+            display: block;
+            background: rgba(255, 77, 77, 0.12);
+            border: 1px solid #ff4d4d;
+            color: #ff6b6b;
+        }
+
+        #form-closed {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid var(--gold);
+            border-radius: var(--radius);
+            color: var(--gold);
+            font-weight: 700;
+            display: none;
+        }
+
+        /* ─── ROULETTE ─────────────────────────────────── */
+        #ruleta {
+            background: var(--bg);
+        }
+
+        .roulette-wrap {
+            text-align: center;
+        }
+
+        #roulette-canvas {
+            border-radius: 50%;
+            box-shadow: 0 0 60px var(--red-glow), 0 0 0 4px var(--red);
+            max-width: 360px;
+            width: 100%;
+            height: auto;
+        }
+
+        .roulette-locked {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .roulette-locked i {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .btn-spin {
+            margin-top: 1.5rem;
+            padding: 0.9rem 2.5rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(155, 89, 182, 0.4);
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .btn-spin:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(155, 89, 182, 0.6);
+        }
+
+        .btn-spin:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #winner-display {
+            display: none;
+            margin-top: 1.5rem;
+        }
+
+        .winner-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--gold), #ff8c00);
+            color: #111;
+            padding: 0.9rem 2rem;
+            border-radius: 100px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) rotate(0);
+                opacity: 1;
+            }
+        }
+
+        /* ─── QR SECTION ───────────────────────────────── */
+        #qr-section {
+            background: var(--bg2);
+        }
+
+        .qr-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        #qr-container {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .qr-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .qr-info h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .qr-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-qr-generate,
+        .btn-print {
+            padding: 0.7rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: transform .2s, opacity .2s;
+        }
+
+        .btn-qr-generate {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .btn-print {
+            background: var(--bg3);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-qr-generate:hover,
+        .btn-print:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+
+        /* ─── CONFETTI ─────────────────────────────────── */
+        .confetti-piece {
+            position: fixed;
+            z-index: 9999;
+            border-radius: 2px;
+            pointer-events: none;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            from {
+                transform: translateY(-10px) rotate(0deg);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* ─── FOOTER ───────────────────────────────────── */
+        footer {
+            background: var(--bg3);
+            border-top: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        footer a {
+            color: var(--red);
+            text-decoration: none;
+        }
+
+        /* ─── LOADING OVERLAY ──────────────────────────── */
+        #page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+            transition: opacity .5s;
+        }
+
+        #page-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 4px solid var(--glass-border);
+            border-top-color: var(--red);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ─── PRINT STYLES ─────────────────────────────── */
+        @media print {
+            body {
+                background: #fff;
+                color: #000;
+            }
+
+            .bg-orbs,
+            header,
+            #registro,
+            #ruleta,
+            footer,
+            #qr-section .btn-qr-generate,
+            .btn-print {
+                display: none;
+            }
+
+            #qr-section {
+                display: block;
+            }
+
+            .qr-card {
+                border: 2px solid #333;
+                background: #fff;
+            }
+
+            #qr-container {
+                background: #fff;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background orbs -->
+    <div class="bg-orbs">
+        <span></span><span></span><span></span>
+    </div>
+
+    <!-- Page Loader -->
+    <div id="page-loader">
+        <div class="spinner"></div>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Cargando sorteo…</p>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <a href="./index.html" class="header-brand">
+            <img src="./assets/img/logo.png" alt="Supertec Logo" />
+            <span>Super<em>tec</em></span>
+        </a>
+        <a href="./index.html" class="header-back">
+            <i class="fa-solid fa-arrow-left"></i> Inicio
+        </a>
+    </header>
+
+    <!-- ═══ HERO ═══════════════════════════════════════ -->
+    <section id="hero">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            <span>Sorteo Oficial · Supertec</span>
+        </div>
+        <h1 id="sorteo-title">Cargando Sorteo…</h1>
+        <p id="sorteo-desc">Cargando información…</p>
+
+        <!-- Countdown -->
+        <div class="countdown-box" id="countdown-box">
+            <div class="countdown-label"><i class="fa-solid fa-clock"></i> Tiempo restante</div>
+            <div id="countdown-display">
+                <div class="countdown-unit"><span>--</span><label>Días</label></div>
+                <div class="countdown-sep">:</div>
+                <div class="countdown-unit"><span>--</span><label>Horas</label></div>
+                <div class="countdown-sep">:</div>
+                <div class="countdown-unit"><span>--</span><label>Min</label></div>
+                <div class="countdown-sep">:</div>
+                <div class="countdown-unit"><span>--</span><label>Seg</label></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ PREMIOS ═════════════════════════════════════ -->
+    <section id="prizes" class="section">
+        <div class="section-inner">
+            <h2 class="section-title"><i class="fa-solid fa-trophy"></i> Premios</h2>
+            <p class="section-sub">Estos son los increíbles premios que podés ganar</p>
+            <div class="prizes-grid" id="prizes-grid">
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ CONDICIONES ══════════════════════════════════ -->
+    <section id="condiciones" class="section">
+        <div class="section-inner">
+            <h2 class="section-title"><i class="fa-solid fa-list-check"></i> Condiciones</h2>
+            <p class="section-sub">Leé los requisitos para participar</p>
+            <div id="mode-badge-wrap"></div>
+            <ul class="conditions-list" id="conditions-list">
+                <!-- filled dynamically -->
+            </ul>
+        </div>
+    </section>
+
+    <!-- ═══ FORMULARIO ══════════════════════════════════ -->
+    <section id="registro" class="section">
+        <div class="section-inner">
+            <h2 class="section-title"><i class="fa-solid fa-user-plus"></i> Inscribirse</h2>
+            <p class="section-sub">Completá tus datos para participar en el sorteo</p>
+
+            <div id="form-closed">
+                <i class="fa-solid fa-lock" style="font-size:2rem; display:block; margin-bottom:0.5rem;"></i>
+                Las inscripciones están cerradas. ¡Gracias a todos los participantes!
+            </div>
+
+            <div class="form-card" id="form-card">
+                <form id="sorteo-form" novalidate>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="f-instagram">Instagram <span>*</span></label>
+                            <input id="f-instagram" class="form-input" type="text" placeholder="@tu_usuario"
+                                autocomplete="off" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="f-telefono">Teléfono <span>*</span></label>
+                            <input id="f-telefono" class="form-input" type="tel" placeholder="+54 261 ···"
+                                autocomplete="tel" required />
+                        </div>
+
+                        <div class="form-group full">
+                            <label for="f-nombre">Nombre o DNI <span>*</span></label>
+                            <input id="f-nombre" class="form-input" type="text"
+                                placeholder="Tu nombre completo o número de DNI" autocomplete="name" required />
+                        </div>
+
+                        <div class="form-group full" id="purchase-group">
+                            <label for="f-ticket">Foto/Captura del Ticket <span id="currency-label"></span>
+                                <span>*</span></label>
+                            <input id="f-ticket" class="form-input" type="file" accept="image/*" />
+                            <small id="min-purchase-hint" style="color: var(--gold); font-size: 0.82rem;"></small>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.2rem;">
+                        <label class="check-group">
+                            <input type="checkbox" id="f-terms" required />
+                            <span>Acepto las condiciones del sorteo y autorizo el uso de mis datos de contacto.</span>
+                        </label>
+                    </div>
+
+                    <div class="form-feedback" id="form-feedback"></div>
+
+                    <button type="submit" class="btn-submit" id="btn-submit" style="margin-top: 1.2rem;">
+                        <i class="fa-solid fa-ticket"></i> Inscribirme al Sorteo
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ RULETA ═══════════════════════════════════════ -->
+    <section id="ruleta" class="section">
+        <div class="section-inner">
+            <h2 class="section-title"><i class="fa-solid fa-dice"></i> Ruleta del Sorteo</h2>
+            <p class="section-sub">La animación de ruleta muestra al ganador</p>
+            <div class="roulette-wrap" id="roulette-wrap">
+                <!-- Filled dynamically -->
+                <div class="roulette-locked" id="roulette-locked">
+                    <i class="fa-solid fa-lock"></i>
+                    El sorteo aún no ha finalizado.<br />
+                    <span style="font-size:0.9rem; color: var(--text-muted);">
+                        La ruleta se habilitará cuando el administrador lo indique.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- QR Section Removed -->
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 <a href="./index.html">Supertec</a> · Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- ─── SCRIPTS ─────────────────────────────────── -->
+    <script type="module">
+        import {
+            loadConfig,
+            checkDuplicate,
+            registerParticipant,
+            uploadTicket,
+            getParticipants,
+            startCountdown,
+            initRoulette
+        } from "./assets/js/sorteo.js";
+
+        let sorteoConfig = null;
+        let isExpired = false;
+
+        async function init() {
+            try {
+                sorteoConfig = await loadConfig();
+            } catch (e) {
+                console.error("Error loading config:", e);
+            }
+            hideLoader();
+            renderPage();
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById("page-loader");
+            loader.classList.add("hidden");
+            setTimeout(() => loader.remove(), 600);
+        }
+
+        function renderPage() {
+            if (!sorteoConfig) {
+                document.getElementById("sorteo-title").textContent = "Sorteo Supertec";
+                document.getElementById("sorteo-desc").textContent = "¡Participá y ganá increíbles premios!";
+                renderConditions("clientes", 0, "ARS");
+                document.getElementById("countdown-box").style.display = "none";
+                return;
+            }
+
+            const cfg = sorteoConfig;
+
+            // Title & desc
+            document.getElementById("sorteo-title").textContent = cfg.title || "Gran Sorteo Supertec";
+            document.getElementById("sorteo-desc").textContent = cfg.description || "¡Participá y ganá increíbles premios!";
+            document.title = `${cfg.title || "Sorteo"} · Supertec`;
+
+            // Prizes
+            renderPrizes(cfg.prizes || []);
+
+            // Conditions
+            renderConditions(cfg.mode, cfg.min_purchase, cfg.currency);
+
+            // Countdown
+            if (cfg.deadline) {
+                startCountdown(cfg.deadline, () => {
+                    isExpired = true;
+                    toggleForm();
+                });
+                isExpired = new Date(cfg.deadline) <= new Date();
+            } else {
+                document.getElementById("countdown-box").style.display = "none";
+            }
+
+            // Form visibility
+            toggleForm();
+
+            // Roulette
+            const rouletteSection = document.getElementById("ruleta");
+            if (cfg.show_roulette && cfg.winners && cfg.winners.length > 0) {
+                if (rouletteSection) rouletteSection.style.display = "block";
+                setupRoulette(cfg.winners);
+            } else {
+                if (rouletteSection) rouletteSection.style.display = "none";
+            }
+        }
+
+        function renderPrizes(prizes) {
+            const grid = document.getElementById("prizes-grid");
+            if (!prizes || prizes.length === 0) {
+                grid.innerHTML = `<p style="color: var(--text-muted); grid-column: 1/-1;">Los premios serán revelados próximamente…</p>`;
+                return;
+            }
+            const ranks = ["🥇", "🥈", "🥉", "🎁", "🎁", "🎁"];
+            grid.innerHTML = prizes
+                .map((p, i) => `
+          <div class="prize-card">
+            <div class="prize-rank">${ranks[i] || "🎁"}</div>
+            <div class="prize-name">${escHtml(p)}</div>
+          </div>
+        `)
+                .join("");
+        }
+
+        function renderConditions(mode, minPurchase, currency) {
+            const wrap = document.getElementById("mode-badge-wrap");
+            const list = document.getElementById("conditions-list");
+
+            if (mode === "ventas") {
+                wrap.innerHTML = `<div class="mode-badge ventas"><i class="fa-solid fa-bag-shopping"></i> Modo: Generar Ventas</div>`;
+                list.innerHTML = `
+          <li><i class="fa-solid fa-check-circle"></i> Seguir la cuenta de Instagram <strong>@supertecmza</strong></li>
+          <li><i class="fa-solid fa-check-circle"></i> Haber realizado una compra mínima de <strong>${currency} ${minPurchase}</strong> en Supertec</li>
+          <li><i class="fa-solid fa-check-circle"></i> Completar el formulario y adjuntar la foto del ticket o comprobante</li>
+          <li><i class="fa-solid fa-check-circle"></i> Un participante por DNI / número de teléfono</li>
+          <li><i class="fa-solid fa-info-circle"></i> El equipo de Supertec se reserva el derecho de verificar las compras</li>
+        `;
+            } else {
+                wrap.innerHTML = `<div class="mode-badge clientes"><i class="fa-solid fa-users"></i> Modo: Clientes</div>`;
+                list.innerHTML = `
+          <li><i class="fa-solid fa-check-circle"></i> Seguir la cuenta de Instagram <strong>@supertecmza</strong></li>
+          <li><i class="fa-solid fa-check-circle"></i> Completar el formulario con tus datos de contacto</li>
+          <li><i class="fa-solid fa-check-circle"></i> Un participante por DNI / número de teléfono</li>
+          <li><i class="fa-solid fa-check-circle"></i> Participación gratuita — no se requiere compra</li>
+        `;
+            }
+        }
+
+        function toggleForm() {
+            const cfg = sorteoConfig;
+            const active = cfg ? cfg.active : true;
+            const closed = !active || isExpired;
+            document.getElementById("form-closed").style.display = closed ? "block" : "none";
+            document.getElementById("form-card").style.display = closed ? "none" : "block";
+
+            // Show purchase field if needed
+            if (cfg && cfg.mode === "ventas") {
+                document.getElementById("purchase-group").style.display = "flex";
+                document.getElementById("f-ticket").required = true;
+                document.getElementById("min-purchase-hint").textContent =
+                    `Monto mínimo de tu comprobante: ${cfg.currency || "ARS"} ${cfg.min_purchase || 0}`;
+            }
+        }
+
+        async function setupRoulette(winners) {
+            const locked = document.getElementById("roulette-locked");
+            if (locked) locked.style.display = "none";
+
+            // Show canvas + spin button
+            const wrap = document.getElementById("roulette-wrap");
+            wrap.innerHTML = `
+        <canvas id="roulette-canvas" width="360" height="360"></canvas>
+        <br/>
+        <button class="btn-spin" id="spin-btn">🎰 Girar la Ruleta</button>
+        <div id="winner-display"></div>
+      `;
+
+            const participants = await getParticipants();
+            initRoulette(participants, winners);
+        }
+
+        // ─── Form Submission ───────────────────────────
+        document.getElementById("sorteo-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const feedback = document.getElementById("form-feedback");
+            feedback.className = "form-feedback";
+
+            const instagram = document.getElementById("f-instagram").value.trim();
+            const telefono = document.getElementById("f-telefono").value.trim();
+            const nombre = document.getElementById("f-nombre").value.trim();
+            const ticketInput = document.getElementById("f-ticket");
+            const terms = document.getElementById("f-terms").checked;
+
+            const cfg = sorteoConfig || {};
+            const isVentas = cfg.mode === "ventas";
+
+            // Validation
+            if (!instagram || !telefono || !nombre || !terms || (isVentas && !ticketInput.files[0])) {
+                feedback.textContent = "Por favor completá todos los campos obligatorios y aceptá las condiciones.";
+                feedback.classList.add("error");
+                return;
+            }
+
+            const igClean = instagram.startsWith("@") ? instagram : "@" + instagram;
+            if (!/^@[\w.]{1,30}$/.test(igClean)) {
+                feedback.textContent = "El usuario de Instagram no es válido. Ej: @tu_usuario";
+                feedback.classList.add("error");
+                return;
+            }
+
+            // Provide visual feedback quickly
+            const btn = document.getElementById("btn-submit");
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Registrando…`;
+
+            // Check duplicate first
+            const alreadyIn = await checkDuplicate(igClean);
+            if (alreadyIn) {
+                feedback.textContent = "¡Ya estás inscripto! Cada participante puede inscribirse solo una vez.";
+                feedback.classList.add("error");
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-ticket"></i> Inscribirme al Sorteo`;
+                return;
+            }
+
+            // Upload ticket if required
+            let ticket_url = "";
+            if (isVentas) {
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Subiendo comprobante…`;
+                ticket_url = await uploadTicket(ticketInput.files[0]);
+                if (!ticket_url) {
+                    feedback.textContent = "Error al subir el comprobante. Por favor intentá con otra imagen o más tarde.";
+                    feedback.classList.add("error");
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-ticket"></i> Inscribirme al Sorteo`;
+                    return;
+                }
+            }
+
+            // Register
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Finalizando…`;
+            const ok = await registerParticipant({
+                instagram: igClean,
+                telefono,
+                nombre,
+                ticket_url,
+            });
+
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-ticket"></i> Inscribirme al Sorteo`;
+
+            if (ok) {
+                document.getElementById("sorteo-form").reset();
+                feedback.textContent = "¡Inscripción exitosa! Mucha suerte en el sorteo 🍀";
+                feedback.classList.add("success");
+                window.scrollTo({ top: feedback.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" });
+            } else {
+                feedback.textContent = "Hubo un error al registrarte. Intentá de nuevo en unos segundos.";
+                feedback.classList.add("error");
+            }
+        });
+
+        // ─── Util ─────────────────────────────────────
+        function escHtml(str) {
+            const d = document.createElement("div");
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        // ─── Start ────────────────────────────────────
+        init();
+    </script>
+</body>
+
+</html>

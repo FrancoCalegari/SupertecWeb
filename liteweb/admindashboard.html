@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Admin Dashboard - Productos</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" type="image/png" href="./assets/img/logo.png" />
+	<style>
+		/* ... Copied CSS from original ... */
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			background: #f4f6f8;
+		}
+
+		header {
+			background: #222;
+			color: #fff;
+			padding: 1rem 2rem;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		h1 {
+			margin: 0;
+			font-size: 1.5rem;
+		}
+
+		.container {
+			max-width: 1100px;
+			margin: 2rem auto;
+			padding: 0 1rem;
+		}
+
+		/* Tabla */
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-top: 1rem;
+			background: #fff;
+			border-radius: 8px;
+			box-shadow: 0 2px 8px #0001;
+		}
+
+		th,
+		td {
+			padding: 0.75rem;
+			border-bottom: 1px solid #eee;
+			text-align: left;
+			font-size: 0.95rem;
+		}
+
+		th {
+			background: #f0f0f0;
+			font-weight: 600;
+		}
+
+		img {
+			max-width: 70px;
+			border-radius: 4px;
+		}
+
+		.actions button {
+			margin-right: 0.3rem;
+			margin-bottom: 0.3rem;
+		}
+
+		/* Botones */
+		.add-btn {
+			background: #28a745;
+			color: #fff;
+			border: none;
+			padding: 0.5rem 1rem;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.edit-btn {
+			background: #ffc107;
+			color: #222;
+			border: none;
+			padding: 0.3rem 0.7rem;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.delete-btn {
+			background: #dc3545;
+			color: #fff;
+			border: none;
+			padding: 0.3rem 0.7rem;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.logout-btn {
+			background: #dc3545;
+			color: #fff;
+			text-decoration: none;
+			padding: 0.4rem 0.8rem;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.logout-btn:hover {
+			background: #c82333;
+		}
+
+		/* Modal base */
+		.modal {
+			display: none;
+			/* Oculto por defecto */
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.6);
+			justify-content: center;
+			align-items: center;
+			padding: 1rem;
+			/* Espacio para móviles */
+		}
+
+		.modal-content {
+			background: #fff;
+			border-radius: 8px;
+			padding: 1.5rem;
+			max-width: 500px;
+			width: 100%;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+			overflow-y: auto;
+			max-height: 90vh;
+			/* Evita que se salga de la pantalla en móviles */
+		}
+
+		.modal-content h3 {
+			margin-top: 0;
+			text-align: center;
+			font-size: 1.3rem;
+		}
+
+		.modal-content form {
+			display: flex;
+			flex-direction: column;
+			gap: 0.7rem;
+		}
+
+		.modal-content form input[type="text"],
+		.modal-content form input[type="number"],
+		.modal-content form input[type="file"] {
+			padding: 0.5rem;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			width: 100%;
+		}
+
+		.modal-content form label {
+			font-size: 0.9rem;
+			margin-bottom: 0.2rem;
+			display: block;
+		}
+
+		.modal-content button {
+			padding: 0.6rem;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 1rem;
+		}
+
+		.save-btn {
+			background: #28a745;
+			color: #fff;
+		}
+
+		.cancel-btn {
+			background: #dc3545;
+			color: #fff;
+		}
+
+		.modal-actions {
+			display: flex;
+			justify-content: space-around;
+			margin-top: 1rem;
+		}
+
+		.btn-yes {
+			background: #e74c3c;
+			color: #fff;
+		}
+
+		.btn-no {
+			background: #7f8c8d;
+			color: #fff;
+		}
+
+		/* Tabs */
+		.tabs {
+			display: flex;
+			gap: 0.5rem;
+			margin-bottom: 1rem;
+			border-bottom: 2px solid #ddd;
+			padding-bottom: 0.5rem;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		.tab-btn {
+			background: none;
+			border: none;
+			font-size: 1rem;
+			padding: 0.5rem 1rem;
+			cursor: pointer;
+			color: #555;
+			font-weight: 600;
+			border-bottom: 3px solid transparent;
+			transition: all 0.3s;
+			flex: 1 1 auto;
+			text-align: center;
+		}
+
+		.tab-btn:hover {
+			color: #000;
+			background-color: #f8f9fa;
+			border-radius: 4px 4px 0 0;
+		}
+
+		.tab-btn.active {
+			color: #007bff;
+			border-bottom-color: #007bff;
+			background-color: #e7f1ff;
+			border-radius: 4px 4px 0 0;
+		}
+
+		.tab-content {
+			display: none;
+			animation: fadeIn 0.3s ease;
+		}
+
+		.tab-content.active {
+			display: block;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+			}
+
+			to {
+				opacity: 1;
+			}
+		}
+
+		/* Config Styles */
+		.config-section {
+			border-bottom: 1px solid #eee;
+			padding-bottom: 1.5rem;
+			margin-bottom: 1.5rem;
+		}
+
+		.config-section:last-child {
+			border-bottom: none;
+			margin-bottom: 0;
+		}
+
+		.config-section h4 {
+			margin-top: 0;
+			margin-bottom: 1rem;
+			color: #333;
+		}
+
+		.config-actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1rem;
+			align-items: center;
+		}
+
+		.btn-export {
+			background: #17a2b8;
+			color: #fff;
+			border: none;
+			padding: 0.5rem 1rem;
+			border-radius: 4px;
+			cursor: pointer;
+			flex: 1 1 auto;
+			text-align: center;
+		}
+
+		.btn-import {
+			background: #007bff;
+			color: #fff;
+			border: none;
+			padding: 0.5rem 1rem;
+			border-radius: 4px;
+			cursor: pointer;
+			flex: 1 1 auto;
+			text-align: center;
+		}
+
+		.btn-clear {
+			background: #dc3545;
+			color: #fff;
+			border: none;
+			padding: 0.5rem 1rem;
+			border-radius: 4px;
+			cursor: pointer;
+			margin-left: auto;
+			flex: 1 1 auto;
+			text-align: center;
+		}
+
+		.import-box {
+			display: flex;
+			gap: 0.5rem;
+			align-items: center;
+			background: #f8f9fa;
+			padding: 0.5rem;
+			border-radius: 4px;
+			border: 1px solid #ddd;
+			flex-wrap: wrap;
+			flex: 2 1 300px;
+		}
+
+		.import-box input[type="file"] {
+			flex: 1;
+			min-width: 200px;
+		}
+
+		/* ─── Sorteo Admin Styles ─────────────────── */
+		.sorteo-card {
+			background: #fff;
+			border-radius: 10px;
+			box-shadow: 0 2px 10px #0001;
+			margin-bottom: 1.5rem;
+			overflow: hidden;
+		}
+
+		.sorteo-card-header {
+			padding: 1rem 1.5rem;
+			border-bottom: 1px solid #eee;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0.5rem;
+			flex-wrap: wrap;
+			background: #fafafa;
+		}
+
+		.sorteo-card-header h4 {
+			margin: 0;
+			font-size: 1rem;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.sorteo-grid {
+			padding: 1.5rem;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 1rem;
+		}
+
+		@media (max-width: 640px) {
+			.sorteo-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		.s-full {
+			grid-column: 1 / -1;
+		}
+
+		.s-form-group {
+			display: flex;
+			flex-direction: column;
+			gap: 0.3rem;
+		}
+
+		.s-form-group label {
+			font-size: 0.82rem;
+			font-weight: 600;
+			color: #555;
+		}
+
+		.s-input {
+			padding: 0.5rem 0.8rem;
+			border: 1px solid #d0d5dd;
+			border-radius: 6px;
+			font-size: 0.92rem;
+			width: 100%;
+			outline: none;
+			font-family: inherit;
+			transition: border-color .2s;
+		}
+
+		.s-input:focus {
+			border-color: #007bff;
+		}
+
+		.s-input-sm {
+			padding: 0.35rem 0.6rem;
+			font-size: 0.88rem;
+		}
+
+		textarea.s-input {
+			resize: vertical;
+		}
+
+		.s-btn {
+			padding: 0.5rem 1rem;
+			border-radius: 6px;
+			border: none;
+			cursor: pointer;
+			font-family: inherit;
+			font-size: 0.9rem;
+			font-weight: 700;
+			display: inline-flex;
+			align-items: center;
+			gap: 0.4rem;
+			transition: opacity .2s, transform .15s;
+		}
+
+		.s-btn:hover:not(:disabled) {
+			opacity: 0.85;
+			transform: translateY(-1px);
+		}
+
+		.s-btn-sm {
+			padding: 0.35rem 0.75rem;
+			font-size: 0.82rem;
+		}
+
+		.s-btn-green {
+			background: #28a745;
+			color: #fff;
+		}
+
+		.s-btn-blue {
+			background: #007bff;
+			color: #fff;
+		}
+
+		.s-btn-red {
+			background: #dc3545;
+			color: #fff;
+		}
+
+		.s-badge {
+			background: #007bff;
+			color: #fff;
+			border-radius: 100px;
+			padding: 0.1rem 0.6rem;
+			font-size: 0.75rem;
+			font-weight: 800;
+		}
+
+		/* Prizes */
+		.s-prizes-list {
+			display: flex;
+			flex-direction: column;
+			gap: 0.4rem;
+			max-height: 200px;
+			overflow-y: auto;
+		}
+
+		.s-prize-item {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.4rem 0.8rem;
+			background: #f4f6f8;
+			border-radius: 6px;
+			font-size: 0.9rem;
+		}
+
+		.s-prize-rank {
+			font-size: 1.1rem;
+			flex-shrink: 0;
+		}
+
+		.s-prize-name {
+			flex: 1;
+		}
+
+		/* Switches */
+		.s-switches {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1.2rem;
+			padding: 0.2rem 0;
+		}
+
+		.s-switch-label {
+			display: flex;
+			align-items: center;
+			gap: 0.6rem;
+			cursor: pointer;
+			font-size: 0.9rem;
+			color: #444;
+		}
+
+		.s-switch {
+			position: relative;
+			width: 42px;
+			height: 22px;
+			flex-shrink: 0;
+		}
+
+		.s-switch input {
+			opacity: 0;
+			width: 0;
+			height: 0;
+		}
+
+		.s-slider {
+			position: absolute;
+			inset: 0;
+			background: #ccc;
+			border-radius: 22px;
+			transition: background .3s;
+			cursor: pointer;
+		}
+
+		.s-slider::before {
+			content: '';
+			position: absolute;
+			width: 16px;
+			height: 16px;
+			left: 3px;
+			top: 3px;
+			background: #fff;
+			border-radius: 50%;
+			transition: transform .3s;
+		}
+
+		.s-switch input:checked+.s-slider {
+			background: #28a745;
+		}
+
+		.s-switch input:checked+.s-slider::before {
+			transform: translateX(20px);
+		}
+
+		/* Participants table */
+		.s-table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 0.88rem;
+		}
+
+		.s-table th,
+		.s-table td {
+			padding: 0.6rem 0.8rem;
+			border-bottom: 1px solid #eee;
+			text-align: left;
+		}
+
+		.s-table th {
+			background: #f0f0f0;
+			font-weight: 700;
+		}
+
+		.s-table tr:hover {
+			background: #f9f9f9;
+		}
+
+		/* Actions */
+		.s-actions-row {
+			padding: 1.5rem;
+			display: flex;
+			gap: 1rem;
+			flex-wrap: wrap;
+		}
+
+		.s-action-box {
+			flex: 1;
+			min-width: 240px;
+			background: #f4f6f8;
+			border-radius: 8px;
+			padding: 1.2rem;
+		}
+
+		#s-current-winners {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+			margin-top: 0.5rem;
+		}
+
+		.s-winner-chip {
+			background: linear-gradient(135deg, #ffd700, #ff8c00);
+			color: #111;
+			padding: 0.3rem 0.9rem;
+			border-radius: 100px;
+			font-weight: 800;
+			font-size: 0.9rem;
+		}
+
+		.s-prize-form {
+			display: flex;
+			gap: 0.5rem;
+			align-items: center;
+			flex-wrap: wrap;
+		}
+
+		.s-prize-form .s-input {
+			flex: 1;
+			min-width: 180px;
+		}
+
+		/* Responsive ... same as original ... */
+		@media (max-width: 977px) {
+
+			table,
+			thead,
+			tbody,
+			th,
+			td,
+			tr {
+				display: block;
+			}
+
+			thead {
+				display: none;
+			}
+
+			tr {
+				background: #fff;
+				margin-bottom: 1rem;
+				border-radius: 8px;
+				box-shadow: 0 2px 6px #0001;
+				padding: 1rem;
+			}
+
+			td {
+				border: none;
+				display: flex;
+				justify-content: space-between;
+				padding: 0.5rem 0;
+			}
+
+			td::before {
+				content: attr(data-label);
+				font-weight: bold;
+				margin-right: 0.5rem;
+				color: #555;
+			}
+
+			.actions {
+				justify-content: flex-end;
+				gap: 0.5rem;
+			}
+
+			.actions button {
+				flex: 1;
+				padding: 0.5rem;
+				font-size: 0.85rem;
+			}
+
+			.modal-content {
+				padding: 1rem;
+				max-width: 95%;
+			}
+
+			.modal-actions {
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1>SuperTec Dashboard - Productos</h1>
+		<a id="logoutBtn" class="logout-btn">Cerrar sesión</a>
+	</header>
+	<!-- Modal de confirmación -->
+	<div id="confirmModal" class="modal">
+		<div class="modal-content">
+			<p id="confirmMessage">¿Seguro que deseas eliminar este producto?</p>
+			<div class="modal-actions">
+				<button id="confirmYes" class="btn-yes">Sí, eliminar</button>
+				<button id="confirmNo" class="btn-no">Cancelar</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="tabs">
+			<button class="tab-btn active" id="btn-tab-productos">Productos</button>
+			<button class="tab-btn" id="btn-tab-ventas">Ventas Local</button>
+			<button class="tab-btn" id="btn-tab-servicios">Servicios</button>
+			<button class="tab-btn" id="btn-tab-horarios">Horarios</button>
+			<button class="tab-btn" id="btn-tab-config">Configuración</button>
+			<button class="tab-btn" id="btn-tab-sorteo">🎰 Sorteo</button>
+		</div>
+
+		<!-- Tab Productos -->
+		<div id="tab-productos" class="tab-content active">
+			<button class="add-btn" id="btnAddProductos">Agregar Producto</button>
+			<table>
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Imagen</th>
+						<th>Nombre</th>
+						<th>Descripción</th>
+						<th>Precio</th>
+						<th>Categoría</th>
+						<th>Stock</th>
+						<th>Marca</th>
+						<th>Modelo</th>
+						<th>Acciones</th>
+					</tr>
+				</thead>
+				<tbody id="productsTable"></tbody>
+			</table>
+		</div>
+
+		<!-- Tab Ventas -->
+		<div id="tab-ventas" class="tab-content">
+			<button class="add-btn" id="btnAddVentas">Agregar Venta</button>
+			<table>
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Imagen</th>
+						<th>Nombre</th>
+						<th>Descripción</th>
+						<th>Precio</th>
+						<th>Categoría</th>
+						<th>Stock</th>
+						<th>Marca</th>
+						<th>Modelo</th>
+						<th>Acciones</th>
+					</tr>
+				</thead>
+				<tbody id="ventasTable"></tbody>
+			</table>
+		</div>
+
+		<!-- Tab Servicios -->
+		<div id="tab-servicios" class="tab-content">
+			<button class="add-btn" id="btnAddServicios">Agregar Servicio</button>
+			<table>
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Imagen</th>
+						<th>Nombre</th>
+						<th>Descripción</th>
+						<th>Precio</th>
+						<th>Categoría</th>
+						<th>Stock</th>
+						<th>Marca</th>
+						<th>Modelo</th>
+						<th>Acciones</th>
+					</tr>
+				</thead>
+				<tbody id="serviciosTable"></tbody>
+			</table>
+		</div>
+
+		<!-- Tab Horarios -->
+		<div id="tab-horarios" class="tab-content">
+			<div style="
+						background: #fff;
+						padding: 2rem;
+						border-radius: 8px;
+						box-shadow: 0 2px 8px #0001;
+						max-width: 600px;
+						margin: auto;
+					">
+				<h3>Gestionar Horarios de Atención</h3>
+				<form id="horariosForm">
+					<div id="horariosList" style="display: flex; flex-direction: column; gap: 0.5rem">
+						<!-- Se llena con JS -->
+					</div>
+					<div class="modal-actions" style="margin-top: 1.5rem; justify-content: flex-end">
+						<button type="submit" class="save-btn">Guardar Cambios</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Tab Configuración -->
+		<div id="tab-config" class="tab-content">
+			<div style="
+						background: #fff;
+						padding: 2rem;
+						border-radius: 8px;
+						box-shadow: 0 2px 8px #0001;
+						max-width: 800px;
+						margin: auto;
+					">
+				<h3>Configuración de Datos</h3>
+				<p style="color: #666; margin-bottom: 2rem">
+					Gestiona la importación, exportación y limpieza de datos.
+				</p>
+
+				<div style="display: grid; gap: 2rem">
+					<!-- Productos -->
+					<div class="config-section">
+						<h4>Productos</h4>
+						<div class="config-actions">
+							<button class="btn-export" data-type="productos">
+								Exportar JSON
+							</button>
+							<div class="import-box">
+								<input type="file" id="import-productos" accept=".json" />
+								<button class="btn-import" data-type="productos">
+									Importar
+								</button>
+							</div>
+							<button class="btn-clear" data-type="productos">
+								Limpiar Todo
+							</button>
+						</div>
+					</div>
+
+					<!-- Ventas -->
+					<div class="config-section">
+						<h4>Ventas Local</h4>
+						<div class="config-actions">
+							<button class="btn-export" data-type="ventas">
+								Exportar JSON
+							</button>
+							<div class="import-box">
+								<input type="file" id="import-ventas" accept=".json" />
+								<button class="btn-import" data-type="ventas">
+									Importar
+								</button>
+							</div>
+							<button class="btn-clear" data-type="ventas">
+								Limpiar Todo
+							</button>
+						</div>
+					</div>
+
+					<!-- Servicios -->
+					<div class="config-section">
+						<h4>Servicios</h4>
+						<div class="config-actions">
+							<button class="btn-export" data-type="servicios">
+								Exportar JSON
+							</button>
+							<div class="import-box">
+								<input type="file" id="import-servicios" accept=".json" />
+								<button class="btn-import" data-type="servicios">
+									Importar
+								</button>
+							</div>
+							<button class="btn-clear" data-type="servicios">
+								Limpiar Todo
+							</button>
+						</div>
+					</div>
+
+					<!-- Horarios -->
+					<div class="config-section">
+						<h4>Horarios</h4>
+						<div class="config-actions">
+							<button class="btn-export" data-type="horarios">
+								Exportar JSON
+							</button>
+							<div class="import-box">
+								<input type="file" id="import-horarios" accept=".json" />
+								<button class="btn-import" data-type="horarios">
+									Importar
+								</button>
+							</div>
+							<button class="btn-clear" data-type="horarios">
+								Restaurar Default
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Tab Sorteo -->
+		<div id="tab-sorteo" class="tab-content">
+			<div id="tab-sorteo-inner" style="padding-top: 0.5rem;">
+				<p style="text-align:center; color:#888; padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i>
+					Cargando…</p>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Modal -->
+	<div id="productModal" class="modal">
+		<div class="modal-content">
+			<h3 id="modalTitle">Agregar Producto</h3>
+			<form id="productForm">
+				<input type="hidden" id="productId" />
+				<input type="text" id="name" placeholder="Nombre" required />
+				<div>
+					<label>Imagen (URL o Archivo)</label>
+					<input type="text" id="img" placeholder="URL de imagen" />
+					<input type="file" id="imgFile" accept=".png,.jpg,.jpeg,.webp,.avif" />
+				</div>
+				<input type="text" id="description" placeholder="Descripción" required />
+				<input type="number" id="precio" placeholder="Precio" required />
+				<input type="text" id="categoria" placeholder="Categoría" required />
+				<input type="number" id="stock" placeholder="Stock" required />
+				<input type="text" id="marca" placeholder="Marca" required />
+				<input type="text" id="modelo" placeholder="Modelo" required />
+				<button type="submit" class="save-btn">Guardar</button>
+				<button type="button" class="cancel-btn" id="modalCancelBtn">
+					Cancelar
+				</button>
+			</form>
+		</div>
+	</div>
+
+	<script type="module" src="./assets/js/admin.js"></script>
+	<script type="module" src="./assets/js/sorteo-admin.js"></script>
+</body>
+
+</html>

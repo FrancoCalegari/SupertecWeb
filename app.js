@@ -22,6 +22,89 @@ const {
 
 const app = express();
 
+const SPIDER_API_KEY = process.env.SPIDER_API_KEY || 'c90d1502ce815ea5d1108662186145d3cefe642586466c769d4c7fae63086ac6';
+const SPIDER_API_BASE = 'http://190.220.229.45:7256/api/v1';
+
+let spiderProjectId = null;
+
+async function getSpiderProjectId() {
+	if (spiderProjectId) return spiderProjectId;
+	try {
+		const res = await fetch(`${SPIDER_API_BASE}/storage/projects`, {
+			headers: { 'X-API-KEY': SPIDER_API_KEY }
+		});
+		if (res.ok) {
+			const data = await res.json();
+			const projects = Array.isArray(data) ? data : (data.data || data.projects || []);
+			const proj = projects.find(p => p.name === 'SuperTecStorage' || p.nombre === 'SuperTecStorage');
+			if (proj && (proj.id || proj._id)) {
+				spiderProjectId = proj.id || proj._id;
+				console.log(`[Spider API] Found project ID for 'SuperTecStorage': ${spiderProjectId}`);
+				return spiderProjectId;
+			}
+		}
+	} catch (e) {
+		console.error("[Spider API] Error fetching projects:", e);
+	}
+	console.warn("[Spider API] Project 'SuperTecStorage' not found, falling back to ID 1");
+	return 1;
+}
+
+async function uploadToSpiderAPI(buffer, originalname) {
+	const projectId = await getSpiderProjectId();
+	const formData = new FormData();
+	const blob = new Blob([buffer]);
+	formData.append('files', blob, originalname);
+
+	const res = await fetch(`${SPIDER_API_BASE}/storage/projects/${projectId}/files`, {
+		method: 'POST',
+		headers: { 'X-API-KEY': SPIDER_API_KEY },
+		body: formData
+	});
+
+	if (!res.ok) {
+		throw new Error(`Spider API error: ${res.status} ${res.statusText}`);
+	}
+	const data = await res.json();
+	console.log("[Spider API] Upload response:", data);
+
+	let spiderUrl = "";
+	if (data.url) spiderUrl = data.url;
+	else if (data[0] && data[0].url) spiderUrl = data[0].url;
+	else if (data.data && data.data.url) spiderUrl = data.data.url;
+	else if (data.file && data.file.url) spiderUrl = data.file.url;
+	else if (data.files && data.files[0] && data.files[0].url) spiderUrl = data.files[0].url;
+	else if (data.id) spiderUrl = `${SPIDER_API_BASE}/storage/files/${data.id}`;
+	else if (data[0] && data[0].id) spiderUrl = `${SPIDER_API_BASE}/storage/files/${data[0].id}`;
+	else if (data.files && data.files[0] && data.files[0].id) spiderUrl = `${SPIDER_API_BASE}/storage/files/${data.files[0].id}`;
+	else if (data.files && data.files[0] && data.files[0].fileId) spiderUrl = `${SPIDER_API_BASE}/storage/files/${data.files[0].fileId}`;
+	else throw new Error("Could not extract URL from Spider API response.");
+
+	return spiderUrl;
+}
+
+async function deleteFromSpiderAPI(url) {
+	if (!url || !url.includes('190.220.229.45:7256')) return;
+	const urlParts = url.split('/');
+	const id = urlParts[urlParts.length - 1];
+	if (!id) return;
+
+	try {
+		console.log(`[Spider API] Deleting file ID: ${id}`);
+		const res = await fetch(`${SPIDER_API_BASE}/storage/files/${id}`, {
+			method: 'DELETE',
+			headers: { 'X-API-KEY': SPIDER_API_KEY }
+		});
+		if (!res.ok) {
+			console.error(`Error deleting from Spider API: ${res.status} ${res.statusText}`);
+		} else {
+			console.log(`[Spider API] Deleted file ID: ${id}`);
+		}
+	} catch (err) {
+		console.error("[Spider API] Fetch error deleting:", err);
+	}
+}
+
 // Carpeta de uploads
 const uploadDir =
 	process.env.UPLOAD_DIR ||
@@ -180,77 +263,16 @@ app.post("/api/productos", upload.single("imgFile"), async (req, res) => {
 		// Manejo de imagen
 		let imageUrl = producto.img;
 		if (req.file) {
-			const ext = path.extname(req.file.originalname) || "";
-			const fileName = `productos/${Date.now()}-${Math.round(
-				Math.random() * 1e9
-			)}${ext}`;
-			const mime = req.file.mimetype || "application/octet-stream";
-
-			// Check if Supabase envs are present
-			if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-				const { createClient } = require("@supabase/supabase-js");
-				const supabase = createClient(
-					process.env.SUPABASE_URL,
-					process.env.SUPABASE_SERVICE_ROLE_KEY
-				);
-
-				const buffer =
-					req.file.buffer ||
-					(req.file.path ? fs.readFileSync(req.file.path) : null);
-				if (!buffer) {
-					return res
-						.status(400)
-						.json({ ok: false, error: "No se pudo leer el archivo" });
-				}
-
-				console.log(`[Storage] Subiendo ${fileName} (${mime}) a Supabase`);
-				const { data, error } = await supabase.storage
-					.from("images")
-					.upload(fileName, buffer, {
-						contentType: mime,
-						upsert: false,
-					});
-
-				if (error) {
-					console.error("[Storage] Error subiendo imagen:", error);
-					return res
-						.status(500)
-						.json({ ok: false, error: "Error subiendo imagen" });
-				}
-
-				// Construct public URL
-				const {
-					data: { publicUrl },
-				} = supabase.storage.from("images").getPublicUrl(fileName);
-				imageUrl = publicUrl;
+			const buffer = req.file.buffer || (req.file.path ? fs.readFileSync(req.file.path) : null);
+			if (!buffer) {
+				return res.status(400).json({ ok: false, error: "No se pudo leer el archivo" });
+			}
+			try {
+				imageUrl = await uploadToSpiderAPI(buffer, req.file.originalname);
 				console.log(`[Storage] Subida OK: ${imageUrl}`);
-			} else if (process.env.BLOB_READ_WRITE_TOKEN) {
-				// Fallback to Vercel Blob if configured
-				const buffer =
-					req.file.buffer ||
-					(req.file.path ? fs.readFileSync(req.file.path) : null);
-				if (!buffer) {
-					return res
-						.status(400)
-						.json({ ok: false, error: "No se pudo leer el archivo subido" });
-				}
-				console.log(`[Blob] Subiendo ${fileName} (${mime})`);
-				const { put } = require("@vercel/blob");
-				const blob = await put(fileName, buffer, {
-					access: "public",
-					token: process.env.BLOB_READ_WRITE_TOKEN,
-					contentType: mime,
-				});
-				console.log(`[Blob] Subida OK ${blob.url}`);
-				imageUrl = blob.url;
-			} else if (!process.env.VERCEL) {
-				imageUrl = "/assets/img/productos/" + req.file.filename;
-				console.log(`[Local] Uso de ruta local ${imageUrl}`);
-			} else {
-				return res.status(400).json({
-					ok: false,
-					error: "Configure SUPABASE o BLOB_READ_WRITE_TOKEN",
-				});
+			} catch (err) {
+				console.error("[Storage] Error subiendo imagen:", err);
+				return res.status(500).json({ ok: false, error: "Error subiendo imagen" });
 			}
 		}
 		producto.img = imageUrl;
@@ -298,73 +320,19 @@ app.post("/api/ventas", upload.single("imgFile"), async (req, res) => {
 				.json({ ok: false, error: "Faltan campos obligatorios" });
 		}
 
+		// Manejo de imagen
 		let imageUrl = venta.img;
 		if (req.file) {
-			const ext = path.extname(req.file.originalname) || "";
-			const fileName = `ventas/${Date.now()}-${Math.round(
-				Math.random() * 1e9
-			)}${ext}`;
-			const mime = req.file.mimetype || "application/octet-stream";
-
-			// Check if Supabase envs are present
-			if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-				const { createClient } = require("@supabase/supabase-js");
-				const supabase = createClient(
-					process.env.SUPABASE_URL,
-					process.env.SUPABASE_SERVICE_ROLE_KEY
-				);
-
-				const buffer =
-					req.file.buffer ||
-					(req.file.path ? fs.readFileSync(req.file.path) : null);
-				if (!buffer) {
-					return res
-						.status(400)
-						.json({ ok: false, error: "No se pudo leer el archivo" });
-				}
-
-				console.log(`[Storage] Subiendo ${fileName} (${mime}) a Supabase`);
-				const { data, error } = await supabase.storage
-					.from("images")
-					.upload(fileName, buffer, {
-						contentType: mime,
-						upsert: false,
-					});
-
-				if (error) {
-					console.error("[Storage] Error subiendo imagen:", error);
-					return res
-						.status(500)
-						.json({ ok: false, error: "Error subiendo imagen" });
-				}
-
-				// Construct public URL
-				const {
-					data: { publicUrl },
-				} = supabase.storage.from("images").getPublicUrl(fileName);
-				imageUrl = publicUrl;
-			} else if (process.env.BLOB_READ_WRITE_TOKEN) {
-				const buffer =
-					req.file.buffer ||
-					(req.file.path ? fs.readFileSync(req.file.path) : null);
-				if (!buffer) {
-					return res
-						.status(400)
-						.json({ ok: false, error: "No se pudo leer el archivo subido" });
-				}
-				const { put } = require("@vercel/blob");
-				const blob = await put(fileName, buffer, {
-					access: "public",
-					token: process.env.BLOB_READ_WRITE_TOKEN,
-					contentType: mime,
-				});
-				imageUrl = blob.url;
-			} else if (!process.env.VERCEL) {
-				imageUrl = "/assets/img/localphotos/" + req.file.filename;
-			} else {
-				return res
-					.status(400)
-					.json({ ok: false, error: "Falta configuración de storage" });
+			const buffer = req.file.buffer || (req.file.path ? fs.readFileSync(req.file.path) : null);
+			if (!buffer) {
+				return res.status(400).json({ ok: false, error: "No se pudo leer el archivo" });
+			}
+			try {
+				imageUrl = await uploadToSpiderAPI(buffer, req.file.originalname);
+				console.log(`[Storage] Subida OK: ${imageUrl}`);
+			} catch (err) {
+				console.error("[Storage] Error subiendo imagen:", err);
+				return res.status(500).json({ ok: false, error: "Error subiendo imagen" });
 			}
 		}
 		venta.img = imageUrl;
@@ -380,9 +348,17 @@ app.post("/api/ventas", upload.single("imgFile"), async (req, res) => {
 app.delete("/api/ventas/:id", async (req, res) => {
 	const id = Number(req.params.id);
 	try {
+		const ventas = await listVentas();
+		const venta = ventas.find(v => v.id === id);
+
 		const deleted = await deleteVentaById(id);
 		if (!deleted)
 			return res.status(404).json({ ok: false, error: "Venta no encontrada" });
+
+		if (venta && venta.img) {
+			await deleteFromSpiderAPI(venta.img);
+		}
+
 		res.json({ ok: true });
 	} catch (err) {
 		console.error("Error eliminando venta", err);
@@ -422,70 +398,19 @@ app.post("/api/servicios", upload.single("imgFile"), async (req, res) => {
 				.json({ ok: false, error: "Faltan campos obligatorios" });
 		}
 
+		// Manejo de imagen
 		let imageUrl = servicio.img;
 		if (req.file) {
-			const ext = path.extname(req.file.originalname) || "";
-			const fileName = `servicios/${Date.now()}-${Math.round(
-				Math.random() * 1e9
-			)}${ext}`;
-			const mime = req.file.mimetype || "application/octet-stream";
-
-			// Check if Supabase envs are present
-			if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-				const { createClient } = require("@supabase/supabase-js");
-				const supabase = createClient(
-					process.env.SUPABASE_URL,
-					process.env.SUPABASE_SERVICE_ROLE_KEY
-				);
-
-				const buffer =
-					req.file.buffer ||
-					(req.file.path ? fs.readFileSync(req.file.path) : null);
-				if (!buffer) {
-					return res
-						.status(400)
-						.json({ ok: false, error: "No se pudo leer el archivo" });
-				}
-
-				console.log(`[Storage] Subiendo ${fileName} (${mime}) a Supabase`);
-				const { data, error } = await supabase.storage
-					.from("images")
-					.upload(fileName, buffer, {
-						contentType: mime,
-						upsert: false,
-					});
-
-				if (error) {
-					console.error("[Storage] Error subiendo imagen:", error);
-					return res
-						.status(500)
-						.json({ ok: false, error: "Error subiendo imagen" });
-				}
-
-				// Construct public URL
-				const {
-					data: { publicUrl },
-				} = supabase.storage.from("images").getPublicUrl(fileName);
-				imageUrl = publicUrl;
-			} else if (process.env.BLOB_READ_WRITE_TOKEN) {
-				const buffer =
-					req.file.buffer ||
-					(req.file.path ? fs.readFileSync(req.file.path) : null);
-				if (!buffer) {
-					return res
-						.status(400)
-						.json({ ok: false, error: "No se pudo leer el archivo subido" });
-				}
-				const { put } = require("@vercel/blob");
-				const blob = await put(fileName, buffer, {
-					access: "public",
-					token: process.env.BLOB_READ_WRITE_TOKEN,
-					contentType: mime,
-				});
-				imageUrl = blob.url;
-			} else {
-				// local fallback simple?
-				imageUrl = "/assets/img/servicios/" + req.file.filename;
+			const buffer = req.file.buffer || (req.file.path ? fs.readFileSync(req.file.path) : null);
+			if (!buffer) {
+				return res.status(400).json({ ok: false, error: "No se pudo leer el archivo" });
+			}
+			try {
+				imageUrl = await uploadToSpiderAPI(buffer, req.file.originalname);
+				console.log(`[Storage] Subida OK: ${imageUrl}`);
+			} catch (err) {
+				console.error("[Storage] Error subiendo imagen:", err);
+				return res.status(500).json({ ok: false, error: "Error subiendo imagen" });
 			}
 		}
 		servicio.img = imageUrl;
@@ -503,11 +428,19 @@ app.post("/api/servicios", upload.single("imgFile"), async (req, res) => {
 app.delete("/api/servicios/:id", async (req, res) => {
 	const id = Number(req.params.id);
 	try {
+		const servicios = await listServicios();
+		const servicio = servicios.find(s => s.id === id);
+
 		const deleted = await deleteServicioById(id);
 		if (!deleted)
 			return res
 				.status(404)
 				.json({ ok: false, error: "Servicio no encontrado" });
+
+		if (servicio && servicio.img) {
+			await deleteFromSpiderAPI(servicio.img);
+		}
+
 		res.json({ ok: true });
 	} catch (err) {
 		console.error("Error eliminando servicio", err);
@@ -601,12 +534,21 @@ app.delete("/api/productos/:id", async (req, res) => {
 	const id = Number(req.params.id); // convertir siempre a número
 
 	try {
+		// Encontrar producto para borrar imagen de Spider API
+		const productos = await listProductos();
+		const prod = productos.find(p => p.id === id);
+
 		const deleted = await deleteProductoById(id);
 		if (!deleted) {
 			return res
 				.status(404)
 				.json({ ok: false, error: "Producto no encontrado" });
 		}
+
+		if (prod && prod.img) {
+			await deleteFromSpiderAPI(prod.img);
+		}
+
 		console.log(`[API] Producto ${id} eliminado`);
 		res.json({ ok: true });
 	} catch (err) {
@@ -614,6 +556,64 @@ app.delete("/api/productos/:id", async (req, res) => {
 		res
 			.status(500)
 			.json({ ok: false, error: "No se pudo eliminar el producto" });
+	}
+});
+
+// --- Spider Proxy Routes (Sorteo) ---
+app.post("/api/spider-proxy/query", async (req, res) => {
+	try {
+		const response = await fetch(`${SPIDER_API_BASE}/query`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"X-API-KEY": SPIDER_API_KEY,
+			},
+			body: JSON.stringify(req.body),
+		});
+		const data = await response.json();
+		return res.json(data);
+	} catch (err) {
+		console.error("[Spider Proxy Query Error]", err);
+		return res.status(500).json({ success: false, error: "Proxy Query Error" });
+	}
+});
+
+app.post("/api/spider-proxy/upload", upload.single("files"), async (req, res) => {
+	try {
+		if (!req.file) return res.status(400).json({ success: false, error: "No file provided" });
+		const buffer = req.file.buffer || (req.file.path ? fs.readFileSync(req.file.path) : null);
+		if (!buffer) return res.status(400).json({ success: false, error: "Empty file" });
+
+		const projectId = await getSpiderProjectId();
+		const formData = new FormData();
+		const blob = new Blob([buffer]);
+		formData.append("files", blob, req.file.originalname);
+
+		const response = await fetch(`${SPIDER_API_BASE}/storage/projects/${projectId}/files`, {
+			method: "POST",
+			headers: { "X-API-KEY": SPIDER_API_KEY },
+			body: formData,
+		});
+		const data = await response.json();
+		return res.json(data);
+	} catch (err) {
+		console.error("[Spider Proxy Upload Error]", err);
+		return res.status(500).json({ success: false, error: "Proxy Upload Error" });
+	}
+});
+
+app.get("/api/spider-proxy/file/:id", async (req, res) => {
+	try {
+		const response = await fetch(`${SPIDER_API_BASE}/storage/files/${req.params.id}`, {
+			headers: { "X-API-KEY": SPIDER_API_KEY },
+		});
+		if (!response.ok) return res.status(response.status).end();
+		const arrayBuffer = await response.arrayBuffer();
+		res.setHeader("Content-Type", response.headers.get("content-type") || "application/octet-stream");
+		return res.send(Buffer.from(arrayBuffer));
+	} catch (err) {
+		console.error("[Spider Proxy File Error]", err);
+		return res.status(500).json({ success: false, error: "Proxy File Error" });
 	}
 });
 
