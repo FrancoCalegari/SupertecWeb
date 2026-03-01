@@ -11,7 +11,7 @@ const DB_NAME = "sw_Franco Calegari_supertec";
 async function spiderQuery(sql) {
   const res = await fetch(`${SPIDER_PROXY_API}/query`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
     body: JSON.stringify({ database: DB_NAME, query: sql }),
   });
   const data = await res.json();

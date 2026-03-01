@@ -20,6 +20,7 @@ async function spiderQuery(sql, silent = false) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json",
             },
             body: JSON.stringify({ database: DB_NAME, query: sql }),
         });
