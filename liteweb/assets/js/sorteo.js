@@ -4,7 +4,7 @@
  */
 
 // ─── CONFIG (Obfuscated) ───────────────────────────────────────────────────
-const SPIDER_PROXY_API = "/api/spider-proxy";
+const SPIDER_PROXY_API = "https://supertec-web.vercel.app/api/spider-proxy";
 
 // Simple obfuscator to hide plaintext from casual source code viewers
 const _dx = (s) => atob(s.split('').reverse().join(''));
@@ -125,7 +125,7 @@ export async function uploadTicket(file) {
         if (!fileId) return null;
 
         // Utilizamos nuestro propio proxy para evitar Mixed Content al traer la imagen
-        return `/api/spider-proxy/file/${fileId}`;
+        return `https://supertec-web.vercel.app/api/spider-proxy/file/${fileId}`;
     } catch (err) {
         console.error("uploadTicket error:", err);
         return null;

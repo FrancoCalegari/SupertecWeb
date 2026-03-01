@@ -4,7 +4,7 @@
  */
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
-const SPIDER_PROXY_API = "/api/spider-proxy";
+const SPIDER_PROXY_API = "https://supertec-web.vercel.app/api/spider-proxy";
 const DB_NAME = "sw_Franco Calegari_supertec";
 
 // ─── SPIDER HELPERS ────────────────────────────────────────────────────────
