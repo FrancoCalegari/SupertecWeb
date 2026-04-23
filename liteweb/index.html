@@ -140,57 +140,17 @@
 		</div>
 	</section>
 
-	<!-- Promoción Vuelta a Clases Section -->
-	<section id="promocion-clases" style="padding: 3rem 1.5rem; margin: 1rem auto; max-width: 1100px;">
-		<div
-			style="background: linear-gradient(145deg, rgba(30, 33, 34, 0.9) 0%, rgba(46, 52, 57, 0.95) 100%); backdrop-filter: blur(10px); border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1), inset 0 0 0 1px rgba(251, 56, 58, 0.3); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 4rem 2rem;">
-
-			<!-- Decorative glowing orbs -->
-			<div
-				style="position: absolute; top: -100px; left: -100px; width: 250px; height: 250px; background: var(--color-rojo); filter: blur(90px); opacity: 0.25; border-radius: 50%; pointer-events: none;">
-			</div>
-			<div
-				style="position: absolute; bottom: -80px; right: -80px; width: 200px; height: 200px; background: #009f38; filter: blur(80px); opacity: 0.15; border-radius: 50%; pointer-events: none;">
-			</div>
-
-			<div style="position: relative; z-index: 1; max-width: 750px;">
-				<div
-					style="display: flex; justify-content: center; gap: 1.2rem; margin-bottom: 1.5rem; font-size: 3rem; color: var(--color-rojo); filter: drop-shadow(0 0 10px rgba(251,56,58,0.4));">
-					<i class="fa-solid fa-graduation-cap"></i>
-					<i class="fa-solid fa-laptop-code"></i>
-					<i class="fa-solid fa-mobile-screen-button"></i>
-				</div>
-
-				<h2
-					style="font-size: 2.2rem; color: #fff; margin-bottom: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2;">
-					Promoción <br class="mobile-break" style="display: none;"><span
-						style="color: var(--color-rojo);">Vuelta a Clases 2026</span>
-				</h2>
-
-				<p
-					style="font-size: 1.15rem; color: #ced4da; line-height: 1.7; margin-bottom: 2.5rem; font-weight: 400;">
-					¡Que nada frene tu aprendizaje! Desde <strong>Febrero hasta Abril</strong> aprovechá nuestras
-					promociones exclusivas. Realizá el mantenimiento o actualizá tu <strong>PC, Notebook o
-						Celular</strong> y empezá el año lectivo con la tecnología rindiendo al máximo nivel.
-				</p>
-
-				<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;">
-					<a href="https://wa.me/5492615031101?text=quiero%20saber%20mas%20sobre%20la%20promocion%20%22Vuelta%20a%20clases%20de%20supertec%22"
-						target="_blank"
-						style="background: #009f38; color: #fff; text-decoration: none; padding: 1rem 2.2rem; border-radius: 50px; font-weight: bold; font-size: 1.15rem; display: inline-flex; align-items: center; gap: 0.8rem; box-shadow: 0 8px 20px rgba(0, 159, 56, 0.35); transition: all 0.3s ease;"
-						onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 25px rgba(0, 159, 56, 0.5)'; this.style.background='#00b33f';"
-						onmouseout="this.style.transform='none'; this.style.boxShadow='0 8px 20px rgba(0, 159, 56, 0.35)'; this.style.background='#009f38';">
-						<i class="fa-brands fa-whatsapp" style="font-size: 1.6rem;"></i>
-						Consultar Promoción por WhatsApp
-					</a>
-				</div>
-			</div>
-		</div>
-	</section>
 
 	<!-- Ofertas Section -->
-	<section id="ofertas">
-		<div class="container">
+	<section id="ofertas" style="position: relative; overflow: hidden;">
+		<!-- Overlay Próximamente -->
+		<div style="position: absolute; inset: 0; background: rgba(20, 20, 20, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10; display: flex; align-items: center; justify-content: center; text-align: center;">
+			<h2 style="font-size: clamp(2.5rem, 6vw, 5rem); color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px var(--color-rojo, #fb383a); margin: 0; padding: 0 1rem;">
+				Próximamente
+			</h2>
+		</div>
+		
+		<div class="container" style="pointer-events: none; user-select: none;">
 			<div class="ofertas-layout">
 				<!-- Parte 1: Grid de 4 productos -->
 				<div class="ofertas-grid-container" id="ofertas-container">
@@ -204,8 +164,6 @@
 						Explora nuestra tienda y descubre miles de productos de tecnología
 						y gaming a tu disposición.
 					</p>
-					<a href="https://supertec16.mitiendanube.com/" class="btn hero-btn" target="_blank"
-						style="opacity: 1; animation: none; margin-top: 1rem">Ir a la Tienda</a>
 				</div>
 			</div>
 		</div>

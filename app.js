@@ -320,6 +320,14 @@ app.post("/api/ventas", upload.single("imgFile"), async (req, res) => {
 				.json({ ok: false, error: "Faltan campos obligatorios" });
 		}
 
+		// Límite de 60 productos del local (ventas)
+		if (!venta.id) {
+			const ventasActuales = await listVentas();
+			if (ventasActuales.length >= 60) {
+				return res.status(400).json({ ok: false, error: "Límite de 60 productos del local alcanzado." });
+			}
+		}
+
 		// Manejo de imagen
 		let imageUrl = venta.img;
 		if (req.file) {
