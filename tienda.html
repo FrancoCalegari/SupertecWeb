@@ -1,135 +1,731 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Supertec - Tienda</title>
-    
-    <meta name="description" content="Supertec ofrece servicio técnico profesional en Mendoza para consolas (PlayStation, Xbox, Nintendo), computadoras, laptops, celulares y tablets. ¡Diagnóstico y presupuesto gratis!">
-    
-    <meta name="keywords" content="servicio técnico, Mendoza, reparación de consolas, PlayStation, Xbox, Nintendo, reparación de PC, arreglo de computadoras, reparación de celulares, tablets, servicio técnico de notebooks">
-    
-    <meta name="robots" content="index, follow">
-    
-    <link rel="canonical" href="https://www.tusitioweb.com/index.html">
-    
-    <meta property="og:title" content="Supertec - Servicio Técnico de Consolas y PC">
-    <meta property="og:description" content="Servicio técnico profesional en Mendoza para consolas, PC, laptops, celulares y tablets. ¡Encuentra la solución a tus problemas tecnológicos!">
-    <meta property="og:image" content="https://www.tusitioweb.com/assets/img/imagen-og.jpg">
-    <meta property="og:url" content="https://www.tusitioweb.com/">
-    <meta property="og:type" content="website">
-    
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Supertec - Servicio Técnico de Consolas y PC">
-    <meta name="twitter:description" content="Servicio técnico profesional en Mendoza para consolas, PC, laptops, celulares y tablets. ¡Encuentra la solución a tus problemas tecnológicos!">
-    <meta name="twitter:image" content="https://www.tusitioweb.com/assets/img/imagen-twitter.jpg">
-    
-    <link rel="icon" type="image/png" href="assets/img/logo.png">
-    
-    <link rel="stylesheet" href="./assets/css/styles.css">
-    <link rel="stylesheet" href="./assets/css/responsive.css">
-    <script src="https://kit.fontawesome.com/274f77f0e3.js" crossorigin="anonymous"></script>
-    <!-- Meta tags para personalizar la barra de estado en móviles y navegadores -->
-    <meta name="theme-color" content="#fb383a"> <!-- Chrome, Android -->
-    <meta name="msapplication-navbutton-color" content="#fb383a"> <!-- IE, Edge -->
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- Safari iOS -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supertec - Tienda Online</title>
+  <meta name="description" content="Tienda de Supertec: consolas, accesorios gaming, computadoras, celulares y más. Compra online en Mendoza con envío a todo el país.">
+  <meta name="keywords" content="tienda gaming, consolas Mendoza, accesorios gaming, PlayStation, Xbox, Nintendo, computadoras, celulares">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://supertec-web.vercel.app/tienda">
+  <meta property="og:title" content="Supertec - Tienda Online">
+  <meta property="og:description" content="Tienda de tecnología y gaming en Mendoza. PlayStation, Xbox, Nintendo, PCs y más.">
+  <meta property="og:image" content="https://supertec-web.vercel.app/assets/img/linkphoto.png">
+  <meta property="og:url" content="https://supertec-web.vercel.app/tienda">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Supertec - Tienda Online">
+  <meta name="twitter:description" content="Tienda de tecnología y gaming en Mendoza.">
+  <meta name="twitter:image" content="https://supertec-web.vercel.app/assets/img/linkphoto.png">
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+  <link rel="stylesheet" href="./assets/css/responsive.css">
+  <script src="https://kit.fontawesome.com/274f77f0e3.js" crossorigin="anonymous"></script>
+  <meta name="theme-color" content="#fb383a">
+  <meta name="msapplication-navbutton-color" content="#fb383a">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#fb383a">
+  <style>
+    /* ── Tienda Layout ── */
+    .tienda-page {
+      min-height: 100vh;
+      padding-top: 80px;
+    }
+
+    .tienda-hero {
+      background: linear-gradient(135deg, rgba(251,56,58,0.15) 0%, rgba(0,0,0,0) 60%);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 2.5rem 1.5rem 2rem;
+      text-align: center;
+    }
+
+    .tienda-hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 0.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .tienda-hero p {
+      color: rgba(255,255,255,0.55);
+      font-size: 1rem;
+      margin: 0 0 1.8rem;
+    }
+
+    /* ── Search & Filters ── */
+    .tienda-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .search-wrapper {
+      flex: 1 1 280px;
+      position: relative;
+    }
+
+    .search-wrapper i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.4);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.8rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s;
+    }
+
+    .search-input::placeholder { color: rgba(255,255,255,0.35); }
+    .search-input:focus {
+      border-color: rgba(251,56,58,0.6);
+      background: rgba(255,255,255,0.1);
+    }
+
+    .filter-select {
+      padding: 0.75rem 2.2rem 0.75rem 1rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.9rem center;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.25s;
+      min-width: 160px;
+    }
+    .filter-select option { background: #1a1a2e; color: #fff; }
+    .filter-select:focus { border-color: rgba(251,56,58,0.6); }
+
+    /* ── Tienda Body ── */
+    .tienda-body {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .tienda-stats {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tienda-count {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.9rem;
+    }
+
+    .tienda-count span {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* ── Products Grid ── */
+    .productos-grid-tienda {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ── Product Card ── */
+    .producto-card-tienda {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .producto-card-tienda:hover {
+      transform: translateY(-4px);
+      border-color: rgba(251,56,58,0.4);
+      box-shadow: 0 12px 32px rgba(251,56,58,0.12);
+    }
+
+    .card-img-wrap {
+      position: relative;
+      padding-top: 70%;
+      background: rgba(255,255,255,0.03);
+      overflow: hidden;
+    }
+
+    .card-img-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 0.75rem;
+      transition: transform 0.35s;
+    }
+
+    .producto-card-tienda:hover .card-img-wrap img {
+      transform: scale(1.05);
+    }
+
+    .card-badge {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: #fb383a;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      letter-spacing: 0.03em;
+    }
+
+    .card-body {
+      padding: 1rem 1.1rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 0.4rem;
+    }
+
+    .card-meta {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.38);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-name {
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-desc {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-price {
+      margin-top: auto;
+      padding-top: 0.7rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .card-price .original {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.35);
+      text-decoration: line-through;
+      font-weight: 400;
+      margin-right: 0.4rem;
+    }
+
+    .btn-consultar {
+      margin-top: 0.75rem;
+      padding: 0.62rem 1rem;
+      background: linear-gradient(135deg, #fb383a, #e02e30);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      transition: opacity 0.2s, transform 0.15s;
+      width: 100%;
+    }
+
+    .btn-consultar:hover {
+      opacity: 0.9;
+      transform: scale(0.98);
+    }
+
+    /* ── Skeleton ── */
+    .skeleton-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .skeleton-img {
+      padding-top: 70%;
+      background: rgba(255,255,255,0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skeleton-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .skeleton-line {
+      height: 12px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skeleton-line::after,
+    .skeleton-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+      animation: shimmer 1.5s infinite;
+    }
+
+    .skeleton-line.short { width: 55%; }
+    .skeleton-line.tall { height: 20px; }
+    .skeleton-line.btn { height: 36px; border-radius: 9px; margin-top: 0.4rem; }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 1rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+      opacity: 0.3;
+    }
+
+    .empty-state h3 { color: rgba(255,255,255,0.6); font-size: 1.1rem; margin-bottom: 0.4rem; }
+
+    /* ── Category Section Headers ── */
+    .cat-header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .cat-header h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.75);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .cat-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* ── Footer unificado ── */
+    .tienda-footer {
+      background: rgba(0,0,0,0.6);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 3rem 2rem 1.5rem;
+    }
+
+    .tienda-footer .footer-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .tienda-footer .footer-column h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 0.9rem;
+    }
+
+    .tienda-footer .footer-column p,
+    .tienda-footer .footer-column a {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.65);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+      text-decoration: none;
+    }
+
+    .tienda-footer .footer-column a:hover { color: #fff; }
+
+    .tienda-footer .socialMedia {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.4rem;
+    }
+
+    .tienda-footer .socialMedia a {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.65);
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      margin: 0;
+    }
+
+    .tienda-footer .socialMedia a:hover {
+      background: #fb383a;
+      border-color: #fb383a;
+      color: #fff;
+    }
+
+    .tienda-footer .footer-logo { height: 42px; }
+    .tienda-footer .logo-col { display: flex; align-items: center; }
+
+    .tienda-footer .footer-bottom {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tienda-footer .footer-bottom p,
+    .tienda-footer .footer-bottom a {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+      text-decoration: none;
+    }
+
+    .tienda-footer .footer-bottom a:hover { color: rgba(255,255,255,0.7); }
+
+    @media (max-width: 600px) {
+      .tienda-controls { flex-direction: column; }
+      .filter-select { min-width: auto; width: 100%; }
+    }
+  </style>
 </head>
 <body>
-        <!-- Fondo dinámico -->
-    <div class="background-container">
-        <img id="bgImage" src="assets/img/fondos/fondo1.jpg" alt="Background">
-        <div class="bg-overlay"></div>
+  <!-- Fondo dinámico -->
+  <div class="background-container">
+    <img id="bgImage" src="assets/img/fondos/FondoIATest.png" alt="Fondo tecnológico Supertec">
+    <div class="bg-overlay"></div>
+  </div>
+
+  <header>
+    <nav>
+      <a href="./">
+        <img src="./assets/img/logo.png" alt="Supertec Logo" style="height:3rem;">
+      </a>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+      <ul id="nav-menu">
+        <li><a href="./">Inicio</a></li>
+        <li><a href="./#servicios">Servicios</a></li>
+        <li><a href="./#faqs">FAQs</a></li>
+        <li><a href="./#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="tienda-page">
+    <!-- Hero + Controls -->
+    <div class="tienda-hero">
+      <h1>Nuestra Tienda</h1>
+      <p>Tecnología y gaming al alcance de tu mano</p>
+      <div class="tienda-controls">
+        <div class="search-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="search"
+            id="search-input"
+            class="search-input"
+            placeholder="Buscar producto, marca o modelo..."
+            autocomplete="off"
+          >
+        </div>
+        <select id="category-filter" class="filter-select" aria-label="Filtrar por categoría">
+          <option value="">Todas las categorías</option>
+        </select>
+      </div>
     </div>
-    <header>
-        <nav>
-            <a href="./">
-                <img src="./assets/img/logo.png" alt="Supertec Logo" style="height:3rem;">
-            </a>
 
-            <!-- Botón hamburguesa -->
-            <div class="hamburger" id="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+    <!-- Products Body -->
+    <div class="tienda-body">
+      <!-- Sección Ofertas -->
+      <div id="ofertas-section" style="display: none; margin-bottom: 3rem;">
+        <div class="cat-header" style="margin-top: 0;">
+          <h2><i class="fa-solid fa-fire" style="color: #fb383a; margin-right: 8px;"></i> Ofertas Destacadas</h2>
+        </div>
+        <div class="productos-grid-tienda" id="ofertas-grid"></div>
+      </div>
 
-            <ul id="nav-menu">
-                <li><a href="./">Inicio</a></li>
-                <li><a href="#servicios">Servicios</a></li>
-                <li><a href="#faqs">FAQs</a></li>
-                <li><a href="#contacto">Contacto</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main class="tienda">
-        <section class="productos-tienda">
-            <h1>Tienda</h1>
-            <div id="productos-container">
-                <!-- Los productos se cargan dinámicamente -->
-            </div>
-        </section>
-    </main>
-    <!-- Footer Section -->
-    <footer id="contacto">
+      <div class="tienda-stats">
+        <p class="tienda-count" id="result-count">Cargando productos...</p>
+      </div>
+      <div class="productos-grid-tienda" id="productos-grid">
+        <!-- Skeleton placeholders -->
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line tall"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line btn"></div></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line tall"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line btn"></div></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line tall"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line btn"></div></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line tall"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line btn"></div></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line tall"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line btn"></div></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line tall"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line btn"></div></div></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer Unificado -->
+  <footer class="tienda-footer" id="contacto">
+    <div class="footer-content">
+      <div class="footer-column">
         <h3>Contacto</h3>
-        <p>Email: contacto@supertec.com.ar</p>
-
-        <!-- Redes sociales + Logo -->
-        <div class="contactContainer">
-            <div class="socialMediaContainer">
-                <div class="socialMedia">
-                    <a href="https://www.facebook.com/profile.php?id=100003893068135" target="_blank"><i class="fa-brands fa-facebook"></i></a>
-                    <a href="https://www.threads.com/@supertecmza" target="_blank"><i class="fa-brands fa-square-x-twitter"></i></a>
-                    <a href="https://www.instagram.com/supertecmza/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-                </div>
-                <div class="logo">
-                    <img src="./assets/img/logo.png" alt="Supertec Logo" style="height: 80px;">
-                </div>
-                <div class="socialMedia">
-                    <a href="https://www.youtube.com" target="_blank"><i class="fa-brands fa-youtube"></i></a>
-                    <a href="https://discord.gg" target="_blank"><i class="fa-brands fa-discord"></i></a>
-                    <a href="https://www.spotify.com" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
-                </div>
-            </div>
+        <p><i class="fa-solid fa-envelope"></i> info@supertec.com.ar</p>
+        <p><i class="fa-brands fa-whatsapp"></i> +54 9 261 503-1101</p>
+      </div>
+      <div class="footer-column">
+        <h3>Ubicación</h3>
+        <p>Brasil 341 Local 4, M5501 Godoy Cruz, Mendoza</p>
+        <a href="https://maps.app.goo.gl/4w85V9tjvPkYLWJLA" target="_blank" class="footer-link">
+          <i class="fa-solid fa-map-location-dot"></i> Ver ubicación
+        </a>
+      </div>
+      <div class="footer-column">
+        <h3>Síguenos</h3>
+        <div class="socialMedia">
+          <a href="https://www.facebook.com/profile.php?id=100003893068135" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+          <a href="https://www.threads.com/@supertecmza" target="_blank" aria-label="Threads"><i class="fa-brands fa-threads"></i></a>
+          <a href="https://www.instagram.com/supertecmza/" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
         </div>
+      </div>
+      <div class="footer-column logo-col">
+        <img src="./assets/img/logo.png" alt="Supertec Logo" class="footer-logo">
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Supertec. Todos los derechos reservados.</p>
+      <a href="https://francocalegari.github.io/PortfolioFrancoCalegari/" target="_blank">Code by F.C</a>
+    </div>
+  </footer>
 
-        <p>&copy; 2025 Supertec. Todos los derechos reservados.</p>
+  <!-- WhatsApp Flotante -->
+  <a href="https://wa.me/5492615031101" class="btn-whatsapp" target="_blank" aria-label="Chat on WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+    <span>Chatea con nosotros</span>
+  </a>
 
-        <div class="footer-credit">
-            <a href="https://francocalegari.github.io/PortfolioFrancoCalegari/" target="_blank">
-                Code by Franco Calegari
-            </a>
+  <script src="./assets/js/background.js"></script>
+  <script>
+    const WHATSAPP_NUMBER = "5492617735869";
+    const FALLBACK_IMG = "assets/img/logo.png";
+    const grid = document.getElementById("productos-grid");
+    const ofertasGrid = document.getElementById("ofertas-grid");
+    const ofertasSection = document.getElementById("ofertas-section");
+    const searchInput = document.getElementById("search-input");
+    const categoryFilter = document.getElementById("category-filter");
+    const resultCount = document.getElementById("result-count");
+
+    let allProductos = [];
+
+    // Hamburger menu
+    document.getElementById("hamburger")?.addEventListener("click", () => {
+      document.getElementById("nav-menu")?.classList.toggle("active");
+      document.getElementById("hamburger")?.classList.toggle("active");
+    });
+
+    function buildCard(p) {
+      const meta = [p.marca, p.modelo].filter(Boolean).join(" · ");
+      const priceStr = Number(p.precio) > 0
+        ? `$${Number(p.precio).toLocaleString("es-AR")}`
+        : "Consultar precio";
+
+      const card = document.createElement("div");
+      card.className = "producto-card-tienda";
+      card.dataset.id = p.id;
+      card.innerHTML = `
+        <div class="card-img-wrap">
+          <img
+            src="${p.img || FALLBACK_IMG}"
+            alt="${p.name}"
+            loading="lazy"
+            onerror="this.src='${FALLBACK_IMG}'"
+          >
+          ${p.stock > 0 ? `<span class="card-badge">En stock</span>` : ''}
         </div>
-    </footer>
+        <div class="card-body">
+          ${meta ? `<p class="card-meta">${meta}</p>` : ''}
+          <h2 class="card-name">${p.name}</h2>
+          ${p.description ? `<p class="card-desc">${p.description}</p>` : ''}
+          <p class="card-price">${priceStr}</p>
+          <button class="btn-consultar" type="button">
+            <i class="fa-brands fa-whatsapp"></i> Consultar
+          </button>
+        </div>
+      `;
 
-    <script src="./assets/js/background.js"></script>
-    <script src="./assets/js/demoproductos.js" defer></script>
-    <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const container = document.getElementById("productos-container");
+      card.querySelector(".btn-consultar").addEventListener("click", (e) => {
+        e.stopPropagation();
+        const msg = `Buen día, quisiera consultar sobre este producto:\n\n📌 *${p.name}*${p.marca ? `\n🏷️ Marca: ${p.marca}` : ''}${p.modelo ? `\n🔖 Modelo: ${p.modelo}` : ''}${Number(p.precio) > 0 ? `\n💰 Precio: $${Number(p.precio).toLocaleString("es-AR")}` : ''}`;
+        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+      });
 
+      return card;
+    }
+
+    function renderProductos(list) {
+      grid.innerHTML = "";
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-box-open"></i>
+            <h3>Sin resultados</h3>
+            <p>Intenta con otro término o categoría</p>
+          </div>`;
+        resultCount.innerHTML = `<span>0</span> productos encontrados`;
+        return;
+      }
+
+      resultCount.innerHTML = `<span>${list.length}</span> producto${list.length !== 1 ? "s" : ""} encontrado${list.length !== 1 ? "s" : ""}`;
+
+      // Group by category
+      const byCategory = list.reduce((acc, p) => {
+        const cat = p.categoria || "Sin categoría";
+        (acc[cat] = acc[cat] || []).push(p);
+        return acc;
+      }, {});
+
+      const hasManyCategories = Object.keys(byCategory).length > 1;
+
+      Object.entries(byCategory).forEach(([cat, productos]) => {
+        if (hasManyCategories) {
+          const header = document.createElement("div");
+          header.className = "cat-header";
+          header.innerHTML = `<h2>${cat}</h2>`;
+          grid.appendChild(header);
+        }
+        productos.forEach(p => grid.appendChild(buildCard(p)));
+      });
+    }
+
+    function renderOfertas(list) {
+      ofertasGrid.innerHTML = "";
+      if (list.length === 0) {
+        ofertasSection.style.display = "none";
+        return;
+      }
+      
+      // Mostrar hasta 4 productos aleatorios como ofertas
+      const ofertas = [...list].sort(() => 0.5 - Math.random()).slice(0, 4);
+      
+      ofertas.forEach(p => {
+        const card = buildCard(p);
+        // Opcional: Destacar un poco la card de oferta
+        card.style.borderColor = "rgba(251,56,58,0.3)";
+        card.style.boxShadow = "0 4px 15px rgba(251,56,58,0.05)";
+        ofertasGrid.appendChild(card);
+      });
+      ofertasSection.style.display = "block";
+    }
+
+    function filterAndRender() {
+      const q = searchInput.value.toLowerCase().trim();
+      const cat = categoryFilter.value;
+      const filtered = allProductos.filter(p => {
+        const matchCat = !cat || p.categoria === cat;
+        const matchQ = !q || [p.name, p.description, p.marca, p.modelo, p.categoria]
+          .filter(Boolean).some(v => v.toLowerCase().includes(q));
+        return matchCat && matchQ;
+      });
+      renderProductos(filtered);
+    }
+
+    function populateCategories(productos) {
+      const cats = [...new Set(productos.map(p => p.categoria).filter(Boolean))].sort();
+      cats.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        categoryFilter.appendChild(opt);
+      });
+    }
+
+    // Debounce search
+    let debounceTimer;
+    searchInput.addEventListener("input", () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(filterAndRender, 220);
+    });
+    categoryFilter.addEventListener("change", filterAndRender);
+
+    // Load products
     fetch("/api/productos")
-        .then(res => res.json())
-        .then(data => {
-            data.forEach(producto => {
-                const card = document.createElement("div");
-                card.classList.add("producto-card");
-
-                card.innerHTML = `
-                    <img src="${producto.img}" alt="${producto.name}">
-                    <h3>${producto.name}</h3>
-                    <p>${producto.description}</p>
-                    <span class="precio">$${producto.precio.toLocaleString("es-AR")}</span>
-                    <button class="btn-comprar">Comprar</button>
-                `;
-
-                container.appendChild(card);
-            });
-        })
-        .catch(err => console.error("Error al cargar productos:", err));
-});
-</script>
-
+      .then(r => { if (!r.ok) throw new Error("API error"); return r.json(); })
+      .then(data => {
+        allProductos = data;
+        populateCategories(data);
+        renderOfertas(data);
+        renderProductos(data);
+      })
+      .catch(() => {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <h3>Error al cargar productos</h3>
+            <p>Por favor, intentá de nuevo más tarde</p>
+          </div>`;
+        resultCount.textContent = "";
+      });
+  </script>
 </body>
 </html>

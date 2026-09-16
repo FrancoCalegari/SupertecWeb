@@ -1,28 +1,15 @@
-const { createClient } = require("@supabase/supabase-js");
+// db.js - SpiderWebAPI backend (MariaDB via REST)
+const SPIDER_API_BASE = process.env.SPIDERWEB_API_BASE || "https://spiderwebargapi.com.ar/api/v1";
+const SPIDER_API_KEY = process.env.SPIDERWEB_API_KEY || "c90d1502ce815ea5d1108662186145d3cefe642586466c769d4c7fae63086ac6";
+const SPIDER_DB = process.env.SPIDERWEB_DB_NAME || "sw_Franco Calegari_supertec";
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-
-// Initialize Supabase client
-// Use service role key for admin operations (bypasses RLS)
-const supabase = SUPABASE_SERVICE_KEY
-	? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-	: SUPABASE_ANON_KEY
-	? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-	: null;
-
-if (!supabase) {
-	console.error(
-		"[DB] SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY) must be set"
-	);
+if (!SPIDER_API_KEY) {
+	console.error("[DB] SPIDERWEB_API_KEY must be set");
 }
 
 // ========== CACHE CONFIGURATION ==========
-// Cache TTL in milliseconds (default: 5 minutes)
 const CACHE_TTL = parseInt(process.env.CACHE_TTL) || 5 * 60 * 1000;
 
-// In-memory cache structure
 const cache = {
 	productos: { data: null, timestamp: 0 },
 	ventas: { data: null, timestamp: 0 },
@@ -33,18 +20,13 @@ const cache = {
 function getCachedData(key) {
 	const cached = cache[key];
 	if (!cached.data) return null;
-
 	const now = Date.now();
 	if (now - cached.timestamp > CACHE_TTL) {
-		// Cache expired
 		cached.data = null;
 		cached.timestamp = 0;
 		return null;
 	}
-
-	console.log(
-		`[CACHE HIT] ${key} - age: ${Math.round((now - cached.timestamp) / 1000)}s`
-	);
+	console.log(`[CACHE HIT] ${key} - age: ${Math.round((now - cached.timestamp) / 1000)}s`);
 	return cached.data;
 }
 
@@ -61,8 +43,30 @@ function invalidateCache(key) {
 }
 // ========== END CACHE CONFIGURATION ==========
 
+// Core SQL helper - centralizes all API calls
+async function spiderQuery(sql) {
+	const res = await fetch(`${SPIDER_API_BASE}/query`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"X-API-KEY": SPIDER_API_KEY,
+		},
+		body: JSON.stringify({ database: SPIDER_DB, query: sql }),
+	});
+	const data = await res.json();
+	if (data.error) {
+		throw new Error(`[SpiderDB] ${data.error}: ${data.message || ""}`);
+	}
+	return data.result;
+}
+
+// Escapes a value safely for SQL string insertion
+function esc(val) {
+	if (val === null || val === undefined) return "NULL";
+	return `'${String(val).replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
+}
+
 const normalizeProducto = (p) => ({
-	// id: include id only if present and truthy, otherwise undefined
 	...(p.id ? { id: Number(p.id) } : {}),
 	name: p.name,
 	description: p.description || "",
@@ -76,33 +80,24 @@ const normalizeProducto = (p) => ({
 
 // ========== INITIALIZATION ==========
 async function initDb() {
-	if (!supabase) {
-		console.error("[DB] Supabase client not initialized");
-		throw new Error("Supabase client not initialized");
+	try {
+		await spiderQuery("SELECT 1");
+		console.log("[DB] SpiderWebAPI connection OK");
+	} catch (err) {
+		console.error("[DB] SpiderWebAPI connection failed:", err.message);
+		throw err;
 	}
-	console.log("[DB] Supabase client initialized successfully");
 }
 
 // ========== PRODUCTOS ==========
 async function readProductos() {
-	// Check cache first
 	const cached = getCachedData("productos");
 	if (cached !== null) return cached;
 
-	// Cache miss - fetch from Supabase
-	const { data, error } = await supabase
-		.from("productos")
-		.select("*")
-		.order("id", { ascending: true });
-
-	if (error) {
-		console.error("[DB] Error reading productos:", error);
-		return [];
-	}
-
-	// Store in cache
-	setCachedData("productos", data || []);
-	return data || [];
+	const rows = await spiderQuery("SELECT * FROM productos ORDER BY id ASC");
+	const data = (rows || []).map(normalizeProducto);
+	setCachedData("productos", data);
+	return data;
 }
 
 async function listProductos() {
@@ -111,63 +106,30 @@ async function listProductos() {
 
 async function upsertProducto(p) {
 	invalidateCache("productos");
-
-	const producto = normalizeProducto(p);
+	const prod = normalizeProducto(p);
 
 	if (p.id) {
-		// Update existing
-		const { data, error } = await supabase
-			.from("productos")
-			.update(producto)
-			.eq("id", p.id)
-			.select()
-			.single();
-
-		if (error) {
-			console.error("[DB] Error updating producto:", error);
-			throw error;
-		}
-		return data;
+		await spiderQuery(
+			`UPDATE productos SET name=${esc(prod.name)}, description=${esc(prod.description)}, precio=${prod.precio}, categoria=${esc(prod.categoria)}, stock=${prod.stock}, marca=${esc(prod.marca)}, modelo=${esc(prod.modelo)}, img=${esc(prod.img)} WHERE id=${p.id}`
+		);
+		const rows = await spiderQuery(`SELECT * FROM productos WHERE id=${p.id} LIMIT 1`);
+		return normalizeProducto(rows[0]);
 	} else {
-		// Insert new
-		// Manual ID generation (fallback if schema lacks auto-increment)
-		const { data: maxIdData } = await supabase
-			.from("productos")
-			.select("id")
-			.order("id", { ascending: false })
-			.limit(1)
-			.single();
-
-		const nextId = (maxIdData?.id || 0) + 1;
-
-		const { id, ...newProducto } = producto; // Clean any existing bad ID
-		const { data, error } = await supabase
-			.from("productos")
-			.insert([{ ...newProducto, id: nextId }])
-			.select()
-			.single();
-
-		if (error) {
-			console.error("[DB] Error inserting producto:", error);
-			throw error;
-		}
-		return data;
+		const result = await spiderQuery(
+			`INSERT INTO productos (name, description, precio, categoria, stock, marca, modelo, img) VALUES (${esc(prod.name)}, ${esc(prod.description)}, ${prod.precio}, ${esc(prod.categoria)}, ${prod.stock}, ${esc(prod.marca)}, ${esc(prod.modelo)}, ${esc(prod.img)})`
+		);
+		const newId = result.insertId;
+		const rows = await spiderQuery(`SELECT * FROM productos WHERE id=${newId} LIMIT 1`);
+		return normalizeProducto(rows[0]);
 	}
 }
 
 async function deleteProductoById(id) {
 	invalidateCache("productos");
-
-	const { error } = await supabase.from("productos").delete().eq("id", id);
-
-	if (error) {
-		console.error("[DB] Error deleting producto:", error);
-		return false;
-	}
+	await spiderQuery(`DELETE FROM productos WHERE id=${id}`);
 	return true;
 }
 
-// ========== HORARIOS ==========
 // ========== HORARIOS ==========
 const DEFAULT_HORARIOS = [
 	{ id: 1, day: "Lunes", open: "10:00", close: "18:00", closed: false },
@@ -180,65 +142,35 @@ const DEFAULT_HORARIOS = [
 ];
 
 async function readHorarios() {
-	// Check cache first
 	const cached = getCachedData("horarios");
 	if (cached !== null) return cached;
 
-	// Cache miss - fetch from Supabase
-	const { data, error } = await supabase
-		.from("horarios")
-		.select("*")
-		.order("id", { ascending: true });
-
-	if (error) {
-		console.error("[DB] Error reading horarios:", error);
-		return DEFAULT_HORARIOS;
-	}
-
-	const result = data && data.length > 0 ? data : DEFAULT_HORARIOS;
-
-	// Store in cache
-	setCachedData("horarios", result);
-	return result;
+	const rows = await spiderQuery("SELECT * FROM horarios ORDER BY id ASC");
+	const data = rows && rows.length > 0
+		? rows.map((h) => ({ ...h, closed: !!h.closed }))
+		: DEFAULT_HORARIOS;
+	setCachedData("horarios", data);
+	return data;
 }
 
 async function writeHorarios(horarios) {
 	invalidateCache("horarios");
-
-	// Update each horario by day
 	for (const h of horarios) {
-		const { error } = await supabase
-			.from("horarios")
-			.update({ open: h.open, close: h.close, closed: h.closed })
-			.eq("day", h.day);
-
-		if (error) {
-			console.error("[DB] Error updating horario:", error);
-			throw error;
-		}
+		await spiderQuery(
+			`UPDATE horarios SET \`open\`=${esc(h.open)}, \`close\`=${esc(h.close)}, closed=${h.closed ? 1 : 0} WHERE day=${esc(h.day)}`
+		);
 	}
 }
 
 // ========== VENTAS ==========
 async function readVentas() {
-	// Check cache first
 	const cached = getCachedData("ventas");
 	if (cached !== null) return cached;
 
-	// Cache miss - fetch from Supabase
-	const { data, error } = await supabase
-		.from("ventas")
-		.select("*")
-		.order("id", { ascending: true });
-
-	if (error) {
-		console.error("[DB] Error reading ventas:", error);
-		return [];
-	}
-
-	// Store in cache
-	setCachedData("ventas", data || []);
-	return data || [];
+	const rows = await spiderQuery("SELECT * FROM ventas ORDER BY id ASC");
+	const data = (rows || []).map(normalizeProducto);
+	setCachedData("ventas", data);
+	return data;
 }
 
 async function listVentas() {
@@ -247,81 +179,39 @@ async function listVentas() {
 
 async function upsertVenta(v) {
 	invalidateCache("ventas");
-
 	const venta = normalizeProducto(v);
 
 	if (v.id) {
-		// Update existing
-		const { data, error } = await supabase
-			.from("ventas")
-			.update(venta)
-			.eq("id", v.id)
-			.select()
-			.single();
-
-		if (error) {
-			console.error("[DB] Error updating venta:", error);
-			throw error;
-		}
-		return data;
+		await spiderQuery(
+			`UPDATE ventas SET name=${esc(venta.name)}, description=${esc(venta.description)}, precio=${venta.precio}, categoria=${esc(venta.categoria)}, stock=${venta.stock}, marca=${esc(venta.marca)}, modelo=${esc(venta.modelo)}, img=${esc(venta.img)} WHERE id=${v.id}`
+		);
+		const rows = await spiderQuery(`SELECT * FROM ventas WHERE id=${v.id} LIMIT 1`);
+		return normalizeProducto(rows[0]);
 	} else {
-		// Insert new
-		const { data: maxIdData } = await supabase
-			.from("ventas")
-			.select("id")
-			.order("id", { ascending: false })
-			.limit(1)
-			.single();
-
-		const nextId = (maxIdData?.id || 0) + 1;
-
-		const { id, ...newVenta } = venta;
-		const { data, error } = await supabase
-			.from("ventas")
-			.insert([{ ...newVenta, id: nextId }])
-			.select()
-			.single();
-
-		if (error) {
-			console.error("[DB] Error inserting venta:", error);
-			throw error;
-		}
-		return data;
+		const result = await spiderQuery(
+			`INSERT INTO ventas (name, description, precio, categoria, stock, marca, modelo, img) VALUES (${esc(venta.name)}, ${esc(venta.description)}, ${venta.precio}, ${esc(venta.categoria)}, ${venta.stock}, ${esc(venta.marca)}, ${esc(venta.modelo)}, ${esc(venta.img)})`
+		);
+		const newId = result.insertId;
+		const rows = await spiderQuery(`SELECT * FROM ventas WHERE id=${newId} LIMIT 1`);
+		return normalizeProducto(rows[0]);
 	}
 }
 
 async function deleteVentaById(id) {
 	invalidateCache("ventas");
-
-	const { error } = await supabase.from("ventas").delete().eq("id", id);
-
-	if (error) {
-		console.error("[DB] Error deleting venta:", error);
-		return false;
-	}
+	await spiderQuery(`DELETE FROM ventas WHERE id=${id}`);
 	return true;
 }
 
 // ========== SERVICIOS ==========
 async function readServicios() {
-	// Check cache first
 	const cached = getCachedData("servicios");
 	if (cached !== null) return cached;
 
-	// Cache miss - fetch from Supabase
-	const { data, error } = await supabase
-		.from("servicios")
-		.select("*")
-		.order("id", { ascending: true });
-
-	if (error) {
-		console.error("[DB] Error reading servicios:", error);
-		return [];
-	}
-
-	// Store in cache
-	setCachedData("servicios", data || []);
-	return data || [];
+	const rows = await spiderQuery("SELECT * FROM servicios ORDER BY id ASC");
+	const data = (rows || []).map(normalizeProducto);
+	setCachedData("servicios", data);
+	return data;
 }
 
 async function listServicios() {
@@ -330,122 +220,94 @@ async function listServicios() {
 
 async function upsertServicio(s) {
 	invalidateCache("servicios");
-
 	const servicio = normalizeProducto(s);
 
 	if (s.id) {
-		// Update existing
-		const { data, error } = await supabase
-			.from("servicios")
-			.update(servicio)
-			.eq("id", s.id)
-			.select()
-			.single();
-
-		if (error) {
-			console.error("[DB] Error updating servicio:", error);
-			throw error;
-		}
-		return data;
+		await spiderQuery(
+			`UPDATE servicios SET name=${esc(servicio.name)}, description=${esc(servicio.description)}, precio=${servicio.precio}, categoria=${esc(servicio.categoria)}, stock=${servicio.stock}, marca=${esc(servicio.marca)}, modelo=${esc(servicio.modelo)}, img=${esc(servicio.img)} WHERE id=${s.id}`
+		);
+		const rows = await spiderQuery(`SELECT * FROM servicios WHERE id=${s.id} LIMIT 1`);
+		return normalizeProducto(rows[0]);
 	} else {
-		// Insert new
-		const { data: maxIdData } = await supabase
-			.from("servicios")
-			.select("id")
-			.order("id", { ascending: false })
-			.limit(1)
-			.single();
-
-		const nextId = (maxIdData?.id || 0) + 1;
-
-		const { id, ...newServicio } = servicio;
-		const { data, error } = await supabase
-			.from("servicios")
-			.insert([{ ...newServicio, id: nextId }])
-			.select()
-			.single();
-
-		if (error) {
-			console.error("[DB] Error inserting servicio:", error);
-			throw error;
-		}
-		return data;
+		const result = await spiderQuery(
+			`INSERT INTO servicios (name, description, precio, categoria, stock, marca, modelo, img) VALUES (${esc(servicio.name)}, ${esc(servicio.description)}, ${servicio.precio}, ${esc(servicio.categoria)}, ${servicio.stock}, ${esc(servicio.marca)}, ${esc(servicio.modelo)}, ${esc(servicio.img)})`
+		);
+		const newId = result.insertId;
+		const rows = await spiderQuery(`SELECT * FROM servicios WHERE id=${newId} LIMIT 1`);
+		return normalizeProducto(rows[0]);
 	}
 }
 
 async function deleteServicioById(id) {
 	invalidateCache("servicios");
-
-	const { error } = await supabase.from("servicios").delete().eq("id", id);
-
-	if (error) {
-		console.error("[DB] Error deleting servicio:", error);
-		return false;
-	}
+	await spiderQuery(`DELETE FROM servicios WHERE id=${id}`);
 	return true;
 }
 
 // ========== BULK & CLEAR OPERATIONS ==========
 async function saveAllProductos(data) {
 	invalidateCache("productos");
-	// Delete all
-	await supabase.from("productos").delete().neq("id", 0);
-	// Insert all
-	const { error } = await supabase.from("productos").insert(data);
-	if (error) throw error;
+	await spiderQuery("DELETE FROM productos WHERE id > 0");
+	for (const p of data) {
+		const prod = normalizeProducto(p);
+		await spiderQuery(
+			`INSERT INTO productos (name, description, precio, categoria, stock, marca, modelo, img) VALUES (${esc(prod.name)}, ${esc(prod.description)}, ${prod.precio}, ${esc(prod.categoria)}, ${prod.stock}, ${esc(prod.marca)}, ${esc(prod.modelo)}, ${esc(prod.img)})`
+		);
+	}
 }
 
 async function clearProductos() {
 	invalidateCache("productos");
-	const { error } = await supabase.from("productos").delete().neq("id", 0);
-	if (error) throw error;
+	await spiderQuery("DELETE FROM productos WHERE id > 0");
 }
 
 async function saveAllVentas(data) {
 	invalidateCache("ventas");
-	await supabase.from("ventas").delete().neq("id", 0);
-	const { error } = await supabase.from("ventas").insert(data);
-	if (error) throw error;
+	await spiderQuery("DELETE FROM ventas WHERE id > 0");
+	for (const v of data) {
+		const venta = normalizeProducto(v);
+		await spiderQuery(
+			`INSERT INTO ventas (name, description, precio, categoria, stock, marca, modelo, img) VALUES (${esc(venta.name)}, ${esc(venta.description)}, ${venta.precio}, ${esc(venta.categoria)}, ${venta.stock}, ${esc(venta.marca)}, ${esc(venta.modelo)}, ${esc(venta.img)})`
+		);
+	}
 }
 
 async function clearVentas() {
 	invalidateCache("ventas");
-	const { error } = await supabase.from("ventas").delete().neq("id", 0);
-	if (error) throw error;
+	await spiderQuery("DELETE FROM ventas WHERE id > 0");
 }
 
 async function saveAllServicios(data) {
 	invalidateCache("servicios");
-	await supabase.from("servicios").delete().neq("id", 0);
-	const { error } = await supabase.from("servicios").insert(data);
-	if (error) throw error;
+	await spiderQuery("DELETE FROM servicios WHERE id > 0");
+	for (const s of data) {
+		const serv = normalizeProducto(s);
+		await spiderQuery(
+			`INSERT INTO servicios (name, description, precio, categoria, stock, marca, modelo, img) VALUES (${esc(serv.name)}, ${esc(serv.description)}, ${serv.precio}, ${esc(serv.categoria)}, ${serv.stock}, ${esc(serv.marca)}, ${esc(serv.modelo)}, ${esc(serv.img)})`
+		);
+	}
 }
 
 async function clearServicios() {
 	invalidateCache("servicios");
-	const { error } = await supabase.from("servicios").delete().neq("id", 0);
-	if (error) throw error;
+	await spiderQuery("DELETE FROM servicios WHERE id > 0");
 }
 
 async function saveAllHorarios(data) {
 	invalidateCache("horarios");
-	// Update each by day
 	for (const h of data) {
-		await supabase
-			.from("horarios")
-			.update({ open: h.open, close: h.close, closed: h.closed })
-			.eq("day", h.day);
+		await spiderQuery(
+			`UPDATE horarios SET \`open\`=${esc(h.open)}, \`close\`=${esc(h.close)}, closed=${h.closed ? 1 : 0} WHERE day=${esc(h.day)}`
+		);
 	}
 }
 
 async function clearHorarios() {
 	invalidateCache("horarios");
-	// Reset to defaults
 	for (const h of DEFAULT_HORARIOS) {
-		await supabase
-			.from("horarios")
-			.update({ open: h.open, close: h.close, closed: h.closed })
-			.eq("day", h.day);
+		await spiderQuery(
+			`UPDATE horarios SET \`open\`=${esc(h.open)}, \`close\`=${esc(h.close)}, closed=${h.closed ? 1 : 0} WHERE day=${esc(h.day)}`
+		);
 	}
 }
 

@@ -4,7 +4,6 @@ const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
 const cookieSession = require("cookie-session");
-const { put } = require("@vercel/blob");
 const {
 	listProductos,
 	upsertProducto,
@@ -22,8 +21,9 @@ const {
 
 const app = express();
 
-const SPIDER_API_KEY = process.env.SPIDER_API_KEY || 'c90d1502ce815ea5d1108662186145d3cefe642586466c769d4c7fae63086ac6';
-const SPIDER_API_BASE = 'http://190.220.229.45:7256/api/v1';
+const SPIDER_API_KEY = process.env.SPIDERWEB_API_KEY || process.env.SPIDER_API_KEY || 'c90d1502ce815ea5d1108662186145d3cefe642586466c769d4c7fae63086ac6';
+const SPIDER_API_BASE = process.env.SPIDERWEB_API_BASE || 'https://spiderwebargapi.com.ar/api/v1';
+const SPIDER_STORAGE_PROJECT_ID = parseInt(process.env.SPIDERWEB_CLOUD_STORAGE_ID) || 1;
 
 let spiderProjectId = null;
 
@@ -38,16 +38,16 @@ async function getSpiderProjectId() {
 			const projects = Array.isArray(data) ? data : (data.data || data.projects || []);
 			const proj = projects.find(p => p.name === 'SuperTecStorage' || p.nombre === 'SuperTecStorage');
 			if (proj && (proj.id || proj._id)) {
-				spiderProjectId = proj.id || proj._id;
-				console.log(`[Spider API] Found project ID for 'SuperTecStorage': ${spiderProjectId}`);
-				return spiderProjectId;
-			}
+					spiderProjectId = proj.id || proj._id;
+					console.log(`[Spider API] Found project ID for 'SuperTecStorage': ${spiderProjectId}`);
+					return spiderProjectId;
+				}
 		}
 	} catch (e) {
 		console.error("[Spider API] Error fetching projects:", e);
 	}
-	console.warn("[Spider API] Project 'SuperTecStorage' not found, falling back to ID 1");
-	return 1;
+	console.warn(`[Spider API] Project 'SuperTecStorage' not found, falling back to ID ${SPIDER_STORAGE_PROJECT_ID}`);
+	return SPIDER_STORAGE_PROJECT_ID;
 }
 
 async function uploadToSpiderAPI(buffer, originalname) {

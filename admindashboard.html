@@ -6,193 +6,322 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="./assets/img/logo.png">
 <style>
-* { box-sizing: border-box; }
-body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f8; }
-header { background: #222; color: #fff; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-h1 { margin: 0; font-size: 1.5rem; }
-.container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+/* ══════════════════════════════════════
+   TOKENS & RESET — Mobile First
+══════════════════════════════════════ */
+:root {
+  --clr-bg:        #f0f2f5;
+  --clr-surface:   #ffffff;
+  --clr-border:    #e2e8f0;
+  --clr-text:      #1e293b;
+  --clr-muted:     #64748b;
+  --clr-primary:   #3b82f6;
+  --clr-primary-d: #2563eb;
+  --clr-success:   #22c55e;
+  --clr-success-d: #16a34a;
+  --clr-warn:      #f59e0b;
+  --clr-danger:    #ef4444;
+  --clr-danger-d:  #dc2626;
+  --clr-header:    #0f172a;
 
-/* Tabla */
-table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
-th, td { padding: 0.75rem; border-bottom: 1px solid #eee; text-align: left; font-size: 0.95rem; }
-th { background: #f0f0f0; font-weight: 600; }
-img { max-width: 70px; border-radius: 4px; }
-.actions button { margin-right: 0.3rem; margin-bottom: 0.3rem; }
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
 
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.14);
 
-/* Botones */
-.add-btn { background: #28a745; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
-.edit-btn { background: #ffc107; color: #222; border: none; padding: 0.3rem 0.7rem; border-radius: 4px; cursor: pointer; }
-.delete-btn { background: #dc3545; color: #fff; border: none; padding: 0.3rem 0.7rem; border-radius: 4px; cursor: pointer; }
-.logout-btn { background: #dc3545; color: #fff; text-decoration: none; padding: 0.4rem 0.8rem; border-radius: 4px; }
-.logout-btn:hover { background: #c82333; }
-
-/* Modal base */
-.modal {
-  display: none; /* Oculto por defecto */
-  position: fixed;
-  z-index: 1000;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-  padding: 1rem; /* Espacio para móviles */
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --tap: 44px; /* mínimo accesible para targets táctiles */
 }
 
-.modal-content {
-  background: #fff;
-  border-radius: 8px;
-  padding: 1.5rem;
-  max-width: 500px;
-  width: 100%;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  overflow-y: auto;
-  max-height: 90vh; /* Evita que se salga de la pantalla en móviles */
-}
-
-.modal-content h3 {
-  margin-top: 0;
-  text-align: center;
-  font-size: 1.3rem;
-}
-
-.modal-content form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-}
-
-.modal-content form input[type="text"],
-.modal-content form input[type="number"],
-.modal-content form input[type="file"] {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 100%;
-}
-
-.modal-content form label {
-  font-size: 0.9rem;
-  margin-bottom: 0.2rem;
-  display: block;
-}
-
-.modal-content button {
-  padding: 0.6rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--clr-bg);
+  color: var(--clr-text);
   font-size: 1rem;
+  line-height: 1.5;
+  min-height: 100dvh;
 }
 
-.save-btn { background: #28a745; color: #fff; }
-.cancel-btn { background: #dc3545; color: #fff; }
-
-.modal-actions {
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+header {
+  background: var(--clr-header);
+  color: #fff;
+  padding: 0.875rem 1rem;
   display: flex;
-  justify-content: space-around;
-  margin-top: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
 }
-
-.btn-yes { background: #e74c3c; color: #fff; }
-.btn-no { background: #7f8c8d; color: #fff; }
-/* ================== Responsive ================== */
-@media (max-width: 977px) {
-table, thead, tbody, th, td, tr {
-    display: block;
-  }
-
-  thead { 
-    display: none; /* ocultar encabezados en móvil */
-  }
-
-  tr {
-    background: #fff;
-    margin-bottom: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px #0001;
-    padding: 1rem;
-  }
-
-  td {
-    border: none;
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0;
-  }
-
-  td::before {
-    content: attr(data-label);
-    font-weight: bold;
-    margin-right: 0.5rem;
-    color: #555;
-  }
-
-  .actions {
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
-
-  .actions button {
-    flex: 1;
-    padding: 0.5rem;
-    font-size: 0.85rem;
-  }
-    .modal-content {
-    padding: 1rem;
-    max-width: 95%;
-  }
-  
-  .modal-content h3 {
-    font-size: 1.1rem;
-  }
-  
-  .modal-content button {
-    font-size: 0.95rem;
-    padding: 0.5rem;
-  }
-  
-  .modal-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .modal-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
+header h1 {
+  font-size: clamp(0.95rem, 3.5vw, 1.25rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
 }
+.logout-btn {
+  background: var(--clr-danger);
+  color: #fff;
+  text-decoration: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.2s;
+  min-height: var(--tap);
+  display: inline-flex;
+  align-items: center;
+}
+.logout-btn:hover, .logout-btn:focus-visible { background: var(--clr-danger-d); outline: 2px solid #fff; outline-offset: 2px; }
 
-/* Tabs */
-.tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 2px solid #ddd; padding-bottom: 0.5rem; flex-wrap: wrap; justify-content: center; }
-.tab-btn { background: none; border: none; font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; color: #555; font-weight: 600; border-bottom: 3px solid transparent; transition: all 0.3s; flex: 1 1 auto; text-align: center; }
-.tab-btn:hover { color: #000; background-color: #f8f9fa; border-radius: 4px 4px 0 0; }
-.tab-btn.active { color: #007bff; border-bottom-color: #007bff; background-color: #e7f1ff; border-radius: 4px 4px 0 0; }
-.tab-content { display: none; animation: fadeIn 0.3s ease; }
+/* ══════════════════════════════════════
+   CONTAINER
+══════════════════════════════════════ */
+.container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+
+/* ══════════════════════════════════════
+   TABS — scroll horizontal en mobile
+══════════════════════════════════════ */
+.tabs {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  border-bottom: 2px solid var(--clr-border);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  color: var(--clr-muted);
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  min-height: var(--tap);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+.tab-btn:hover { color: var(--clr-text); background: rgba(0,0,0,0.03); }
+.tab-btn.active { color: var(--clr-primary); border-bottom-color: var(--clr-primary); }
+.tab-btn:focus-visible { outline: 2px solid var(--clr-primary); outline-offset: -2px; }
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--clr-border);
+  color: var(--clr-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0 0.4rem;
+  min-width: 20px;
+  line-height: 18px;
+  transition: background 0.2s, color 0.2s;
+}
+.tab-btn.active .tab-badge { background: var(--clr-primary); color: #fff; }
+
+.tab-content { display: none; animation: fadeIn 0.25s ease; }
 .tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* Config Styles */
-.config-section { border-bottom: 1px solid #eee; padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
-.config-section:last-child { border-bottom: none; margin-bottom: 0; }
-.config-section h4 { margin-top: 0; margin-bottom: 1rem; color: #333; }
-.config-actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
-.btn-export { background: #17a2b8; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; flex: 1 1 auto; text-align: center; }
-.btn-import { background: #007bff; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; flex: 1 1 auto; text-align: center; }
-.btn-clear { background: #dc3545; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin-left: auto; flex: 1 1 auto; text-align: center; }
-.import-box { display: flex; gap: 0.5rem; align-items: center; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; flex-wrap: wrap; flex: 2 1 300px; }
-.import-box input[type="file"] { flex: 1; min-width: 200px; }
-
-@media (max-width: 768px) {
-    .tabs { flex-direction: column; border-bottom: none; gap: 0; }
-    .tab-btn { width: 100%; border-bottom: 1px solid #eee; margin: 0; border-radius: 0; }
-    .tab-btn.active { border-radius: 0; border-left: 4px solid #007bff; border-bottom: 1px solid #eee; }
-    
-    .config-actions { flex-direction: column; align-items: stretch; }
-    .btn-clear { margin-left: 0; margin-top: 0.5rem; }
-    .import-box { flex-direction: column; align-items: stretch; }
+/* ══════════════════════════════════════
+   BOTONES
+══════════════════════════════════════ */
+button {
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 1rem;
+  min-height: var(--tap);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: opacity 0.2s, transform 0.15s, background 0.2s;
 }
+button:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+button:active:not(:disabled) { transform: translateY(0); }
+button:focus-visible { outline: 2px solid var(--clr-primary); outline-offset: 2px; }
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.add-btn    { background: var(--clr-success); color: #fff; margin-bottom: 0.85rem; }
+.add-btn:hover:not(:disabled) { background: var(--clr-success-d); opacity: 1; }
+.edit-btn   { background: var(--clr-warn); color: #1e293b; font-size: 0.82rem; padding: 0.4rem 0.75rem; min-height: 36px; }
+.delete-btn { background: var(--clr-danger); color: #fff; font-size: 0.82rem; padding: 0.4rem 0.75rem; min-height: 36px; }
+.save-btn   { background: var(--clr-success); color: #fff; width: 100%; }
+.cancel-btn { background: var(--clr-danger); color: #fff; width: 100%; }
+.btn-yes    { background: var(--clr-danger); color: #fff; flex: 1; }
+.btn-no     { background: #94a3b8; color: #fff; flex: 1; }
+.btn-export { background: #0891b2; color: #fff; }
+.btn-import { background: var(--clr-primary); color: #fff; }
+.btn-clear  { background: var(--clr-danger); color: #fff; }
+
+/* ══════════════════════════════════════
+   TABLA — mobile-first
+══════════════════════════════════════ */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+table { width: 100%; border-collapse: collapse; background: var(--clr-surface); min-width: 640px; }
+thead th {
+  background: #f8fafc;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--clr-muted);
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--clr-border);
+  text-align: left;
+  white-space: nowrap;
+}
+tbody td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--clr-border); font-size: 0.9rem; vertical-align: middle; color: var(--clr-text); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.15s; }
+tbody tr:hover { background: #f8fafc; }
+table img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--clr-border); display: block; }
+.actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+@media (max-width: 640px) {
+  .table-wrapper { border-radius: 0; box-shadow: none; overflow: visible; }
+  table { min-width: 0; background: transparent; }
+  table, thead, tbody, th, td, tr { display: block; }
+  thead { display: none; }
+  tbody tr { background: var(--clr-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 0.75rem; padding: 0.85rem; border: 1px solid var(--clr-border); }
+  tbody td { display: flex; justify-content: space-between; align-items: center; padding: 0.45rem 0; border: none; font-size: 0.88rem; border-bottom: 1px solid #f1f5f9; gap: 0.5rem; text-align: right; }
+  tbody td:last-child { border-bottom: none; }
+  tbody td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: var(--clr-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+    min-width: 80px;
+    text-align: left;
+  }
+  .actions { justify-content: flex-end; gap: 0.5rem; padding-top: 0.4rem; }
+  .actions::before { content: none; }
+  .edit-btn, .delete-btn { flex: 1; min-height: var(--tap); font-size: 0.85rem; }
+  table img { width: 44px; height: 44px; }
+}
+
+/* ══════════════════════════════════════
+   MODAL
+══════════════════════════════════════ */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0;
+}
+@media (min-width: 480px) { .modal { align-items: center; padding: 1rem; } }
+.modal-content {
+  background: var(--clr-surface);
+  width: 100%;
+  max-width: 520px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 1.5rem 1.25rem;
+  box-shadow: var(--shadow-lg);
+  overscroll-behavior: contain;
+}
+@media (min-width: 480px) { .modal-content { border-radius: var(--radius-lg); padding: 1.75rem; } }
+.modal-content::before { content: ''; display: block; width: 40px; height: 4px; background: var(--clr-border); border-radius: 2px; margin: 0 auto 1.25rem; }
+@media (min-width: 480px) { .modal-content::before { display: none; } }
+.modal-content h3 { text-align: center; font-size: 1.15rem; font-weight: 700; margin-bottom: 1.1rem; color: var(--clr-text); margin-top:0; }
+.modal-content form { display: flex; flex-direction: column; gap: 0.6rem; }
+.modal-content form input[type="text"], .modal-content form input[type="number"], .modal-content form input[type="file"] {
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-family: var(--font);
+  color: var(--clr-text);
+  background: #f8fafc;
+  width: 100%;
+  min-height: var(--tap);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.modal-content form input:focus { border-color: var(--clr-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); background: #fff; }
+.modal-content form label { font-size: 0.82rem; font-weight: 600; color: var(--clr-muted); margin-bottom: -0.2rem; }
+#imgPreview { width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-sm); border: 1.5px solid var(--clr-border); display: none; margin-top: 0.5rem; }
+.modal-actions { display: flex; gap: 0.6rem; margin-top: 1.25rem; flex-wrap: wrap; }
+
+/* ══════════════════════════════════════
+   HORARIOS TAB
+══════════════════════════════════════ */
+.horarios-card { background: var(--clr-surface); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 600px; margin: 0 auto; border: 1px solid var(--clr-border); }
+.horarios-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 1.1rem; color: var(--clr-text); margin-top: 0; }
+#horariosList { display: flex; flex-direction: column; gap: 0.6rem; }
+#horariosList > div { display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem 0.85rem; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--clr-border); flex-wrap: wrap; }
+#horariosList input[type="time"] { padding: 0.4rem 0.5rem; border: 1.5px solid var(--clr-border); border-radius: var(--radius-sm); font-size: 0.95rem; min-height: 38px; outline: none; width: auto; flex: 1; min-width: 90px; max-width: 120px; background: #fff; }
+#horariosList input[type="time"]:focus { border-color: var(--clr-primary); }
+#horariosList input[type="time"]:disabled { opacity: 0.45; }
+#horariosList input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--clr-primary); }
+
+/* ══════════════════════════════════════
+   CONFIG TAB
+══════════════════════════════════════ */
+.config-card { background: var(--clr-surface); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 860px; margin: 0 auto; border: 1px solid var(--clr-border); }
+.config-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.3rem; margin-top: 0;}
+.config-card > p { color: var(--clr-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.config-section { border-top: 1px solid var(--clr-border); padding-top: 1.25rem; margin-top: 1.25rem; }
+.config-section:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+.config-section h4 { font-size: 0.92rem; font-weight: 700; color: var(--clr-text); margin-bottom: 0.85rem; margin-top: 0;}
+.config-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+.import-box { display: flex; gap: 0.5rem; align-items: center; background: #f8fafc; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--clr-border); flex: 1 1 240px; flex-wrap: wrap; }
+.import-box input[type="file"] { flex: 1; min-width: 140px; font-size: 0.85rem; padding: 0.3rem; min-height: 36px; }
+
+/* ══════════════════════════════════════
+   TOAST NOTIFICATIONS
+══════════════════════════════════════ */
+#toast-container { position: fixed; top: 4.5rem; right: 1rem; left: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
+@media (min-width: 480px) { #toast-container { left: auto; max-width: 340px; } }
+.toast { background: #fff; border-left: 4px solid var(--clr-success); border-radius: var(--radius-sm); box-shadow: var(--shadow-md); padding: 0.75rem 1rem; font-size: 0.88rem; font-weight: 600; color: var(--clr-text); pointer-events: auto; animation: toastIn 0.3s ease, toastOut 0.35s ease 2.65s forwards; }
+.toast.error { border-left-color: var(--clr-danger); }
+@keyframes toastIn  { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-6px); } }
 </style>
 </head>
 <body>
@@ -201,9 +330,11 @@ table, thead, tbody, th, td, tr {
     <a href="/logout" class="logout-btn">Cerrar sesión</a>
 </header>
 <!-- Modal de confirmación -->
+<div id="toast-container"></div>
+
 <div id="confirmModal" class="modal">
   <div class="modal-content">
-    <p id="confirmMessage">¿Seguro que deseas eliminar este producto?</p>
+    <p id="confirmMessage" style="text-align: center; margin-bottom: 1rem; font-weight: 500;">¿Seguro que deseas eliminar este producto?</p>
     <div class="modal-actions">
       <button id="confirmYes" class="btn-yes">Sí, eliminar</button>
       <button id="confirmNo" class="btn-no">Cancelar</button>
@@ -213,90 +344,95 @@ table, thead, tbody, th, td, tr {
 
 <div class="container">
     <div class="tabs">
-        <button class="tab-btn active" onclick="openTab('tab-productos')">Productos</button>
-        <button class="tab-btn" onclick="openTab('tab-ventas')">Ventas Local</button>
-        <button class="tab-btn" onclick="openTab('tab-servicios')">Servicios</button>
-        <button class="tab-btn" onclick="openTab('tab-horarios')">Horarios</button>
-        <button class="tab-btn" onclick="openTab('tab-config')">Configuración</button>
+        <button class="tab-btn active" onclick="openTab('tab-productos', this)">Productos<span class="tab-badge" id="badge-productos">…</span></button>
+        <button class="tab-btn" onclick="openTab('tab-ventas', this)">Ventas Local<span class="tab-badge" id="badge-ventas">…</span></button>
+        <button class="tab-btn" onclick="openTab('tab-servicios', this)">Servicios<span class="tab-badge" id="badge-servicios">…</span></button>
+        <button class="tab-btn" onclick="openTab('tab-horarios', this)">Horarios</button>
+        <button class="tab-btn" onclick="openTab('tab-config', this)">Configuración</button>
     </div>
 
     <!-- Tab Productos -->
     <div id="tab-productos" class="tab-content active">
         <button class="add-btn" onclick="showForm('productos')">Agregar Producto</button>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Imagen</th>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Categoría</th>
-                    <th>Stock</th>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="productsTable"></tbody>
-        </table>
-    </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Imagen</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Categoría</th>
+                        <th>Stock</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTable"></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Tab Ventas -->
     <div id="tab-ventas" class="tab-content">
         <button class="add-btn" onclick="showForm('ventas')">Agregar Venta</button>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Imagen</th>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Categoría</th>
-                    <th>Stock</th>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="ventasTable"></tbody>
-        </table>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Imagen</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Categoría</th>
+                        <th>Stock</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="ventasTable"></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Tab Servicios -->
     <div id="tab-servicios" class="tab-content">
         <button class="add-btn" onclick="showForm('servicios')">Agregar Servicio</button>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Imagen</th>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Categoría</th>
-                    <th>Stock</th>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="serviciosTable"></tbody>
-        </table>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Imagen</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Categoría</th>
+                        <th>Stock</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="serviciosTable"></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Tab Horarios -->
     <div id="tab-horarios" class="tab-content">
-        <div style="background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px #0001; max-width: 600px; margin: auto;">
+        <div class="horarios-card">
             <h3>Gestionar Horarios de Atención</h3>
             <form id="horariosForm" onsubmit="saveHorarios(event)">
-                <div id="horariosList" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div id="horariosList">
                     <!-- Se llena con JS -->
                 </div>
                 <div class="modal-actions" style="margin-top: 1.5rem; justify-content: flex-end;">
-                    <button type="submit" class="save-btn">Guardar Cambios</button>
+                    <button type="submit" class="save-btn" style="width: auto;">Guardar Cambios</button>
                 </div>
             </form>
         </div>
@@ -304,11 +440,11 @@ table, thead, tbody, th, td, tr {
 
     <!-- Tab Configuración -->
     <div id="tab-config" class="tab-content">
-        <div style="background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px #0001; max-width: 800px; margin: auto;">
+        <div class="config-card">
             <h3>Configuración de Datos</h3>
-            <p style="color: #666; margin-bottom: 2rem;">Gestiona la importación, exportación y limpieza de datos.</p>
+            <p>Gestiona la importación, exportación y limpieza de datos.</p>
 
-            <div style="display: grid; gap: 2rem;">
+            <div>
                 <!-- Productos -->
                 <div class="config-section">
                     <h4>Productos</h4>
@@ -374,8 +510,9 @@ table, thead, tbody, th, td, tr {
             <input type="text" id="name" placeholder="Nombre" required>
             <div>
                 <label>Imagen (URL o Archivo)</label>
-                <input type="text" id="img" placeholder="URL de imagen">
-                <input type="file" id="imgFile" accept=".png,.jpg,.jpeg,.webp,.avif">
+                <input type="text" id="img" placeholder="URL de imagen" oninput="previewImg(this.value)">
+                <input type="file" id="imgFile" accept=".png,.jpg,.jpeg,.webp,.avif" onchange="previewFromFile(this)">
+                <img id="imgPreview" src="" alt="Preview de imagen">
             </div>
             <input type="text" id="description" placeholder="Descripción" required>
             <input type="number" id="precio" placeholder="Precio" required>
@@ -383,30 +520,61 @@ table, thead, tbody, th, td, tr {
             <input type="number" id="stock" placeholder="Stock" required>
             <input type="text" id="marca" placeholder="Marca" required>
             <input type="text" id="modelo" placeholder="Modelo" required>
-            <button type="submit" class="save-btn">Guardar</button>
-            <button type="button" class="cancel-btn" onclick="hideForm()">Cancelar</button>
+            <div class="modal-actions">
+                <button type="submit" class="save-btn" style="flex:1;">Guardar</button>
+                <button type="button" class="cancel-btn" style="flex:1;" onclick="hideForm()">Cancelar</button>
+            </div>
         </form>
     </div>
 </div>
 
 <script>
+// ── Toast System ──
+function showToast(msg, isError = false) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast' + (isError ? ' error' : '');
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3200);
+}
+
+// ── Image Preview ──
+function previewImg(url) {
+    const preview = document.getElementById('imgPreview');
+    if (url) {
+        preview.src = url;
+        preview.style.display = 'block';
+        preview.onerror = () => { preview.style.display = 'none'; };
+    } else {
+        preview.style.display = 'none';
+    }
+}
+function previewFromFile(input) {
+    const preview = document.getElementById('imgPreview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
 let productos = [];
 let ventas = [];
 let servicios = [];
-let currentType = 'productos'; // 'productos', 'ventas', 'servicios'
+let currentType = 'productos';
 
-// Cargar productos desde JSON
 async function loadProductos() {
     const tbody = document.getElementById('productsTable');
     tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 2rem;">Cargando productos...</td></tr>';
-    
     try {
         const res = await fetch('/api/productos');
         productos = await res.json();
         renderTable('productos', productos, 'productsTable');
+        document.getElementById('badge-productos').textContent = productos.length;
     } catch(err) {
         tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color: red;">Error al cargar productos</td></tr>';
-        alert('Error al cargar productos');
+        showToast('Error al cargar productos', true);
     }
 }
 
@@ -417,6 +585,7 @@ async function loadVentas() {
         const res = await fetch('/api/ventas');
         ventas = await res.json();
         renderTable('ventas', ventas, 'ventasTable');
+        document.getElementById('badge-ventas').textContent = ventas.length;
     } catch(err) {
         tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color: red;">Error al cargar ventas</td></tr>';
     }
@@ -429,6 +598,7 @@ async function loadServicios() {
         const res = await fetch('/api/servicios');
         servicios = await res.json();
         renderTable('servicios', servicios, 'serviciosTable');
+        document.getElementById('badge-servicios').textContent = servicios.length;
     } catch(err) {
         tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color: red;">Error al cargar servicios</td></tr>';
     }
@@ -437,18 +607,22 @@ async function loadServicios() {
 function renderTable(type, data, tableId) {
     const tbody = document.getElementById(tableId);
     tbody.innerHTML = '';
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#999; padding:2rem;">Sin registros</td></tr>';
+        return;
+    }
     data.forEach(p => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td data-label="ID">${p.id}</td>
-            <td data-label="Imagen"><img src="${p.img}" alt="${p.name}"></td>
+            <td data-label="Imagen"><img src="${p.img || ''}" alt="${p.name}" onerror="this.style.display='none'"></td>
             <td data-label="Nombre">${p.name}</td>
-            <td>${p.description}</td>
-            <td data-label="Precio">$${p.precio}</td>
-            <td>${p.categoria}</td>
-            <td>${p.stock}</td>
-            <td>${p.marca}</td>
-            <td>${p.modelo}</td>
+            <td data-label="Descripción">${p.description}</td>
+            <td data-label="Precio">$${Number(p.precio).toLocaleString('es-AR')}</td>
+            <td data-label="Categoría">${p.categoria || '-'}</td>
+            <td data-label="Stock">${p.stock !== undefined ? p.stock : '-'}</td>
+            <td data-label="Marca">${p.marca || '-'}</td>
+            <td data-label="Modelo">${p.modelo || '-'}</td>
             <td data-label="Acciones" class="actions">
                 <button class="edit-btn" onclick="editItem('${type}', ${p.id})">Editar</button>
                 <button class="delete-btn" onclick="deleteItem('${type}', ${p.id})">Eliminar</button>
@@ -458,26 +632,25 @@ function renderTable(type, data, tableId) {
     });
 }
 
-// Mostrar modal
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1, -1);
+}
+
 function showForm(type, edit = false) {
     currentType = type;
     document.getElementById('productModal').style.display = 'flex';
-    document.getElementById('modalTitle').textContent = edit ? `Editar ${type}` : `Agregar ${type}`;
-    if (!edit) document.getElementById('productForm').reset();
+    const label = type === 'productos' ? 'Producto' : type === 'ventas' ? 'Venta' : 'Servicio';
+    document.getElementById('modalTitle').textContent = (edit ? 'Editar ' : 'Agregar ') + label;
+    if (!edit) {
+        document.getElementById('productForm').reset();
+        document.getElementById('imgPreview').style.display = 'none';
+    }
 
-    // Toggle fields based on type
     const isService = type === 'servicios';
-    const fieldsToToggle = ['categoria', 'stock', 'marca', 'modelo'];
-    
-    fieldsToToggle.forEach(id => {
+    ['categoria', 'stock', 'marca', 'modelo'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) {
-            el.style.display = isService ? 'none' : 'block';
-            el.required = !isService;
-        }
+        if (el) { el.style.display = isService ? 'none' : 'block'; el.required = !isService; }
     });
-    
-    // Price is optional for services
     const priceEl = document.getElementById('precio');
     if (priceEl) {
         priceEl.required = !isService;
@@ -485,41 +658,24 @@ function showForm(type, edit = false) {
     }
 }
 
-// Ocultar modal
 function hideForm() {
     document.getElementById('productModal').style.display = 'none';
 }
 
-// Guardar producto/venta/servicio
 async function saveProduct(event) {
     event.preventDefault();
-
     const formData = new FormData();
     formData.append("id", document.getElementById("productId").value || "");
     formData.append("name", document.getElementById("name").value);
     formData.append("description", document.getElementById("description").value);
-    
-    // Handle optional price
     const priceVal = document.getElementById("precio").value;
     formData.append("precio", priceVal ? priceVal : "0");
-
     if (currentType !== 'servicios') {
         formData.append("categoria", document.getElementById("categoria").value);
         formData.append("stock", document.getElementById("stock").value);
         formData.append("marca", document.getElementById("marca").value);
         formData.append("modelo", document.getElementById("modelo").value);
-    } else {
-        // Send empty/default values for hidden fields to satisfy backend if needed, 
-        // though backend should handle missing fields if they are not required.
-        // Based on db.js normalizeProducto, missing fields become empty strings/0.
-        // But app.js validation checks for some fields.
-        // Let's check app.js validation again.
-        // app.js checks: !servicio.name || !servicio.description. 
-        // It does NOT check category/stock/marca/modelo for services.
-        // So we are good to omit them.
     }
-
-    // Si el usuario cargó archivo, se manda el archivo
     const fileInput = document.getElementById("imgFile");
     if (fileInput.files.length > 0) {
         formData.append("imgFile", fileInput.files[0]);
@@ -527,30 +683,36 @@ async function saveProduct(event) {
         formData.append("img", document.getElementById("img").value);
     }
 
-    const endpoint = `/api/${currentType}`;
+    const saveBtn = document.querySelector('#productForm .save-btn');
+    const origText = saveBtn.textContent;
+    saveBtn.textContent = 'Guardando...';
+    saveBtn.disabled = true;
 
     try {
-        await fetch(endpoint, {
-            method: 'POST',
-            body: formData
-        });
-        hideForm();
-        if (currentType === 'productos') loadProductos();
-        if (currentType === 'ventas') loadVentas();
-        if (currentType === 'servicios') loadServicios();
+        const res = await fetch(`/api/${currentType}`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.ok) {
+            hideForm();
+            showToast('Guardado correctamente ✓');
+            if (currentType === 'productos') loadProductos();
+            if (currentType === 'ventas') loadVentas();
+            if (currentType === 'servicios') loadServicios();
+        } else {
+            showToast(data.error || 'Error al guardar', true);
+        }
     } catch (err) {
-        alert('Error al guardar');
+        showToast('Error de conexión', true);
+    } finally {
+        saveBtn.textContent = origText;
+        saveBtn.disabled = false;
     }
 }
 
-
-// Editar item
 function editItem(type, id) {
     let item;
     if (type === 'productos') item = productos.find(p => p.id === id);
     if (type === 'ventas') item = ventas.find(p => p.id === id);
     if (type === 'servicios') item = servicios.find(p => p.id === id);
-
     if (!item) return;
     showForm(type, true);
     document.getElementById('productId').value = item.id;
@@ -558,83 +720,59 @@ function editItem(type, id) {
     document.getElementById('img').value = item.img;
     document.getElementById('description').value = item.description;
     document.getElementById('precio').value = item.precio;
-    document.getElementById('categoria').value = item.categoria;
-    document.getElementById('stock').value = item.stock;
-    document.getElementById('marca').value = item.marca;
-    document.getElementById('modelo').value = item.modelo;
+    document.getElementById('categoria').value = item.categoria || '';
+    document.getElementById('stock').value = item.stock || '';
+    document.getElementById('marca').value = item.marca || '';
+    document.getElementById('modelo').value = item.modelo || '';
+    if (item.img) previewImg(item.img);
 }
 
-// Cerrar modal al hacer clic fuera del contenido
 window.onclick = function(event) {
     const modal = document.getElementById('productModal');
-    if (event.target == modal) hideForm();
+    if (event.target === modal) hideForm();
 }
 
-
-// Mostrar modal de confirmación
 function showConfirmModal(message, onConfirm) {
     const modal = document.getElementById("confirmModal");
-    const msgEl = document.getElementById("confirmMessage");
-    const yesBtn = document.getElementById("confirmYes");
-    const noBtn = document.getElementById("confirmNo");
-
-    msgEl.textContent = message;
+    document.getElementById("confirmMessage").textContent = message;
     modal.style.display = "flex";
-
-    // Evitar múltiples listeners
-    yesBtn.onclick = () => {
-        modal.style.display = "none";
-        onConfirm();
-    };
-
-    noBtn.onclick = () => {
-        modal.style.display = "none";
-    };
+    document.getElementById("confirmYes").onclick = () => { modal.style.display = "none"; onConfirm(); };
+    document.getElementById("confirmNo").onclick = () => { modal.style.display = "none"; };
 }
 
-// Eliminar item con modal
 async function deleteItem(type, id) {
-    showConfirmModal(`¿Seguro que deseas eliminar este item de ${type}?`, async () => {
+    showConfirmModal(`¿Eliminar este elemento de ${type}?`, async () => {
         try {
             const res = await fetch(`/api/${type}/${id}`, { method: 'DELETE' });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                showConfirmModal("Error: " + (errorData.error || "No se pudo eliminar"), () => {});
-                return;
+            if (res.ok) {
+                showToast('Eliminado correctamente');
+                if (type === 'productos') await loadProductos();
+                if (type === 'ventas') await loadVentas();
+                if (type === 'servicios') await loadServicios();
+            } else {
+                const err = await res.json();
+                showToast(err.error || 'No se pudo eliminar', true);
             }
-
-            if (type === 'productos') await loadProductos();
-            if (type === 'ventas') await loadVentas();
-            if (type === 'servicios') await loadServicios();
         } catch (err) {
-            console.error("Error en deleteItem:", err);
-            showConfirmModal("Error al eliminar", () => {});
+            showToast('Error al eliminar', true);
         }
     });
 }
 
-
-// Inicializar tabla
 loadProductos();
 
-// --- Tabs Logic ---
-function openTab(tabId) {
+// ── Tabs (no global `event` usage) ──
+function openTab(tabId, btn) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    
     document.getElementById(tabId).classList.add('active');
-    // Find button that calls this function and add active class
-    // (Simpler: iterate buttons and check text or onclick, but here we can just rely on the click event if passed, or just re-select)
-    // Actually the event.target might not work if called programmatically, but here it's onclick.
-    if (event) event.target.classList.add('active');
-
+    if (btn) btn.classList.add('active');
     if (tabId === 'tab-horarios') loadHorarios();
     if (tabId === 'tab-ventas') loadVentas();
     if (tabId === 'tab-servicios') loadServicios();
 }
 
-// --- Lógica de Horarios ---
+// ── Horarios ──
 let horarios = [];
 
 async function loadHorarios() {
@@ -643,107 +781,78 @@ async function loadHorarios() {
         horarios = await res.json();
         renderHorariosForm();
     } catch (err) {
-        alert('Error cargando horarios');
+        showToast('Error cargando horarios', true);
     }
 }
 
 function renderHorariosForm() {
     const container = document.getElementById('horariosList');
     container.innerHTML = '';
-    
     horarios.forEach((h, index) => {
         const div = document.createElement('div');
-        div.style.display = 'flex';
-        div.style.alignItems = 'center';
-        div.style.gap = '0.5rem';
-        div.style.padding = '0.5rem';
-        div.style.background = '#f9f9f9';
-        div.style.borderRadius = '4px';
-        
         div.innerHTML = `
-            <span style="width: 80px; font-weight: bold;">${h.day}</span>
-            <label style="display: flex; align-items: center; gap: 0.3rem; margin: 0;">
+            <span style="width:80px;font-weight:bold;">${h.day}</span>
+            <label style="display:flex;align-items:center;gap:0.3rem;margin:0;">
                 <input type="checkbox" ${h.closed ? 'checked' : ''} onchange="toggleClosed(${index}, this.checked)"> Cerrado
             </label>
-            <input type="time" value="${h.open}" ${h.closed ? 'disabled' : ''} id="open-${index}" style="width: auto;">
+            <input type="time" value="${h.open || ''}" ${h.closed ? 'disabled' : ''} id="open-${index}">
             <span>a</span>
-            <input type="time" value="${h.close}" ${h.closed ? 'disabled' : ''} id="close-${index}" style="width: auto;">
+            <input type="time" value="${h.close || ''}" ${h.closed ? 'disabled' : ''} id="close-${index}">
         `;
         container.appendChild(div);
     });
 }
 
 function toggleClosed(index, isClosed) {
-    const openInput = document.getElementById(`open-${index}`);
-    const closeInput = document.getElementById(`close-${index}`);
-    openInput.disabled = isClosed;
-    closeInput.disabled = isClosed;
+    document.getElementById(`open-${index}`).disabled = isClosed;
+    document.getElementById(`close-${index}`).disabled = isClosed;
     horarios[index].closed = isClosed;
 }
 
 async function saveHorarios(e) {
     e.preventDefault();
-    
-    // Actualizar array con valores de inputs
     horarios.forEach((h, index) => {
         if (!h.closed) {
             h.open = document.getElementById(`open-${index}`).value;
             h.close = document.getElementById(`close-${index}`).value;
         }
     });
-
     try {
         const res = await fetch('/api/horarios', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(horarios)
         });
-        
-        if (res.ok) {
-            alert('Horarios guardados correctamente');
-        } else {
-            alert('Error al guardar');
-        }
+        if (res.ok) showToast('Horarios guardados correctamente ✓');
+        else showToast('Error al guardar horarios', true);
     } catch (err) {
-        console.error(err);
-        alert('Error de conexión');
+        showToast('Error de conexión', true);
     }
 }
 
-// --- Config Logic ---
-function exportData(type) {
-    window.location.href = `/api/admin/export/${type}`;
-}
+// ── Config ──
+function exportData(type) { window.location.href = `/api/admin/export/${type}`; }
 
 async function importData(type) {
     const fileInput = document.getElementById(`import-${type}`);
-    if (!fileInput.files.length) {
-        alert('Selecciona un archivo JSON primero');
-        return;
-    }
-
+    if (!fileInput.files.length) { showToast('Selecciona un archivo JSON primero', true); return; }
     const formData = new FormData();
     formData.append('file', fileInput.files[0]);
-
     try {
-        const res = await fetch(`/api/admin/import/${type}`, {
-            method: 'POST',
-            body: formData
-        });
+        const res = await fetch(`/api/admin/import/${type}`, { method: 'POST', body: formData });
         const data = await res.json();
         if (data.ok) {
-            alert(`Importación exitosa. ${data.count} items procesados.`);
-            fileInput.value = ''; // Reset
-            // Reload if current tab matches
+            showToast(`Importación exitosa: ${data.count} items ✓`);
+            fileInput.value = '';
             if (type === 'productos') loadProductos();
             if (type === 'ventas') loadVentas();
             if (type === 'servicios') loadServicios();
             if (type === 'horarios') loadHorarios();
         } else {
-            alert('Error: ' + data.error);
+            showToast('Error: ' + data.error, true);
         }
     } catch (err) {
-        alert('Error al importar');
+        showToast('Error al importar', true);
     }
 }
 
@@ -752,16 +861,16 @@ function clearData(type) {
         try {
             const res = await fetch(`/api/admin/clear/${type}`, { method: 'DELETE' });
             if (res.ok) {
-                alert(`Datos de ${type} eliminados/restaurados.`);
+                showToast(`Datos de ${type} eliminados/restaurados`);
                 if (type === 'productos') loadProductos();
                 if (type === 'ventas') loadVentas();
                 if (type === 'servicios') loadServicios();
                 if (type === 'horarios') loadHorarios();
             } else {
-                alert('Error al limpiar datos');
+                showToast('Error al limpiar datos', true);
             }
         } catch (err) {
-            alert('Error de conexión');
+            showToast('Error de conexión', true);
         }
     });
 }

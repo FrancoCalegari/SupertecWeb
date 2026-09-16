@@ -1,176 +1,159 @@
 document.addEventListener("DOMContentLoaded", () => {
+	const WHATSAPP = "5492617735869";
+	const FALLBACK = "assets/img/logo.png";
+
+	// Skeleton card HTML for use as placeholder
+	const skeletonCard = () => `
+		<div class="skeleton-oferta-card">
+			<div class="sk-img"></div>
+			<div class="sk-body">
+				<div class="sk-line sk-title"></div>
+				<div class="sk-line sk-short"></div>
+			</div>
+		</div>`;
+
+	// Add skeleton styles if not already present
+	if (!document.getElementById("skeleton-styles")) {
+		const style = document.createElement("style");
+		style.id = "skeleton-styles";
+		style.textContent = `
+			.skeleton-oferta-card {
+				background: rgba(255,255,255,0.04);
+				border-radius: 12px;
+				overflow: hidden;
+				min-width: 200px;
+			}
+			.sk-img {
+				height: 160px;
+				background: rgba(255,255,255,0.05);
+				position: relative;
+				overflow: hidden;
+			}
+			.sk-body { padding: 0.9rem; display: flex; flex-direction: column; gap: 0.5rem; }
+			.sk-line {
+				height: 11px;
+				border-radius: 5px;
+				background: rgba(255,255,255,0.06);
+				position: relative;
+				overflow: hidden;
+			}
+			.sk-title { height: 16px; }
+			.sk-short { width: 60%; }
+			.sk-img::after, .sk-line::after {
+				content: '';
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+				animation: sk-shimmer 1.5s infinite;
+			}
+			@keyframes sk-shimmer {
+				0% { transform: translateX(-100%); }
+				100% { transform: translateX(100%); }
+			}`;
+		document.head.appendChild(style);
+	}
+
+	function buildSkeletons(container, count = 4) {
+		container.innerHTML = Array(count).fill(skeletonCard()).join("");
+	}
+
+	// ─── Productos (Tienda section) ───
 	const productosContainer = document.getElementById("productos-container");
 	const ofertasContainer = document.getElementById("ofertas-container");
 
-	// 🔹 Número de WhatsApp (cámbialo por el tuyo con código de país, sin + ni 00)
-	const whatsappNumber = "5492617735869";
-
-	// Loader HTML
-	const loaderHTML = `
-        <div class="loader">
-            <div class="spinner"></div>
-            <p>Cargando...</p>
-        </div>
-    `;
-
-	if (productosContainer) productosContainer.innerHTML = loaderHTML;
-	if (ofertasContainer) ofertasContainer.innerHTML = loaderHTML;
+	if (productosContainer) buildSkeletons(productosContainer, 6);
+	if (ofertasContainer) buildSkeletons(ofertasContainer, 4);
 
 	fetch("/api/productos")
-		.then((response) => {
-			if (!response.ok) throw new Error("Error al cargar el JSON");
-			return response.json();
-		})
+		.then((r) => { if (!r.ok) throw new Error("API error"); return r.json(); })
 		.then((productos) => {
-			/* ======================
-               Render de Productos agrupados por Categoría
-            ====================== */
+			/* ── Productos agrupados por categoría ── */
 			if (productosContainer) {
-				productosContainer.innerHTML = ""; // 🔹 Limpio loader
-
-				// Agrupar por categoría
-				const categorias = {};
-				productos.forEach((producto) => {
-					if (!categorias[producto.categoria]) {
-						categorias[producto.categoria] = [];
-					}
-					categorias[producto.categoria].push(producto);
-				});
-
-				// Renderizar secciones
-				Object.keys(categorias).forEach((categoria) => {
-					const section = document.createElement("section");
-					section.classList.add("categoria-section");
-
-					const title = document.createElement("h2");
-					title.textContent = categoria;
-					section.appendChild(title);
-
-					const grid = document.createElement("div");
-					grid.classList.add("productos-grid");
-
-					categorias[categoria].forEach((producto) => {
-						const precioFinal =
-							producto.descuento > 0
-								? producto.precio - (producto.precio * producto.descuento) / 100
-								: producto.precio;
-
-						const card = document.createElement("div");
-						card.classList.add("producto-card");
-						card.setAttribute("data-id", producto.id);
-
-						card.innerHTML = `
-                            <img src="${producto.img}" alt="${producto.name}">
-                            <h3>${producto.name}</h3>
-                            <p class="descripcion">${producto.description}</p>
-                            ${
-															producto.descuento > 0
-																? `<p class="precio">
-                                    <span class="precio-original">$${producto.precio.toLocaleString(
-																			"es-AR"
-																		)}</span>
-                                    <span class="precio-descuento">$${precioFinal.toLocaleString(
-																			"es-AR"
-																		)}</span>
-                                    <span class="badge-descuento">-${
-																			producto.descuento
-																		}%</span>
-                                   </p>`
-																: `<p class="precio">$${producto.precio.toLocaleString(
-																		"es-AR"
-																  )}</p>`
-														}
-                            <button class="btn btn-comprar">Consultar</button>
-                        `;
-
-						// 🔹 Evento botón WhatsApp
-						card.querySelector(".btn-comprar").addEventListener("click", () => {
-							const mensaje = `Buen dia quisiera consultar sobre este producto:\n\n📌 *${
-								producto.name
-							}*\n🏷️ Marca: ${producto.marca}\n🔖 Modelo: ${
-								producto.modelo
-							}\n💰 Precio: $${precioFinal.toLocaleString("es-AR")}`;
-							const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-								mensaje
-							)}`;
-							window.open(url, "_blank");
-						});
-
-						grid.appendChild(card);
+				productosContainer.innerHTML = "";
+				if (productos.length === 0) {
+					productosContainer.innerHTML = "<p style='color:rgba(255,255,255,0.4)'>Sin productos disponibles.</p>";
+				} else {
+					const categorias = {};
+					productos.forEach((p) => {
+						(categorias[p.categoria] = categorias[p.categoria] || []).push(p);
 					});
-
-					section.appendChild(grid);
-					productosContainer.appendChild(section);
-				});
+					Object.keys(categorias).forEach((cat) => {
+						const section = document.createElement("section");
+						section.className = "categoria-section";
+						const title = document.createElement("h2");
+						title.textContent = cat;
+						section.appendChild(title);
+						const grid = document.createElement("div");
+						grid.className = "productos-grid";
+						categorias[cat].forEach((p) => {
+							const precioFinal = p.descuento > 0
+								? p.precio - (p.precio * p.descuento) / 100
+								: p.precio;
+							const card = document.createElement("div");
+							card.className = "producto-card";
+							card.dataset.id = p.id;
+							card.innerHTML = `
+								<img src="${p.img || FALLBACK}" alt="${p.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
+								<h3>${p.name}</h3>
+								<p class="descripcion">${p.description}</p>
+								${p.descuento > 0
+									? `<p class="precio"><span class="precio-original">$${p.precio.toLocaleString("es-AR")}</span><span class="precio-descuento">$${precioFinal.toLocaleString("es-AR")}</span><span class="badge-descuento">-${p.descuento}%</span></p>`
+									: `<p class="precio">$${p.precio.toLocaleString("es-AR")}</p>`}
+								<button class="btn btn-comprar">Consultar</button>`;
+							card.querySelector(".btn-comprar").addEventListener("click", () => {
+								const msg = `Buen dia quisiera consultar sobre este producto:\n\n📌 *${p.name}*\n🏷️ Marca: ${p.marca}\n🔖 Modelo: ${p.modelo}\n💰 Precio: $${precioFinal.toLocaleString("es-AR")}`;
+								window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank");
+							});
+							grid.appendChild(card);
+						});
+						section.appendChild(grid);
+						productosContainer.appendChild(section);
+					});
+				}
 			}
 
-			/* ======================
-               Render de Ofertas (Random con descuento)
-            ====================== */
+			/* ── Ofertas (random) ── */
 			if (ofertasContainer) {
-				ofertasContainer.innerHTML = ""; // 🔹 Limpio loader
-
-				const productosAleatorios = [...productos]
-					.sort(() => 0.5 - Math.random())
-					.slice(0, 4);
-
-				productosAleatorios.forEach((producto) => {
-					const precioFinal =
-						producto.descuento > 0
-							? producto.precio - (producto.precio * producto.descuento) / 100
-							: producto.precio;
-
-					const ofertaCard = document.createElement("div");
-					ofertaCard.classList.add("oferta-card");
-					ofertaCard.setAttribute("data-id", producto.id);
-
-					ofertaCard.innerHTML = `
-                        <img src="${producto.img}" alt="${producto.name}">
-                        <h3>${producto.name}</h3>
-                        <p class="descripcion">${producto.description}</p>
-                    `;
-
-					ofertasContainer.appendChild(ofertaCard);
+				ofertasContainer.innerHTML = "";
+				const aleatorios = [...productos].sort(() => 0.5 - Math.random()).slice(0, 4);
+				aleatorios.forEach((p) => {
+					const card = document.createElement("div");
+					card.className = "oferta-card";
+					card.dataset.id = p.id;
+					card.innerHTML = `
+						<img src="${p.img || FALLBACK}" alt="${p.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
+						<h3>${p.name}</h3>
+						<p class="descripcion">${p.description}</p>`;
+					ofertasContainer.appendChild(card);
 				});
 			}
 		})
-		.catch((error) => {
-			console.error("Error cargando productos:", error);
-			if (ofertasContainer)
-				ofertasContainer.innerHTML = "<p>Error al cargar las ofertas.</p>";
+		.catch((err) => {
+			console.error("Error cargando productos:", err);
+			if (ofertasContainer) ofertasContainer.innerHTML = "<p>Error al cargar las ofertas.</p>";
+			if (productosContainer) productosContainer.innerHTML = "<p>Error al cargar productos.</p>";
 		});
 
-	// Fetch Ventas
+	// ─── Ventas ───
 	const ventasContainer = document.getElementById("ventas-container");
 	if (ventasContainer) {
-		ventasContainer.innerHTML = loaderHTML;
+		buildSkeletons(ventasContainer, 5);
 		fetch("/api/ventas")
-			.then((res) => res.json())
+			.then((r) => r.json())
 			.then((ventas) => {
 				ventasContainer.innerHTML = "";
-				ventas.forEach((venta) => {
+				ventas.forEach((v) => {
 					const card = document.createElement("div");
-					card.classList.add("oferta-card"); // Reutilizamos estilo de oferta-card
+					card.className = "oferta-card";
 					card.innerHTML = `
-                        <img src="${venta.img}" alt="${venta.name}">
-                        <h3>${venta.name}</h3>
-                        <p class="descripcion">${venta.description}</p>
-                        <p class="precio">$${venta.precio.toLocaleString(
-													"es-AR"
-												)}</p>
-                        <button class="btn btn-comprar">Consultar</button>
-                    `;
-					// 🔹 Evento botón WhatsApp
+						<img src="${v.img || FALLBACK}" alt="${v.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
+						<h3>${v.name}</h3>
+						<p class="descripcion">${v.description}</p>
+						<p class="precio">$${v.precio.toLocaleString("es-AR")}</p>
+						<button class="btn btn-comprar">Consultar</button>`;
 					card.querySelector(".btn-comprar").addEventListener("click", () => {
-						const mensaje = `Quisiera consultar sobre este producto del local:\n\n📌 *${
-							venta.name
-						}*\n🏷️ Marca: ${venta.marca}\n🔖 Modelo: ${
-							venta.modelo
-						}\n💰 Precio: $${venta.precio.toLocaleString("es-AR")}`;
-						const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-							mensaje
-						)}`;
-						window.open(url, "_blank");
+						const msg = `Quisiera consultar sobre este producto del local:\n\n📌 *${v.name}*\n🏷️ Marca: ${v.marca}\n🔖 Modelo: ${v.modelo}\n💰 Precio: $${v.precio.toLocaleString("es-AR")}`;
+						window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank");
 					});
 					ventasContainer.appendChild(card);
 				});
@@ -181,44 +164,30 @@ document.addEventListener("DOMContentLoaded", () => {
 			});
 	}
 
-	// Fetch Servicios
-	const serviciosContainer = document.getElementById(
-		"servicios-ventas-container"
-	);
+	// ─── Servicios ───
+	const serviciosContainer = document.getElementById("servicios-ventas-container");
 	if (serviciosContainer) {
-		serviciosContainer.innerHTML = loaderHTML;
+		buildSkeletons(serviciosContainer, 4);
 		fetch("/api/servicios")
-			.then((res) => res.json())
+			.then((r) => r.json())
 			.then((servicios) => {
 				serviciosContainer.innerHTML = "";
-				servicios.forEach((servicio) => {
+				servicios.forEach((s) => {
 					const card = document.createElement("div");
-					card.classList.add("oferta-card"); // Reutilizamos estilo
-
-					let priceHtml = "";
-					if (servicio.precio && servicio.precio > 0) {
-						priceHtml = `<p class="precio">$${servicio.precio.toLocaleString(
-							"es-AR"
-						)}</p>`;
-					}
-
+					card.className = "oferta-card";
+					const priceHtml = s.precio > 0
+						? `<p class="precio">$${s.precio.toLocaleString("es-AR")}</p>`
+						: "";
 					card.innerHTML = `
-                        <img src="${servicio.img}" alt="${servicio.name}">
-                        <h3>${servicio.name}</h3>
-                        <p class="descripcion">${servicio.description}</p>
-                        ${priceHtml}
-                        <button class="btn btn-comprar">Consultar</button>
-                    `;
-					// 🔹 Evento botón WhatsApp
+						<img src="${s.img || FALLBACK}" alt="${s.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
+						<h3>${s.name}</h3>
+						<p class="descripcion">${s.description}</p>
+						${priceHtml}
+						<button class="btn btn-comprar">Consultar</button>`;
 					card.querySelector(".btn-comprar").addEventListener("click", () => {
-						let mensaje = `Quisiera Consultar por el servicio de: ${servicio.name}`;
-						if (servicio.precio && servicio.precio > 0) {
-							mensaje += ` $${servicio.precio.toLocaleString("es-AR")}`;
-						}
-						const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-							mensaje
-						)}`;
-						window.open(url, "_blank");
+						let msg = `Quisiera Consultar por el servicio de: ${s.name}`;
+						if (s.precio > 0) msg += ` $${s.precio.toLocaleString("es-AR")}`;
+						window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank");
 					});
 					serviciosContainer.appendChild(card);
 				});
