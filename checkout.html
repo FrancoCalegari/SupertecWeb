@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Supertec</title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+  <script src="https://kit.fontawesome.com/274f77f0e3.js" crossorigin="anonymous"></script>
+  <style>
+    :root { --red: #fb383a; --red-d: #c02020; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0d0d12;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .co-header {
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .co-header img { height: 2.5rem; }
+    .co-header h1 { font-size: 1rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+    .co-header a {
+      margin-left: auto;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .co-header a:hover { color: #fff; }
+
+    .co-container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+
+    /* ── Steps ── */
+    .co-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 2.5rem;
+    }
+    .co-step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+    }
+    .co-step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.35);
+      transition: all 0.3s;
+    }
+    .co-step-num.active { border-color: var(--red); color: var(--red); }
+    .co-step-num.done   { background: var(--red); border-color: var(--red); color: #fff; }
+    .co-step-label { font-size: 0.82rem; color: rgba(255,255,255,0.4); white-space: nowrap; }
+    .co-step-label.active { color: #fff; font-weight: 600; }
+    .co-step-line { flex: 1; height: 1px; background: rgba(255,255,255,0.1); margin: 0 0.5rem; }
+    .co-step-line.done { background: var(--red); }
+
+    /* ── Cards ── */
+    .co-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .co-card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 1.2rem; color: rgba(255,255,255,0.85); }
+
+    /* ── Form ── */
+    .co-form { display: flex; flex-direction: column; gap: 0.85rem; }
+    .co-form-row { display: flex; gap: 0.75rem; }
+    .co-form-row .co-field { flex: 1; }
+
+    .co-field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .co-field label { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.04em; }
+    .co-field input, .co-field select, .co-field textarea {
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.92rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .co-field input::placeholder, .co-field textarea::placeholder { color: rgba(255,255,255,0.25); }
+    .co-field input:focus, .co-field select:focus, .co-field textarea:focus {
+      border-color: var(--red);
+      background: rgba(255,255,255,0.08);
+    }
+    .co-field textarea { resize: vertical; min-height: 70px; }
+    .co-field select option { background: #1a1a2e; }
+
+    /* ── Resumen items ── */
+    .co-items-list { display: flex; flex-direction: column; gap: 0.7rem; }
+    .co-item {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      padding: 0.65rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+    }
+    .co-item img { width: 48px; height: 48px; object-fit: contain; border-radius: 8px; flex-shrink: 0; }
+    .co-item-info { flex: 1; }
+    .co-item-name { font-size: 0.88rem; font-weight: 600; }
+    .co-item-qty  { font-size: 0.78rem; color: rgba(255,255,255,0.4); }
+    .co-item-price { font-size: 0.92rem; font-weight: 700; color: var(--red); white-space: nowrap; }
+
+    .co-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      margin-top: 0.5rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .co-total-label { font-size: 0.9rem; color: rgba(255,255,255,0.5); }
+    .co-total-val { font-size: 1.2rem; font-weight: 700; color: var(--red); }
+
+    /* ── Buttons ── */
+    .co-btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+
+    .btn-back {
+      padding: 0.75rem 1.2rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    .btn-next {
+      flex: 1;
+      padding: 0.85rem 1.5rem;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: opacity 0.2s;
+    }
+    .btn-next:hover { opacity: 0.88; }
+    .btn-next:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-mp {
+      flex: 1;
+      padding: 0.9rem 1.5rem;
+      background: linear-gradient(135deg, #009ee3, #007bb5);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      transition: opacity 0.2s;
+    }
+    .btn-mp:hover { opacity: 0.88; }
+    .btn-mp:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Status panels ── */
+    .co-status {
+      text-align: center;
+      padding: 3rem 2rem;
+      display: none;
+    }
+    .co-status.show { display: block; }
+    .co-status-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .co-status h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .co-status p  { color: rgba(255,255,255,0.55); margin-bottom: 1.5rem; }
+    .co-tracking-code {
+      display: inline-block;
+      background: rgba(251,56,58,0.1);
+      border: 1px solid rgba(251,56,58,0.3);
+      border-radius: 10px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--red);
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+    }
+    .btn-seguimiento {
+      display: inline-block;
+      padding: 0.8rem 1.8rem;
+      background: var(--red);
+      color: #fff;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .co-empty-cart {
+      text-align: center;
+      padding: 3rem;
+      color: rgba(255,255,255,0.4);
+    }
+    .co-empty-cart i { font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.4; }
+
+    @media (max-width: 480px) {
+      .co-form-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="co-header">
+    <a href="/"><img src="./assets/img/logo.png" alt="Supertec"></a>
+    <h1>Checkout seguro</h1>
+    <a href="/tienda"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+  </header>
+
+  <main class="co-container">
+
+    <!-- ── Paso success/failure/pending (desde MP redirect) ── -->
+    <div class="co-status" id="statusSuccess">
+      <div class="co-status-icon">🎉</div>
+      <h2>¡Pago confirmado!</h2>
+      <p>Tu compra fue procesada exitosamente. Recibirás un email con los detalles.</p>
+      <div class="co-tracking-code" id="successCodigo"></div>
+      <br>
+      <a href="" id="linkSeguimiento" class="btn-seguimiento">Seguir mi pedido</a>
+    </div>
+
+    <div class="co-status" id="statusPending">
+      <div class="co-status-icon">⏳</div>
+      <h2>Pago en proceso</h2>
+      <p>Tu pago está siendo procesado. Te avisaremos por email cuando se confirme.</p>
+      <div class="co-tracking-code" id="pendingCodigo"></div>
+      <br>
+      <a href="" id="linkSeguimientoPending" class="btn-seguimiento">Ver estado del pedido</a>
+    </div>
+
+    <div class="co-status" id="statusFailure">
+      <div class="co-status-icon">❌</div>
+      <h2>Pago no procesado</h2>
+      <p>Hubo un problema con tu pago. Podés intentarlo de nuevo.</p>
+      <div style="margin-top:1.5rem;">
+        <button onclick="volverAlCarrito()" class="btn-next" style="max-width:280px;margin:0 auto;">
+          <i class="fa-solid fa-rotate-left"></i> Intentar de nuevo
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Formulario principal ── -->
+    <div id="coMain">
+      <!-- Steps indicator -->
+      <div class="co-steps" id="coSteps">
+        <div class="co-step">
+          <div class="co-step-num active" id="step1Num">1</div>
+          <span class="co-step-label active" id="step1Label">Datos personales</span>
+        </div>
+        <div class="co-step-line" id="line12"></div>
+        <div class="co-step">
+          <div class="co-step-num" id="step2Num">2</div>
+          <span class="co-step-label" id="step2Label">Envío</span>
+        </div>
+        <div class="co-step-line" id="line23"></div>
+        <div class="co-step">
+          <div class="co-step-num" id="step3Num">3</div>
+          <span class="co-step-label" id="step3Label">Confirmar y pagar</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Datos personales -->
+      <div id="coStep1">
+        <div class="co-card">
+          <h2><i class="fa-solid fa-user" style="color:var(--red);margin-right:8px;"></i>Tus datos</h2>
+          <div class="co-form">
+            <div class="co-field">
+              <label>Nombre completo *</label>
+              <input type="text" id="clienteNombre" placeholder="Juan García" required autocomplete="name">
+            </div>
+            <div class="co-form-row">
+              <div class="co-field">
+                <label>Email *</label>
+                <input type="email" id="clienteEmail" placeholder="juan@email.com" required autocomplete="email">
+              </div>
+              <div class="co-field">
+                <label>Teléfono</label>
+                <input type="tel" id="clienteTelefono" placeholder="+54 9 261..." autocomplete="tel">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="co-btn-row">
+          <button class="btn-back" onclick="volverAlCarrito()"><i class="fa-solid fa-arrow-left"></i> Volver al carrito</button>
+          <button class="btn-next" onclick="irStep2()"><i class="fa-solid fa-arrow-right"></i> Continuar</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Envío -->
+      <div id="coStep2" style="display:none;">
+        <div class="co-card">
+          <h2><i class="fa-solid fa-location-dot" style="color:var(--red);margin-right:8px;"></i>Datos de envío</h2>
+          <div class="co-form">
+            <div class="co-field">
+              <label>Calle y número *</label>
+              <input type="text" id="envioCalle" placeholder="Av. San Martín 1234" required autocomplete="street-address">
+            </div>
+            <div class="co-form-row">
+              <div class="co-field">
+                <label>Ciudad *</label>
+                <input type="text" id="envioCiudad" placeholder="Godoy Cruz" required autocomplete="address-level2">
+              </div>
+              <div class="co-field">
+                <label>Provincia *</label>
+                <input type="text" id="envioProvincia" placeholder="Mendoza" required autocomplete="address-level1">
+              </div>
+            </div>
+            <div class="co-field" style="max-width:180px;">
+              <label>Código Postal</label>
+              <input type="text" id="envioCP" placeholder="5501" autocomplete="postal-code">
+            </div>
+            <div class="co-field">
+              <label>Notas adicionales</label>
+              <textarea id="envioNotas" placeholder="Instrucciones de entrega, piso, departamento..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="co-btn-row">
+          <button class="btn-back" onclick="irStep1()"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+          <button class="btn-next" onclick="irStep3()"><i class="fa-solid fa-arrow-right"></i> Revisar pedido</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Confirmar -->
+      <div id="coStep3" style="display:none;">
+        <div class="co-card">
+          <h2><i class="fa-solid fa-bag-shopping" style="color:var(--red);margin-right:8px;"></i>Resumen del pedido</h2>
+          <div class="co-items-list" id="coItemsResumen"></div>
+          <div class="co-total-row">
+            <span class="co-total-label">Total a pagar</span>
+            <span class="co-total-val" id="coTotalResumen">$0</span>
+          </div>
+        </div>
+
+        <div class="co-card">
+          <h2><i class="fa-solid fa-location-dot" style="color:var(--red);margin-right:8px;"></i>Datos de envío</h2>
+          <div id="resumenEnvio" style="color:rgba(255,255,255,0.65);font-size:0.9rem;line-height:1.7;"></div>
+        </div>
+
+        <div class="co-card">
+          <h2><i class="fa-solid fa-shield-halved" style="color:#009ee3;margin-right:8px;"></i>Pago seguro con Mercado Pago</h2>
+          <p style="font-size:0.85rem;color:rgba(255,255,255,0.45);margin-bottom:1rem;">Serás redirigido a Mercado Pago para completar el pago de forma segura. Aceptamos tarjetas, transferencias y más.</p>
+          <div id="mpError" style="display:none;color:#fca5a5;font-size:0.87rem;background:rgba(239,68,68,0.1);border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.75rem;"></div>
+          <div class="co-btn-row">
+            <button class="btn-back" onclick="irStep2()"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+            <button class="btn-mp" id="btnPagarMP" onclick="iniciarPagoMP()">
+              <i class="fa-solid fa-lock"></i> Pagar con Mercado Pago
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carrito vacío -->
+      <div id="coEmpty" style="display:none;" class="co-card co-empty-cart">
+        <i class="fa-solid fa-cart-xmark"></i>
+        <h3>Tu carrito está vacío</h3>
+        <p style="margin-top:.5rem;font-size:.9rem;">Agregá productos desde la tienda antes de continuar.</p>
+        <a href="/tienda" style="display:inline-block;margin-top:1.25rem;padding:.7rem 1.5rem;background:var(--red);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">Ir a la tienda</a>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const CART_KEY = 'supertec_cart';
+    const FALLBACK = 'assets/img/logo.png';
+
+    function getCart() {
+      try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; }
+    }
+    function clearCart() { localStorage.removeItem(CART_KEY); }
+    function getTotal(cart) {
+      return cart.reduce((s, i) => s + Number(i.precio) * (i.cantidad || 1), 0);
+    }
+
+    // ── Check URL status (redirect from MP) ──
+    const params = new URLSearchParams(window.location.search);
+    const mpStatus = params.get('status');
+    const mpCodigo = params.get('external_reference') || localStorage.getItem('supertec_pending_codigo') || '';
+
+    if (mpStatus === 'approved') {
+      document.getElementById('coMain').style.display = 'none';
+      document.getElementById('statusSuccess').classList.add('show');
+      document.getElementById('successCodigo').textContent = mpCodigo;
+      document.getElementById('linkSeguimiento').href = `/seguimiento?codigo=${mpCodigo}`;
+      if (mpCodigo) clearCart();
+      localStorage.removeItem('supertec_pending_codigo');
+    } else if (mpStatus === 'pending') {
+      document.getElementById('coMain').style.display = 'none';
+      document.getElementById('statusPending').classList.add('show');
+      document.getElementById('pendingCodigo').textContent = mpCodigo;
+      document.getElementById('linkSeguimientoPending').href = `/seguimiento?codigo=${mpCodigo}`;
+    } else if (mpStatus === 'failure') {
+      document.getElementById('coMain').style.display = 'none';
+      document.getElementById('statusFailure').classList.add('show');
+    } else {
+      // Normal checkout flow
+      const cart = getCart();
+      if (!cart.length) {
+        document.getElementById('coStep1').style.display = 'none';
+        document.getElementById('coEmpty').style.display = 'block';
+        document.getElementById('coSteps').style.display = 'none';
+      }
+    }
+
+    // ── Step navigation ──
+    function irStep1() {
+      document.getElementById('coStep1').style.display = 'block';
+      document.getElementById('coStep2').style.display = 'none';
+      document.getElementById('coStep3').style.display = 'none';
+      setStepActive(1);
+    }
+
+    function irStep2() {
+      const nombre = document.getElementById('clienteNombre').value.trim();
+      const email = document.getElementById('clienteEmail').value.trim();
+      if (!nombre || !email || !email.includes('@')) {
+        alert('Completá nombre y email válidos para continuar.');
+        return;
+      }
+      document.getElementById('coStep1').style.display = 'none';
+      document.getElementById('coStep2').style.display = 'block';
+      document.getElementById('coStep3').style.display = 'none';
+      setStepActive(2);
+    }
+
+    function irStep3() {
+      const calle = document.getElementById('envioCalle').value.trim();
+      const ciudad = document.getElementById('envioCiudad').value.trim();
+      const prov = document.getElementById('envioProvincia').value.trim();
+      if (!calle || !ciudad || !prov) {
+        alert('Completá calle, ciudad y provincia para continuar.');
+        return;
+      }
+      document.getElementById('coStep1').style.display = 'none';
+      document.getElementById('coStep2').style.display = 'none';
+      document.getElementById('coStep3').style.display = 'block';
+      setStepActive(3);
+      renderResumen();
+    }
+
+    function setStepActive(n) {
+      [1,2,3].forEach(i => {
+        const num = document.getElementById(`step${i}Num`);
+        const lbl = document.getElementById(`step${i}Label`);
+        if (i < n)       { num.className = 'co-step-num done'; num.innerHTML = '<i class="fa-solid fa-check"></i>'; lbl.className = 'co-step-label'; }
+        else if (i === n) { num.className = 'co-step-num active'; num.textContent = i; lbl.className = 'co-step-label active'; }
+        else              { num.className = 'co-step-num'; num.textContent = i; lbl.className = 'co-step-label'; }
+      });
+      [['line12', 1], ['line23', 2]].forEach(([id, thr]) => {
+        document.getElementById(id).className = 'co-step-line' + (n > thr ? ' done' : '');
+      });
+    }
+
+    function volverAlCarrito() {
+      window.location.href = '/tienda';
+    }
+
+    function renderResumen() {
+      const cart = getCart();
+      const total = getTotal(cart);
+      const el = document.getElementById('coItemsResumen');
+      el.innerHTML = cart.map(item => `
+        <div class="co-item">
+          <img src="${item.img || FALLBACK}" alt="${item.name}" onerror="this.src='${FALLBACK}'">
+          <div class="co-item-info">
+            <p class="co-item-name">${item.name}</p>
+            <p class="co-item-qty">x${item.cantidad || 1}</p>
+          </div>
+          <span class="co-item-price">$${(Number(item.precio) * (item.cantidad||1)).toLocaleString('es-AR')}</span>
+        </div>
+      `).join('');
+      document.getElementById('coTotalResumen').textContent = `$${total.toLocaleString('es-AR')}`;
+
+      const cp = document.getElementById('envioCP').value;
+      const notas = document.getElementById('envioNotas').value;
+      document.getElementById('resumenEnvio').innerHTML = `
+        <p>${document.getElementById('envioCalle').value}</p>
+        <p>${document.getElementById('envioCiudad').value}, ${document.getElementById('envioProvincia').value}${cp ? ' ' + cp : ''}</p>
+        ${notas ? `<p style="color:rgba(255,255,255,.4);margin-top:.3rem;"><em>${notas}</em></p>` : ''}
+        <p style="margin-top:.5rem;"><strong>${document.getElementById('clienteNombre').value}</strong> · ${document.getElementById('clienteEmail').value}</p>
+      `;
+    }
+
+    async function iniciarPagoMP() {
+      const cart = getCart();
+      if (!cart.length) return;
+
+      const btn = document.getElementById('btnPagarMP');
+      const errEl = document.getElementById('mpError');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
+      errEl.style.display = 'none';
+
+      const payload = {
+        items: cart.map(i => ({
+          id: i.id, name: i.name, precio: Number(i.precio),
+          cantidad: i.cantidad || 1, img: i.img || '', marca: i.marca || ''
+        })),
+        cliente: {
+          nombre: document.getElementById('clienteNombre').value.trim(),
+          email: document.getElementById('clienteEmail').value.trim(),
+          telefono: document.getElementById('clienteTelefono').value.trim(),
+        },
+        envio: {
+          calle: document.getElementById('envioCalle').value.trim(),
+          ciudad: document.getElementById('envioCiudad').value.trim(),
+          provincia: document.getElementById('envioProvincia').value.trim(),
+          cp: document.getElementById('envioCP').value.trim(),
+          notas: document.getElementById('envioNotas').value.trim(),
+        }
+      };
+
+      try {
+        const res = await fetch('/api/mp/preference', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.ok && data.init_point) {
+          // Guardar código antes de redirigir
+          localStorage.setItem('supertec_pending_codigo', data.codigo_seguimiento);
+          window.location.href = data.init_point;
+        } else {
+          errEl.textContent = data.error || 'No se pudo iniciar el pago. Intentá de nuevo.';
+          errEl.style.display = 'block';
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar con Mercado Pago';
+        }
+      } catch (err) {
+        errEl.textContent = 'Error de conexión. Verificá tu internet e intentá de nuevo.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar con Mercado Pago';
+      }
+    }
+  </script>
+</body>
+</html>

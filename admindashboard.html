@@ -326,7 +326,7 @@ table img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--r
 </head>
 <body>
 <header>
-    <h1>SuperTec Dashboard - Productos</h1>
+    <h1>SuperTec Dashboard</h1>
     <a href="/logout" class="logout-btn">Cerrar sesión</a>
 </header>
 <!-- Modal de confirmación -->
@@ -344,35 +344,93 @@ table img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--r
 
 <div class="container">
     <div class="tabs">
-        <button class="tab-btn active" onclick="openTab('tab-productos', this)">Productos<span class="tab-badge" id="badge-productos">…</span></button>
+        <button class="tab-btn active" onclick="openTab('tab-tienda', this)">🛒 Tienda<span class="tab-badge" id="badge-productos">…</span></button>
         <button class="tab-btn" onclick="openTab('tab-ventas', this)">Ventas Local<span class="tab-badge" id="badge-ventas">…</span></button>
         <button class="tab-btn" onclick="openTab('tab-servicios', this)">Servicios<span class="tab-badge" id="badge-servicios">…</span></button>
         <button class="tab-btn" onclick="openTab('tab-horarios', this)">Horarios</button>
         <button class="tab-btn" onclick="openTab('tab-config', this)">Configuración</button>
     </div>
 
-    <!-- Tab Productos -->
-    <div id="tab-productos" class="tab-content active">
-        <button class="add-btn" onclick="showForm('productos')">Agregar Producto</button>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Imagen</th>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th>Precio</th>
-                        <th>Categoría</th>
-                        <th>Stock</th>
-                        <th>Marca</th>
-                        <th>Modelo</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="productsTable"></tbody>
-            </table>
-        </div>
+    <!-- Tab Tienda (sub-tabs: Productos / Pedidos / Categorias) -->
+    <div id="tab-tienda" class="tab-content active">
+      <!-- Sub-tabs -->
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--clr-border);margin-bottom:1.25rem;overflow-x:auto;scrollbar-width:none;" id="tiendaSubTabs">
+        <button class="tab-btn active" onclick="openSubTab('sub-productos', this)" style="font-size:0.85rem;">📦 Productos</button>
+        <button class="tab-btn" onclick="openSubTab('sub-pedidos', this)" style="font-size:0.85rem;">🛒 Pedidos<span class="tab-badge" id="badge-pedidos">0</span></button>
+        <button class="tab-btn" onclick="openSubTab('sub-categorias', this)" style="font-size:0.85rem;">🗂️ Categorías</button>
+      </div>
+
+      <!-- Sub: Productos -->
+      <div id="sub-productos" class="tab-content active">
+          <button class="add-btn" onclick="showForm('productos')">Agregar Producto</button>
+          <div class="table-wrapper">
+              <table>
+                  <thead>
+                      <tr>
+                          <th>ID</th>
+                          <th>Imagen</th>
+                          <th>Nombre</th>
+                          <th>Precio</th>
+                          <th>Descuento</th>
+                          <th>Categoría</th>
+                          <th>Stock</th>
+                          <th>Destacado</th>
+                          <th>Acciones</th>
+                      </tr>
+                  </thead>
+                  <tbody id="productsTable"></tbody>
+              </table>
+          </div>
+      </div>
+
+      <!-- Sub: Pedidos -->
+      <div id="sub-pedidos" class="tab-content">
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
+              <select id="pedidosFilter" onchange="loadPedidos()" style="padding:.5rem .8rem;border:1.5px solid var(--clr-border);border-radius:var(--radius-sm);font-size:.88rem;background:#f8fafc;color:var(--clr-text);">
+                  <option value="">Todos los pedidos</option>
+                  <option value="pendiente">⏳ Pendiente</option>
+                  <option value="confirmado">✅ Confirmado</option>
+                  <option value="preparando">📦 Preparando</option>
+                  <option value="enviado">🚚 Enviado</option>
+                  <option value="entregado">🏠 Entregado</option>
+                  <option value="cancelado">❌ Cancelado</option>
+              </select>
+              <button class="btn-export" onclick="loadPedidos()" style="min-height:36px;">Actualizar</button>
+          </div>
+          <div class="table-wrapper">
+              <table>
+                  <thead><tr>
+                      <th>Código</th>
+                      <th>Cliente</th>
+                      <th>Email</th>
+                      <th>Total</th>
+                      <th>Estado</th>
+                      <th>Fecha</th>
+                      <th>Acciones</th>
+                  </tr></thead>
+                  <tbody id="pedidosTable"></tbody>
+              </table>
+          </div>
+      </div>
+
+      <!-- Sub: Categorias -->
+      <div id="sub-categorias" class="tab-content">
+          <button class="add-btn" onclick="showCatForm()">Agregar Categoría</button>
+          <div class="table-wrapper">
+              <table>
+                  <thead><tr>
+                      <th>Nombre</th>
+                      <th>Slug</th>
+                      <th>Color</th>
+                      <th>Icono</th>
+                      <th>Activa</th>
+                      <th>Orden</th>
+                      <th>Acciones</th>
+                  </tr></thead>
+                  <tbody id="categoriasTable"></tbody>
+              </table>
+          </div>
+      </div>
     </div>
 
     <!-- Tab Ventas -->
@@ -501,7 +559,7 @@ table img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--r
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal producto -->
 <div id="productModal" class="modal">
     <div class="modal-content">
         <h3 id="modalTitle">Agregar Producto</h3>
@@ -516,6 +574,11 @@ table img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--r
             </div>
             <input type="text" id="description" placeholder="Descripción" required>
             <input type="number" id="precio" placeholder="Precio" required>
+            <input type="number" id="precio_original" placeholder="Precio original (si hay descuento)" min="0" step="any">
+            <input type="number" id="descuento" placeholder="Descuento % (0-100)" min="0" max="100">
+            <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;">
+                <input type="checkbox" id="destacado" style="width:18px;height:18px;accent-color:var(--clr-primary);"> Destacado
+            </label>
             <input type="text" id="categoria" placeholder="Categoría" required>
             <input type="number" id="stock" placeholder="Stock" required>
             <input type="text" id="marca" placeholder="Marca" required>
@@ -523,6 +586,57 @@ table img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--r
             <div class="modal-actions">
                 <button type="submit" class="save-btn" style="flex:1;">Guardar</button>
                 <button type="button" class="cancel-btn" style="flex:1;" onclick="hideForm()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Pedido -->
+<div id="pedidoModal" class="modal">
+    <div class="modal-content" style="max-width:640px;">
+        <h3 id="pedidoModalTitle">Detalle de Pedido</h3>
+        <div id="pedidoModalBody"></div>
+        <div class="modal-actions" style="margin-top:1.25rem;">
+            <button type="button" class="cancel-btn" onclick="hidePedidoModal()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Categoria -->
+<div id="catModal" class="modal">
+    <div class="modal-content">
+        <h3 id="catModalTitle">Agregar Categoría</h3>
+        <form id="catForm" onsubmit="saveCategoria(event)">
+            <input type="hidden" id="catId">
+            <input type="text" id="catNombre" placeholder="Nombre de la categoría" required>
+            <input type="text" id="catSlug" placeholder="slug-auto-generado">
+            <input type="text" id="catDescripcion" placeholder="Descripción (opcional)">
+            <div style="display:flex;gap:.6rem;">
+                <div style="flex:1;">
+                    <label>Icono FontAwesome (clase sin 'fa-')</label>
+                    <input type="text" id="catIcono" placeholder="fire, star, tag...">
+                </div>
+                <div>
+                    <label>Color</label>
+                    <input type="color" id="catColor" value="#fb383a" style="width:52px;height:44px;padding:2px;border-radius:6px;border:1.5px solid var(--clr-border);">
+                </div>
+            </div>
+            <label style="font-size:.82rem;font-weight:600;color:var(--clr-muted);">Filtros (marca todos los que aplican)</label>
+            <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.9rem;"><input type="checkbox" id="filtroDescuento"> Solo productos con descuento</label>
+            <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.9rem;"><input type="checkbox" id="filtroDestacado"> Solo productos destacados</label>
+            <input type="text" id="filtroCategorias" placeholder="Categorías (separadas por coma): gaming, celulares...">
+            <div style="display:flex;gap:.5rem;">
+                <input type="number" id="filtroPrecioMin" placeholder="Precio mín" min="0">
+                <input type="number" id="filtroPrecioMax" placeholder="Precio máx" min="0">
+            </div>
+            <input type="text" id="filtroMarca" placeholder="Marca específica (opcional)">
+            <div style="display:flex;gap:.6rem;align-items:center;">
+                <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.9rem;"><input type="checkbox" id="catActiva" checked> Activa</label>
+                <input type="number" id="catOrden" placeholder="Orden" min="0" style="width:80px;">
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="save-btn" style="flex:1;">Guardar</button>
+                <button type="button" class="cancel-btn" style="flex:1;" onclick="hideCatForm()">Cancelar</button>
             </div>
         </form>
     </div>
@@ -604,37 +718,7 @@ async function loadServicios() {
     }
 }
 
-function renderTable(type, data, tableId) {
-    const tbody = document.getElementById(tableId);
-    tbody.innerHTML = '';
-    if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#999; padding:2rem;">Sin registros</td></tr>';
-        return;
-    }
-    data.forEach(p => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td data-label="ID">${p.id}</td>
-            <td data-label="Imagen"><img src="${p.img || ''}" alt="${p.name}" onerror="this.style.display='none'"></td>
-            <td data-label="Nombre">${p.name}</td>
-            <td data-label="Descripción">${p.description}</td>
-            <td data-label="Precio">$${Number(p.precio).toLocaleString('es-AR')}</td>
-            <td data-label="Categoría">${p.categoria || '-'}</td>
-            <td data-label="Stock">${p.stock !== undefined ? p.stock : '-'}</td>
-            <td data-label="Marca">${p.marca || '-'}</td>
-            <td data-label="Modelo">${p.modelo || '-'}</td>
-            <td data-label="Acciones" class="actions">
-                <button class="edit-btn" onclick="editItem('${type}', ${p.id})">Editar</button>
-                <button class="delete-btn" onclick="deleteItem('${type}', ${p.id})">Eliminar</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
 
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1, -1);
-}
 
 function showForm(type, edit = false) {
     currentType = type;
@@ -759,20 +843,94 @@ async function deleteItem(type, id) {
     });
 }
 
+
+
 loadProductos();
 
-// ── Tabs (no global `event` usage) ──
-function openTab(tabId, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+// ── Sub-tabs (dentro de Tienda) ──
+function openSubTab(tabId, btn) {
+    activeSubTab = tabId;
+    document.querySelectorAll('#tab-tienda .tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#tiendaSubTabs .tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     if (btn) btn.classList.add('active');
+    if (tabId === 'sub-pedidos') loadPedidos();
+    if (tabId === 'sub-categorias') loadCategorias();
+}
+
+// ── Tabs (main) ──
+let activeSubTab = 'sub-productos'; // track current sub-tab
+
+function openTab(tabId, btn) {
+    // Only deactivate top-level tab-content elements (direct children of .container)
+    document.querySelectorAll('.container > .tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tabs > .tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (tabId === 'tab-tienda') {
+        // Re-activate the current sub-tab
+        document.querySelectorAll('#tab-tienda .tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(activeSubTab)?.classList.add('active');
+        // Re-sync sub-tab button highlight
+        document.querySelectorAll('#tiendaSubTabs .tab-btn').forEach(b => b.classList.remove('active'));
+        const idx = ['sub-productos','sub-pedidos','sub-categorias'].indexOf(activeSubTab);
+        const subBtns = document.querySelectorAll('#tiendaSubTabs .tab-btn');
+        if (subBtns[idx]) subBtns[idx].classList.add('active');
+    }
     if (tabId === 'tab-horarios') loadHorarios();
     if (tabId === 'tab-ventas') loadVentas();
     if (tabId === 'tab-servicios') loadServicios();
 }
 
+// ── renderTable overhaul for productos (with new fields) ──
+function renderTable(type, data, tableId) {
+    const tbody = document.getElementById(tableId);
+    tbody.innerHTML = '';
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#999; padding:2rem;">Sin registros</td></tr>';
+        return;
+    }
+    data.forEach(p => {
+        const tr = document.createElement('tr');
+        if (type === 'productos') {
+            tr.innerHTML = `
+                <td data-label="ID">${p.id}</td>
+                <td data-label="Imagen"><img src="${p.img || ''}" alt="${p.name}" onerror="this.style.display='none'"></td>
+                <td data-label="Nombre">${p.name}</td>
+                <td data-label="Precio">$${Number(p.precio).toLocaleString('es-AR')}${p.descuento ? ` <span style="color:var(--clr-danger);font-size:.8rem;">-${p.descuento}%</span>` : ''}</td>
+                <td data-label="Descuento">${p.descuento ? p.descuento + '%' : '-'}</td>
+                <td data-label="Categoría">${p.categoria || '-'}</td>
+                <td data-label="Stock">${p.stock !== undefined ? p.stock : '-'}</td>
+                <td data-label="Destacado">${p.destacado ? '⭐' : '-'}</td>
+                <td data-label="Acciones" class="actions">
+                    <button class="edit-btn" onclick="editItem('${type}', ${p.id})">Editar</button>
+                    <button class="delete-btn" onclick="deleteItem('${type}', ${p.id})">Eliminar</button>
+                </td>
+            `;
+        } else {
+            tr.innerHTML = `
+                <td data-label="ID">${p.id}</td>
+                <td data-label="Imagen"><img src="${p.img || ''}" alt="${p.name}" onerror="this.style.display='none'"></td>
+                <td data-label="Nombre">${p.name}</td>
+                <td data-label="Descripción">${p.description}</td>
+                <td data-label="Precio">$${Number(p.precio).toLocaleString('es-AR')}</td>
+                <td data-label="Categoría">${p.categoria || '-'}</td>
+                <td data-label="Stock">${p.stock !== undefined ? p.stock : '-'}</td>
+                <td data-label="Marca">${p.marca || '-'}</td>
+                <td data-label="Modelo">${p.modelo || '-'}</td>
+                <td data-label="Acciones" class="actions">
+                    <button class="edit-btn" onclick="editItem('${type}', ${p.id})">Editar</button>
+                    <button class="delete-btn" onclick="deleteItem('${type}', ${p.id})">Eliminar</button>
+                </td>
+            `;
+        }
+        tbody.appendChild(tr);
+    });
+}
+
+
 // ── Horarios ──
+
 let horarios = [];
 
 async function loadHorarios() {
@@ -874,6 +1032,293 @@ function clearData(type) {
         }
     });
 }
+
+// ── PEDIDOS ──
+let pedidos = [];
+
+async function loadPedidos() {
+    const estado = document.getElementById('pedidosFilter')?.value || '';
+    const tbody = document.getElementById('pedidosTable');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;">Cargando...</td></tr>';
+    try {
+        const url = `/api/pedidos${estado ? `?estado=${estado}` : ''}`;
+        const res = await fetch(url);
+        pedidos = await res.json();
+        renderPedidosTable();
+        document.getElementById('badge-pedidos').textContent = pedidos.length;
+    } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:red;">Error al cargar pedidos</td></tr>';
+    }
+}
+
+const ESTADO_COLORS = {
+    pendiente:  '#f59e0b',
+    confirmado: '#22c55e',
+    preparando: '#3b82f6',
+    enviado:    '#a855f7',
+    entregado:  '#16a34a',
+    cancelado:  '#ef4444',
+};
+
+function renderPedidosTable() {
+    const tbody = document.getElementById('pedidosTable');
+    tbody.innerHTML = '';
+    if (!pedidos.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:2rem;">Sin pedidos</td></tr>';
+        return;
+    }
+    pedidos.forEach(p => {
+        const color = ESTADO_COLORS[p.estado] || '#94a3b8';
+        const fecha = p.created_at ? new Date(p.created_at).toLocaleDateString('es-AR') : '-';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td data-label="Código"><code style="font-size:.8rem;">${p.codigo_seguimiento || '-'}</code></td>
+            <td data-label="Cliente">${p.cliente_nombre}</td>
+            <td data-label="Email" style="font-size:.82rem;">${p.cliente_email}</td>
+            <td data-label="Total"><strong>$${Number(p.total).toLocaleString('es-AR')}</strong></td>
+            <td data-label="Estado"><span style="background:${color}22;color:${color};padding:.2rem .6rem;border-radius:12px;font-size:.8rem;font-weight:700;">${p.estado}</span></td>
+            <td data-label="Fecha">${fecha}</td>
+            <td data-label="Acciones" class="actions">
+                <button class="edit-btn" onclick="openPedidoModal(${p.id})">Ver / Editar</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function openPedidoModal(id) {
+    const p = pedidos.find(x => x.id === id);
+    if (!p) return;
+    const color = ESTADO_COLORS[p.estado] || '#94a3b8';
+    const itemsHtml = (p.items || []).map(item => `
+        <div style="display:flex;gap:.6rem;align-items:center;padding:.5rem;background:#f8fafc;border-radius:8px;margin-bottom:.4rem;">
+            ${item.img ? `<img src="${item.img}" style="width:40px;height:40px;object-fit:contain;border-radius:6px;">` : ''}
+            <div style="flex:1;">
+                <div style="font-weight:600;font-size:.88rem;">${item.name}</div>
+                <div style="font-size:.78rem;color:var(--clr-muted);">x${item.cantidad || 1}</div>
+            </div>
+            <div style="font-weight:700;">$${Number(item.precio).toLocaleString('es-AR')}</div>
+        </div>`).join('');
+
+    document.getElementById('pedidoModalTitle').textContent = `Pedido ${p.codigo_seguimiento || '#' + p.id}`;
+    document.getElementById('pedidoModalBody').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem;">
+            <div><p style="font-size:.78rem;color:var(--clr-muted);">CLIENTE</p><p style="font-weight:600;">${p.cliente_nombre}</p></div>
+            <div><p style="font-size:.78rem;color:var(--clr-muted);">EMAIL</p><p style="font-size:.88rem;">${p.cliente_email}</p></div>
+            <div><p style="font-size:.78rem;color:var(--clr-muted);">TELÉFONO</p><p>${p.cliente_telefono || '-'}</p></div>
+            <div><p style="font-size:.78rem;color:var(--clr-muted);">TOTAL</p><p style="font-weight:700;color:var(--clr-success);">$${Number(p.total).toLocaleString('es-AR')}</p></div>
+        </div>
+        <div style="background:#f8fafc;border-radius:8px;padding:.75rem;margin-bottom:1rem;">
+            <p style="font-size:.78rem;color:var(--clr-muted);margin-bottom:.3rem;">ENVÍO</p>
+            <p>${p.envio_calle}, ${p.envio_ciudad}, ${p.envio_provincia} ${p.envio_cp}</p>
+            ${p.envio_notas ? `<p style="color:var(--clr-muted);font-size:.85rem;margin-top:.3rem;">${p.envio_notas}</p>` : ''}
+        </div>
+        <div style="margin-bottom:1rem;">
+            <p style="font-size:.78rem;color:var(--clr-muted);margin-bottom:.5rem;">PRODUCTOS</p>
+            ${itemsHtml}
+        </div>
+        <hr style="border:none;border-top:1px solid var(--clr-border);margin:1rem 0;">
+        <h4 style="margin-bottom:.75rem;font-size:.92rem;">Gestionar pedido</h4>
+        <div style="display:flex;flex-direction:column;gap:.5rem;">
+            <div style="display:flex;gap:.5rem;align-items:center;">
+                <label style="font-size:.82rem;font-weight:600;color:var(--clr-muted);white-space:nowrap;">Estado:</label>
+                <select id="pedidoEstadoSel" style="flex:1;padding:.5rem;border:1.5px solid var(--clr-border);border-radius:var(--radius-sm);font-size:.9rem;">
+                    <option value="pendiente" ${p.estado==='pendiente'?'selected':''}>⏳ Pendiente</option>
+                    <option value="confirmado" ${p.estado==='confirmado'?'selected':''}>✅ Confirmado</option>
+                    <option value="preparando" ${p.estado==='preparando'?'selected':''}>📦 Preparando</option>
+                    <option value="enviado" ${p.estado==='enviado'?'selected':''}>🚚 Enviado</option>
+                    <option value="entregado" ${p.estado==='entregado'?'selected':''}>🏠 Entregado</option>
+                    <option value="cancelado" ${p.estado==='cancelado'?'selected':''}>❌ Cancelado</option>
+                </select>
+            </div>
+            <input type="text" id="trackEmpresa" placeholder="Empresa courier (Andreani, OCA...)" value="${p.tracking_empresa || ''}" style="padding:.5rem .75rem;border:1.5px solid var(--clr-border);border-radius:var(--radius-sm);font-size:.9rem;">
+            <input type="text" id="trackNumero" placeholder="N° de tracking del courier" value="${p.tracking_numero || ''}" style="padding:.5rem .75rem;border:1.5px solid var(--clr-border);border-radius:var(--radius-sm);font-size:.9rem;">
+            <input type="url" id="trackUrl" placeholder="URL de seguimiento del courier" value="${p.tracking_url || ''}" style="padding:.5rem .75rem;border:1.5px solid var(--clr-border);border-radius:var(--radius-sm);font-size:.9rem;">
+            <textarea id="notasAdmin" placeholder="Notas internas (no se muestran al cliente)" style="padding:.5rem .75rem;border:1.5px solid var(--clr-border);border-radius:var(--radius-sm);font-size:.9rem;resize:vertical;min-height:60px;">${p.notas_admin || ''}</textarea>
+            <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;">
+                <input type="checkbox" id="notificarCliente" style="accent-color:var(--clr-primary);">
+                Notificar al cliente por email al guardar
+            </label>
+            <div style="display:flex;gap:.5rem;margin-top:.25rem;">
+                <button class="save-btn" style="flex:1;" onclick="guardarPedido(${p.id})">Guardar cambios</button>
+            </div>
+        </div>
+    `;
+    document.getElementById('pedidoModal').style.display = 'flex';
+}
+
+async function guardarPedido(id) {
+    const estado = document.getElementById('pedidoEstadoSel').value;
+    const empresa = document.getElementById('trackEmpresa').value;
+    const numero = document.getElementById('trackNumero').value;
+    const url = document.getElementById('trackUrl').value;
+    const notas = document.getElementById('notasAdmin').value;
+    const notificar = document.getElementById('notificarCliente').checked;
+    try {
+        const res = await fetch(`/api/pedidos/${id}/estado`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ estado, empresa, numero, url, notas, notificar })
+        });
+        const data = await res.json();
+        if (data.ok) {
+            showToast('Pedido actualizado ✓' + (notificar ? ' · Email enviado' : ''));
+            hidePedidoModal();
+            loadPedidos();
+        } else {
+            showToast(data.error || 'Error al guardar', true);
+        }
+    } catch (err) {
+        showToast('Error de conexión', true);
+    }
+}
+
+function hidePedidoModal() {
+    document.getElementById('pedidoModal').style.display = 'none';
+}
+
+// ── CATEGORÍAS ──
+let categorias = [];
+
+async function loadCategorias() {
+    const tbody = document.getElementById('categoriasTable');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;">Cargando...</td></tr>';
+    try {
+        const res = await fetch('/api/categorias');
+        categorias = await res.json();
+        renderCategoriasTable();
+    } catch (err) {
+        showToast('Error cargando categorías', true);
+    }
+}
+
+function renderCategoriasTable() {
+    const tbody = document.getElementById('categoriasTable');
+    tbody.innerHTML = '';
+    if (!categorias.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:2rem;">Sin categorías creadas</td></tr>';
+        return;
+    }
+    categorias.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td data-label="Nombre"><span style="font-weight:700;">${c.nombre}</span></td>
+            <td data-label="Slug"><code style="font-size:.82rem;">${c.slug}</code></td>
+            <td data-label="Color"><span style="display:inline-block;width:24px;height:24px;border-radius:50%;background:${c.color || '#fb383a'};border:2px solid rgba(0,0,0,.1);"></span></td>
+            <td data-label="Icono"><i class="fa-solid fa-${c.icono || 'tag'}"></i></td>
+            <td data-label="Activa">${c.activa ? '✅' : '❌'}</td>
+            <td data-label="Orden">${c.orden}</td>
+            <td data-label="Acciones" class="actions">
+                <button class="edit-btn" onclick="editCategoria(${c.id})">Editar</button>
+                <button class="delete-btn" onclick="deleteCategoria(${c.id})">Eliminar</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function showCatForm() {
+    document.getElementById('catForm').reset();
+    document.getElementById('catId').value = '';
+    document.getElementById('catModalTitle').textContent = 'Agregar Categoría';
+    document.getElementById('catColor').value = '#fb383a';
+    document.getElementById('catActiva').checked = true;
+    document.getElementById('catModal').style.display = 'flex';
+}
+
+function hideCatForm() {
+    document.getElementById('catModal').style.display = 'none';
+}
+
+function editCategoria(id) {
+    const c = categorias.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('catId').value = c.id;
+    document.getElementById('catNombre').value = c.nombre;
+    document.getElementById('catSlug').value = c.slug;
+    document.getElementById('catDescripcion').value = c.descripcion || '';
+    document.getElementById('catIcono').value = (c.icono || '').replace('fa-', '');
+    document.getElementById('catColor').value = c.color || '#fb383a';
+    document.getElementById('filtroDescuento').checked = c.filtros?.descuento || false;
+    document.getElementById('filtroDestacado').checked = c.filtros?.destacado || false;
+    document.getElementById('filtroCategorias').value = (c.filtros?.categorias || []).join(', ');
+    document.getElementById('filtroPrecioMin').value = c.filtros?.precio_min || '';
+    document.getElementById('filtroPrecioMax').value = c.filtros?.precio_max || '';
+    document.getElementById('filtroMarca').value = c.filtros?.marca || '';
+    document.getElementById('catActiva').checked = !!c.activa;
+    document.getElementById('catOrden').value = c.orden || 0;
+    document.getElementById('catModalTitle').textContent = 'Editar Categoría';
+    document.getElementById('catModal').style.display = 'flex';
+}
+
+async function saveCategoria(event) {
+    event.preventDefault();
+    const id = document.getElementById('catId').value;
+    const nombre = document.getElementById('catNombre').value.trim();
+    const icono = document.getElementById('catIcono').value.trim();
+    const filtros = {
+        descuento: document.getElementById('filtroDescuento').checked || undefined,
+        destacado: document.getElementById('filtroDestacado').checked || undefined,
+        categorias: document.getElementById('filtroCategorias').value ? document.getElementById('filtroCategorias').value.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+        precio_min: document.getElementById('filtroPrecioMin').value ? Number(document.getElementById('filtroPrecioMin').value) : undefined,
+        precio_max: document.getElementById('filtroPrecioMax').value ? Number(document.getElementById('filtroPrecioMax').value) : undefined,
+        marca: document.getElementById('filtroMarca').value.trim() || undefined,
+    };
+    // Remove undefined
+    Object.keys(filtros).forEach(k => filtros[k] === undefined && delete filtros[k]);
+
+    const payload = {
+        id: id ? Number(id) : undefined,
+        nombre,
+        slug: document.getElementById('catSlug').value.trim() || nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+        descripcion: document.getElementById('catDescripcion').value.trim(),
+        icono: icono ? `fa-${icono}` : 'fa-tag',
+        color: document.getElementById('catColor').value,
+        filtros,
+        activa: document.getElementById('catActiva').checked,
+        orden: Number(document.getElementById('catOrden').value) || 0,
+    };
+    try {
+        const res = await fetch('/api/categorias', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok) {
+            showToast('Categoría guardada ✓');
+            hideCatForm();
+            loadCategorias();
+        } else {
+            showToast(data.error || 'Error', true);
+        }
+    } catch (err) {
+        showToast('Error de conexión', true);
+    }
+}
+
+async function deleteCategoria(id) {
+    showConfirmModal('¿Eliminar esta categoría?', async () => {
+        try {
+            const res = await fetch(`/api/categorias/${id}`, { method: 'DELETE' });
+            if (res.ok) { showToast('Categoría eliminada'); loadCategorias(); }
+            else showToast('Error al eliminar', true);
+        } catch { showToast('Error', true); }
+    });
+}
+
+// Auto-generate slug from nombre
+document.getElementById('catNombre')?.addEventListener('input', function() {
+    const slugEl = document.getElementById('catSlug');
+    if (!slugEl.value || slugEl.dataset.manual !== '1') {
+        slugEl.value = this.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    }
+});
+document.getElementById('catSlug')?.addEventListener('input', function() {
+    this.dataset.manual = this.value ? '1' : '';
+});
 </script>
 </body>
 </html>

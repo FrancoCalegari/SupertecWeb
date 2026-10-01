@@ -3,6 +3,7 @@ const SPIDER_API_BASE = process.env.SPIDERWEB_API_BASE || "https://spiderwebarga
 const SPIDER_API_KEY = process.env.SPIDERWEB_API_KEY || "c90d1502ce815ea5d1108662186145d3cefe642586466c769d4c7fae63086ac6";
 const SPIDER_DB = process.env.SPIDERWEB_DB_NAME || "sw_Franco Calegari_supertec";
 
+
 if (!SPIDER_API_KEY) {
 	console.error("[DB] SPIDERWEB_API_KEY must be set");
 }
@@ -15,6 +16,8 @@ const cache = {
 	ventas: { data: null, timestamp: 0 },
 	servicios: { data: null, timestamp: 0 },
 	horarios: { data: null, timestamp: 0 },
+	categorias: { data: null, timestamp: 0 },
+	pedidos: { data: null, timestamp: 0 },
 };
 
 function getCachedData(key) {
@@ -76,6 +79,9 @@ const normalizeProducto = (p) => ({
 	marca: p.marca || "",
 	modelo: p.modelo || "",
 	img: p.img || "",
+	descuento: Number(p.descuento) || 0,
+	precio_original: p.precio_original ? Number(p.precio_original) : null,
+	destacado: p.destacado ? 1 : 0,
 });
 
 // ========== INITIALIZATION ==========
@@ -311,6 +317,144 @@ async function clearHorarios() {
 	}
 }
 
+// ========== CATEGORIAS ==========
+async function listCategorias() {
+	const cached = getCachedData("categorias");
+	if (cached !== null) return cached;
+	try {
+		const rows = await spiderQuery("SELECT * FROM categorias ORDER BY orden ASC, id ASC");
+		const data = (rows || []).map(c => ({
+			id: Number(c.id),
+			nombre: c.nombre,
+			slug: c.slug,
+			descripcion: c.descripcion || "",
+			icono: c.icono || "fa-tag",
+			color: c.color || "#fb383a",
+			filtros: c.filtros ? (typeof c.filtros === 'string' ? JSON.parse(c.filtros) : c.filtros) : {},
+			activa: !!c.activa,
+			orden: Number(c.orden) || 0,
+		}));
+		setCachedData("categorias", data);
+		return data;
+	} catch (err) {
+		console.error("[DB] Error listando categorias:", err.message);
+		return [];
+	}
+}
+
+async function upsertCategoria(c) {
+	invalidateCache("categorias");
+	const filtrosStr = esc(JSON.stringify(c.filtros || {}));
+	if (c.id) {
+		await spiderQuery(
+			`UPDATE categorias SET nombre=${esc(c.nombre)}, slug=${esc(c.slug)}, descripcion=${esc(c.descripcion || '')}, icono=${esc(c.icono || 'fa-tag')}, color=${esc(c.color || '#fb383a')}, filtros=${filtrosStr}, activa=${c.activa ? 1 : 0}, orden=${Number(c.orden) || 0} WHERE id=${c.id}`
+		);
+		const rows = await spiderQuery(`SELECT * FROM categorias WHERE id=${c.id} LIMIT 1`);
+		if (!rows || !rows[0]) throw new Error("Categoria no encontrada post-update");
+		return rows[0];
+	} else {
+		const result = await spiderQuery(
+			`INSERT INTO categorias (nombre, slug, descripcion, icono, color, filtros, activa, orden) VALUES (${esc(c.nombre)}, ${esc(c.slug)}, ${esc(c.descripcion || '')}, ${esc(c.icono || 'fa-tag')}, ${esc(c.color || '#fb383a')}, ${filtrosStr}, ${c.activa ? 1 : 0}, ${Number(c.orden) || 0})`
+		);
+		const newId = result.insertId;
+		const rows = await spiderQuery(`SELECT * FROM categorias WHERE id=${newId} LIMIT 1`);
+		return rows[0];
+	}
+}
+
+async function deleteCategoriaById(id) {
+	invalidateCache("categorias");
+	await spiderQuery(`DELETE FROM categorias WHERE id=${id}`);
+	return true;
+}
+
+// ========== PEDIDOS ==========
+function generateCodigoSeguimiento() {
+	const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+	const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+	return `SUP-${fecha}-${rand}`;
+}
+
+const normalizePedido = (p) => ({
+	id: Number(p.id),
+	mp_preference_id: p.mp_preference_id || null,
+	mp_payment_id: p.mp_payment_id || null,
+	mp_status: p.mp_status || null,
+	estado: p.estado || 'pendiente',
+	cliente_nombre: p.cliente_nombre || '',
+	cliente_email: p.cliente_email || '',
+	cliente_telefono: p.cliente_telefono || '',
+	envio_calle: p.envio_calle || '',
+	envio_ciudad: p.envio_ciudad || '',
+	envio_provincia: p.envio_provincia || '',
+	envio_cp: p.envio_cp || '',
+	envio_notas: p.envio_notas || '',
+	items: typeof p.items === 'string' ? JSON.parse(p.items) : (p.items || []),
+	total: Number(p.total) || 0,
+	codigo_seguimiento: p.codigo_seguimiento || null,
+	tracking_empresa: p.tracking_empresa || '',
+	tracking_numero: p.tracking_numero || '',
+	tracking_url: p.tracking_url || '',
+	notas_admin: p.notas_admin || '',
+	created_at: p.created_at || null,
+	updated_at: p.updated_at || null,
+});
+
+async function listPedidos(filtroEstado = '') {
+	invalidateCache("pedidos"); // siempre fresco para admin
+	let sql = "SELECT * FROM pedidos ORDER BY created_at DESC";
+	if (filtroEstado) sql = `SELECT * FROM pedidos WHERE estado=${esc(filtroEstado)} ORDER BY created_at DESC`;
+	const rows = await spiderQuery(sql);
+	return (rows || []).map(normalizePedido);
+}
+
+async function getPedidoById(id) {
+	const rows = await spiderQuery(`SELECT * FROM pedidos WHERE id=${id} LIMIT 1`);
+	if (!rows || !rows[0]) return null;
+	return normalizePedido(rows[0]);
+}
+
+async function getPedidoByCodigo(codigo) {
+	const rows = await spiderQuery(`SELECT * FROM pedidos WHERE codigo_seguimiento=${esc(codigo)} LIMIT 1`);
+	if (!rows || !rows[0]) return null;
+	return normalizePedido(rows[0]);
+}
+
+async function createPedido(p) {
+	invalidateCache("pedidos");
+	const codigo = generateCodigoSeguimiento();
+	const itemsStr = esc(JSON.stringify(p.items || []));
+	const result = await spiderQuery(
+		`INSERT INTO pedidos (mp_preference_id, mp_status, estado, cliente_nombre, cliente_email, cliente_telefono, envio_calle, envio_ciudad, envio_provincia, envio_cp, envio_notas, items, total, codigo_seguimiento) VALUES (${esc(p.mp_preference_id || null)}, 'pending', 'pendiente', ${esc(p.cliente_nombre)}, ${esc(p.cliente_email)}, ${esc(p.cliente_telefono || '')}, ${esc(p.envio_calle || '')}, ${esc(p.envio_ciudad || '')}, ${esc(p.envio_provincia || '')}, ${esc(p.envio_cp || '')}, ${esc(p.envio_notas || '')}, ${itemsStr}, ${Number(p.total) || 0}, ${esc(codigo)})`
+	);
+	const newId = result.insertId;
+	const rows = await spiderQuery(`SELECT * FROM pedidos WHERE id=${newId} LIMIT 1`);
+	return normalizePedido(rows[0]);
+}
+
+async function updatePedidoEstado(id, estado, trackingData = {}) {
+	invalidateCache("pedidos");
+	const { empresa, numero, url, notas, mp_payment_id, mp_status } = trackingData;
+	let setParts = [`estado=${esc(estado)}`];
+	if (empresa !== undefined) setParts.push(`tracking_empresa=${esc(empresa || '')}`);
+	if (numero !== undefined) setParts.push(`tracking_numero=${esc(numero || '')}`);
+	if (url !== undefined) setParts.push(`tracking_url=${esc(url || '')}`);
+	if (notas !== undefined) setParts.push(`notas_admin=${esc(notas || '')}`);
+	if (mp_payment_id) setParts.push(`mp_payment_id=${esc(mp_payment_id)}`);
+	if (mp_status) setParts.push(`mp_status=${esc(mp_status)}`);
+	await spiderQuery(`UPDATE pedidos SET ${setParts.join(', ')} WHERE id=${id}`);
+	return getPedidoById(id);
+}
+
+async function updatePedidoMpStatus(preferenceId, paymentId, mpStatus) {
+	invalidateCache("pedidos");
+	await spiderQuery(
+		`UPDATE pedidos SET mp_payment_id=${esc(paymentId)}, mp_status=${esc(mpStatus)}, estado=${esc(mpStatus === 'approved' ? 'confirmado' : mpStatus === 'rejected' ? 'cancelado' : 'pendiente')} WHERE mp_preference_id=${esc(preferenceId)}`
+	);
+	const rows = await spiderQuery(`SELECT * FROM pedidos WHERE mp_preference_id=${esc(preferenceId)} LIMIT 1`);
+	return rows && rows[0] ? normalizePedido(rows[0]) : null;
+}
+
 module.exports = {
 	initDb,
 	listProductos,
@@ -335,4 +479,16 @@ module.exports = {
 	clearServicios,
 	saveAllHorarios,
 	clearHorarios,
+	// Categorias
+	listCategorias,
+	upsertCategoria,
+	deleteCategoriaById,
+	// Pedidos
+	listPedidos,
+	getPedidoById,
+	getPedidoByCodigo,
+	createPedido,
+	updatePedidoEstado,
+	updatePedidoMpStatus,
+	generateCodigoSeguimiento,
 };

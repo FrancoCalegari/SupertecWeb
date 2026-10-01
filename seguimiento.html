@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seguimiento de Pedido - Supertec</title>
+  <meta name="description" content="Seguí el estado de tu pedido en Supertec con tu código de seguimiento.">
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+  <script src="https://kit.fontawesome.com/274f77f0e3.js" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --red: #fb383a;
+      --red-d: #c02020;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0d0d12;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .seg-header {
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .seg-header img { height: 2.5rem; }
+    .seg-header h1 { font-size: 1rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+    .seg-header a {
+      margin-left: auto;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.2s;
+    }
+    .seg-header a:hover { color: #fff; }
+
+    /* ── Container ── */
+    .seg-container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    /* ── Search box ── */
+    .seg-search-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .seg-search-card h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .seg-search-card p {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .seg-input-group {
+      display: flex;
+      gap: 0.6rem;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+    .seg-input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .seg-input::placeholder { color: rgba(255,255,255,0.3); text-transform: none; letter-spacing: 0; }
+    .seg-input:focus { border-color: var(--red); }
+    .btn-buscar {
+      padding: 0.8rem 1.4rem;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    .btn-buscar:hover { opacity: 0.85; }
+
+    /* ── Error ── */
+    .seg-error {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      color: #fca5a5;
+      font-size: 0.9rem;
+      display: none;
+      margin-top: 1rem;
+    }
+
+    /* ── Result Card ── */
+    .seg-result { display: none; }
+
+    .seg-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .seg-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .seg-codigo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--red);
+      letter-spacing: 1px;
+    }
+
+    .estado-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .estado-pendiente   { background: rgba(245,158,11,0.15); color: #fcd34d; }
+    .estado-confirmado  { background: rgba(34,197,94,0.12);  color: #86efac; }
+    .estado-preparando  { background: rgba(59,130,246,0.15); color: #93c5fd; }
+    .estado-enviado     { background: rgba(168,85,247,0.15); color: #d8b4fe; }
+    .estado-entregado   { background: rgba(34,197,94,0.2);   color: #4ade80; }
+    .estado-cancelado   { background: rgba(239,68,68,0.15);  color: #fca5a5; }
+
+    /* ── Timeline ── */
+    .seg-timeline { padding: 0.25rem 0; }
+
+    .seg-step {
+      display: flex;
+      gap: 1rem;
+      position: relative;
+      padding-bottom: 1.5rem;
+    }
+    .seg-step:last-child { padding-bottom: 0; }
+
+    .step-icon-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .step-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .step-icon.done     { background: rgba(34,197,94,0.2);   color: #4ade80;  border: 2px solid #4ade80; }
+    .step-icon.active   { background: rgba(251,56,58,0.2);   color: var(--red); border: 2px solid var(--red); animation: pulse 1.5s infinite; }
+    .step-icon.pending  { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.25); border: 2px solid rgba(255,255,255,0.1); }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(251,56,58,0.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(251,56,58,0); }
+    }
+
+    .step-line {
+      width: 2px;
+      flex: 1;
+      background: rgba(255,255,255,0.07);
+      margin: 4px 0;
+      min-height: 20px;
+    }
+    .step-line.done { background: rgba(34,197,94,0.4); }
+
+    .step-content { padding-top: 6px; }
+    .step-label {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+    }
+    .step-label.pending-label { color: rgba(255,255,255,0.3); }
+    .step-date {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 3px;
+    }
+
+    /* ── Productos ── */
+    .seg-items-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .seg-item {
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      padding: 0.7rem;
+    }
+    .seg-item img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      flex-shrink: 0;
+    }
+    .seg-item-info { flex: 1; }
+    .seg-item-name { font-size: 0.9rem; font-weight: 600; }
+    .seg-item-sub  { font-size: 0.78rem; color: rgba(255,255,255,0.4); }
+    .seg-item-price { font-size: 0.92rem; font-weight: 700; color: var(--red); white-space: nowrap; }
+
+    /* ── Tracking info ── */
+    .tracking-box {
+      background: rgba(168,85,247,0.08);
+      border: 1px solid rgba(168,85,247,0.2);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+    }
+    .tracking-box h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.6rem; color: #d8b4fe; }
+    .tracking-row { display: flex; gap: 0.5rem; font-size: 0.88rem; color: rgba(255,255,255,0.7); margin-bottom: 0.3rem; }
+    .tracking-row i { color: #d8b4fe; width: 16px; flex-shrink: 0; margin-top: 2px; }
+    .tracking-link { color: #d8b4fe; text-decoration: none; }
+    .tracking-link:hover { text-decoration: underline; }
+
+    /* ── Footer ── */
+    .seg-footer-note {
+      text-align: center;
+      color: rgba(255,255,255,0.3);
+      font-size: 0.82rem;
+      padding: 1.5rem 0;
+    }
+    .seg-footer-note a { color: var(--red); text-decoration: none; }
+
+    @media (max-width: 480px) {
+      .seg-input-group { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="seg-header">
+    <a href="/"><img src="./assets/img/logo.png" alt="Supertec"></a>
+    <h1>Seguimiento de Pedido</h1>
+    <a href="/tienda"><i class="fa-solid fa-arrow-left"></i> Volver a la tienda</a>
+  </header>
+
+  <main class="seg-container">
+    <!-- Search -->
+    <div class="seg-search-card">
+      <h2><i class="fa-solid fa-magnifying-glass" style="color:var(--red);margin-right:8px;"></i>Seguí tu pedido</h2>
+      <p>Ingresá el código de seguimiento que recibiste en tu email.</p>
+      <div class="seg-input-group">
+        <input
+          type="text"
+          id="codigoInput"
+          class="seg-input"
+          placeholder="SUP-20261001-XXXX"
+          autocomplete="off"
+        >
+        <button class="btn-buscar" id="btnBuscar" onclick="buscarPedido()">
+          <i class="fa-solid fa-search"></i> Buscar
+        </button>
+      </div>
+      <div class="seg-error" id="segError"></div>
+    </div>
+
+    <!-- Result -->
+    <div class="seg-result" id="segResult">
+      <!-- Código + Estado -->
+      <div class="seg-card">
+        <div class="seg-card-header">
+          <div>
+            <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:4px;">CÓDIGO DE PEDIDO</p>
+            <p class="seg-codigo" id="resCodigo">—</p>
+          </div>
+          <span class="estado-badge" id="resEstadoBadge">—</span>
+        </div>
+        <!-- Timeline -->
+        <div class="seg-timeline" id="resTimeline"></div>
+      </div>
+
+      <!-- Tracking courier -->
+      <div class="seg-card" id="trackingCard" style="display:none;">
+        <div class="tracking-box" id="trackingBox"></div>
+      </div>
+
+      <!-- Productos -->
+      <div class="seg-card">
+        <h3 style="font-size:0.92rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem;">Productos</h3>
+        <div class="seg-items-list" id="resItems"></div>
+        <div style="text-align:right;margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.06);">
+          <span style="color:rgba(255,255,255,0.5);font-size:0.85rem;">Total pagado:</span>
+          <span id="resTotal" style="font-size:1.1rem;font-weight:700;color:var(--red);margin-left:.5rem;">—</span>
+        </div>
+      </div>
+
+      <!-- Destino -->
+      <div class="seg-card" id="destinoCard">
+        <h3 style="font-size:0.92rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;">Destino</h3>
+        <p style="color:rgba(255,255,255,0.65);" id="resDestino">—</p>
+      </div>
+    </div>
+
+    <p class="seg-footer-note">
+      ¿Preguntas? Contactanos por <a href="https://wa.me/5492615031101" target="_blank">WhatsApp</a> o al mail <a href="mailto:info@supertec.com.ar">info@supertec.com.ar</a>
+    </p>
+  </main>
+
+  <script>
+    const ESTADOS = [
+      { key: 'pendiente',  label: 'Pedido recibido',     icon: 'fa-receipt' },
+      { key: 'confirmado', label: 'Pago confirmado',      icon: 'fa-circle-check' },
+      { key: 'preparando', label: 'Preparando tu pedido', icon: 'fa-box' },
+      { key: 'enviado',    label: 'Enviado',              icon: 'fa-truck' },
+      { key: 'entregado',  label: 'Entregado',            icon: 'fa-house-circle-check' },
+    ];
+
+    const FALLBACK = 'assets/img/logo.png';
+
+    // Auto-fill from URL param
+    const urlParams = new URLSearchParams(window.location.search);
+    const codigoParam = urlParams.get('codigo');
+    if (codigoParam) {
+      document.getElementById('codigoInput').value = codigoParam;
+      buscarPedido();
+    }
+
+    document.getElementById('codigoInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') buscarPedido();
+    });
+
+    async function buscarPedido() {
+      const codigo = document.getElementById('codigoInput').value.trim().toUpperCase();
+      const errorEl = document.getElementById('segError');
+      const resultEl = document.getElementById('segResult');
+      errorEl.style.display = 'none';
+      resultEl.style.display = 'none';
+
+      if (!codigo) {
+        errorEl.textContent = 'Ingresá un código de seguimiento';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      const btn = document.getElementById('btnBuscar');
+      btn.textContent = 'Buscando...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/seguimiento/${encodeURIComponent(codigo)}`);
+        if (!res.ok) {
+          errorEl.textContent = 'No encontramos ningún pedido con ese código. Verificá que esté bien escrito.';
+          errorEl.style.display = 'block';
+          return;
+        }
+        const pedido = await res.json();
+        renderResult(pedido);
+      } catch (err) {
+        errorEl.textContent = 'Error de conexión. Intentá de nuevo.';
+        errorEl.style.display = 'block';
+      } finally {
+        btn.textContent = 'Buscar';
+        btn.disabled = false;
+      }
+    }
+
+    function renderResult(p) {
+      // Código
+      document.getElementById('resCodigo').textContent = p.codigo_seguimiento;
+
+      // Estado badge
+      const badgeMap = {
+        pendiente:  ['estado-pendiente',  '⏳ Pendiente'],
+        confirmado: ['estado-confirmado', '✅ Confirmado'],
+        preparando: ['estado-preparando', '📦 Preparando'],
+        enviado:    ['estado-enviado',    '🚚 Enviado'],
+        entregado:  ['estado-entregado',  '✅ Entregado'],
+        cancelado:  ['estado-cancelado',  '❌ Cancelado'],
+      };
+      const badge = document.getElementById('resEstadoBadge');
+      const [cls, lbl] = badgeMap[p.estado] || ['estado-pendiente', p.estado];
+      badge.className = `estado-badge ${cls}`;
+      badge.textContent = lbl;
+
+      // Timeline
+      const timeline = document.getElementById('resTimeline');
+      timeline.innerHTML = '';
+      const activeIdx = ESTADOS.findIndex(e => e.key === p.estado);
+
+      ESTADOS.forEach((step, i) => {
+        const isDone   = i < activeIdx;
+        const isActive = i === activeIdx;
+        const isPending = i > activeIdx;
+
+        const div = document.createElement('div');
+        div.className = 'seg-step';
+        div.innerHTML = `
+          <div class="step-icon-wrap">
+            <div class="step-icon ${isDone ? 'done' : isActive ? 'active' : 'pending'}">
+              <i class="fa-solid ${isDone ? 'fa-check' : step.icon}"></i>
+            </div>
+            ${i < ESTADOS.length - 1 ? `<div class="step-line ${isDone ? 'done' : ''}"></div>` : ''}
+          </div>
+          <div class="step-content">
+            <p class="step-label ${isPending ? 'pending-label' : ''}">${step.label}</p>
+            ${isDone || isActive ? `<p class="step-date">${isActive ? 'En este estado' : 'Completado'}</p>` : ''}
+          </div>
+        `;
+        timeline.appendChild(div);
+      });
+
+      // Cancelado special case
+      if (p.estado === 'cancelado') {
+        timeline.innerHTML = `
+          <div class="seg-step">
+            <div class="step-icon-wrap"><div class="step-icon" style="background:rgba(239,68,68,.2);color:#fca5a5;border:2px solid #fca5a5;"><i class="fa-solid fa-xmark"></i></div></div>
+            <div class="step-content"><p class="step-label">Pedido cancelado</p></div>
+          </div>`;
+      }
+
+      // Tracking courier
+      const trackingCard = document.getElementById('trackingCard');
+      const trackingBox = document.getElementById('trackingBox');
+      if (p.tracking_empresa) {
+        trackingCard.style.display = 'block';
+        trackingBox.innerHTML = `
+          <h3><i class="fa-solid fa-truck-fast"></i> Información de envío</h3>
+          <div class="tracking-row"><i class="fa-solid fa-building"></i> <span>${p.tracking_empresa}</span></div>
+          ${p.tracking_numero ? `<div class="tracking-row"><i class="fa-solid fa-hashtag"></i> <span>N° ${p.tracking_numero}</span></div>` : ''}
+          ${p.tracking_url ? `<div class="tracking-row"><i class="fa-solid fa-link"></i> <a href="${p.tracking_url}" target="_blank" class="tracking-link">Seguir con ${p.tracking_empresa}</a></div>` : ''}
+        `;
+      } else {
+        trackingCard.style.display = 'none';
+      }
+
+      // Items
+      const itemsEl = document.getElementById('resItems');
+      itemsEl.innerHTML = (p.items || []).map(item => `
+        <div class="seg-item">
+          <img src="${item.img || FALLBACK}" alt="${item.name}" onerror="this.src='${FALLBACK}'">
+          <div class="seg-item-info">
+            <p class="seg-item-name">${item.name}</p>
+            <p class="seg-item-sub">x${item.cantidad || 1}${item.marca ? ` · ${item.marca}` : ''}</p>
+          </div>
+          <span class="seg-item-price">$${Number(item.precio).toLocaleString('es-AR')}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('resTotal').textContent = `$${Number(p.total).toLocaleString('es-AR')}`;
+
+      // Destino
+      const dest = [p.envio_ciudad, p.envio_provincia].filter(Boolean).join(', ');
+      document.getElementById('resDestino').textContent = dest || 'No especificado';
+
+      document.getElementById('segResult').style.display = 'block';
+      document.getElementById('segResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  </script>
+</body>
+</html>

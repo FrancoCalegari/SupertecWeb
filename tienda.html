@@ -448,9 +448,275 @@
 
     .tienda-footer .footer-bottom a:hover { color: rgba(255,255,255,0.7); }
 
+    /* ── Category Chips ── */
+    .cat-chips-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+      max-width: 760px;
+      margin: 1.25rem auto 0;
+    }
+    .cat-chips-wrapper::-webkit-scrollbar { display: none; }
+    .cat-chips {
+      display: flex;
+      gap: 0.5rem;
+      width: max-content;
+    }
+    .cat-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 20px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.65);
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .cat-chip:hover { background: rgba(255,255,255,0.09); color: #fff; border-color: rgba(255,255,255,0.2); }
+    .cat-chip.active { background: var(--cat-color, #fb383a); border-color: var(--cat-color, #fb383a); color: #fff; }
+
+    /* ── Discount badge ── */
+    .discount-badge {
+      position: absolute;
+      top: 0.6rem;
+      left: 0.6rem;
+      background: linear-gradient(135deg, #fb383a, #c02020);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Add to cart button ── */
+    .btn-add-cart {
+      margin-top: 0.5rem;
+      padding: 0.62rem 1rem;
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 9px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .btn-add-cart:hover { background: rgba(251,56,58,0.12); border-color: rgba(251,56,58,0.3); color: #fff; }
+    .btn-add-cart.added { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: #4ade80; }
+
+    /* ── Floating Cart Button ── */
+    .cart-fab {
+      position: fixed;
+      bottom: 5.5rem;
+      right: 1.25rem;
+      z-index: 200;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fb383a, #c02020);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 20px rgba(251,56,58,0.45);
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .cart-fab:hover { transform: scale(1.08); }
+    .cart-fab:active { transform: scale(0.96); }
+    .cart-fab-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #fff;
+      color: #fb383a;
+      font-size: 0.72rem;
+      font-weight: 700;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      display: none;
+    }
+
+    /* ── Cart Drawer ── */
+    .cart-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .cart-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100dvh;
+      width: 100%;
+      max-width: 420px;
+      background: #13131a;
+      border-left: 1px solid rgba(255,255,255,0.07);
+      z-index: 301;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+      overflow: hidden;
+    }
+    .cart-drawer.open { transform: translateX(0); }
+
+    .cart-drawer-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .cart-drawer-header h2 { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+    .cart-close-btn {
+      background: rgba(255,255,255,0.07);
+      border: none;
+      color: rgba(255,255,255,0.6);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .cart-close-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    .cart-items { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 0.85rem; }
+
+    .cart-item {
+      display: flex;
+      gap: 0.85rem;
+      align-items: flex-start;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      padding: 0.85rem;
+    }
+    .cart-item-img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      flex-shrink: 0;
+    }
+    .cart-item-body { flex: 1; }
+    .cart-item-name { font-size: 0.87rem; font-weight: 600; margin-bottom: 3px; line-height: 1.3; }
+    .cart-item-price { font-size: 0.82rem; color: rgba(255,255,255,0.45); }
+    .cart-item-price .price-val { color: #fb383a; font-weight: 700; }
+    .cart-qty {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .cart-qty-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.08);
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .cart-qty-btn:hover { background: rgba(255,255,255,0.15); }
+    .cart-qty-num { font-size: 0.88rem; font-weight: 600; min-width: 20px; text-align: center; }
+    .cart-remove-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.25);
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 0.2rem;
+      transition: color 0.15s;
+      margin-left: auto;
+    }
+    .cart-remove-btn:hover { color: #fca5a5; }
+
+    .cart-empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.3);
+      gap: 0.75rem;
+      padding: 2rem;
+      text-align: center;
+    }
+    .cart-empty-state i { font-size: 3rem; opacity: 0.4; }
+
+    .cart-footer {
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .cart-subtotal {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .cart-subtotal-label { color: rgba(255,255,255,0.5); font-size: 0.9rem; }
+    .cart-subtotal-val { font-size: 1.15rem; font-weight: 700; color: #fb383a; }
+
+    .btn-checkout {
+      display: block;
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, #fb383a, #c02020);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.97rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-checkout:hover { opacity: 0.88; }
+
     @media (max-width: 600px) {
       .tienda-controls { flex-direction: column; }
       .filter-select { min-width: auto; width: 100%; }
+      .cart-drawer { max-width: 100%; }
     }
   </style>
 </head>
@@ -497,6 +763,20 @@
         <select id="category-filter" class="filter-select" aria-label="Filtrar por categoría">
           <option value="">Todas las categorías</option>
         </select>
+      </div>
+      <!-- Category chips -->
+      <div class="cat-chips-wrapper">
+        <div class="cat-chips" id="catChips">
+          <button class="cat-chip active" data-slug="" style="--cat-color:#fb383a;" onclick="selectChip(this, null)">
+            <i class="fa-solid fa-th-large"></i> Todos
+          </button>
+          <button class="cat-chip" data-slug="ofertas" style="--cat-color:#f59e0b;" onclick="selectChip(this, {descuento:true})">
+            <i class="fa-solid fa-fire"></i> Ofertas
+          </button>
+          <button class="cat-chip" data-slug="destacados" style="--cat-color:#8b5cf6;" onclick="selectChip(this, {destacado:true})">
+            <i class="fa-solid fa-star"></i> Destacados
+          </button>
+        </div>
       </div>
     </div>
 
@@ -564,8 +844,34 @@
     <span>Chatea con nosotros</span>
   </a>
 
+  <!-- Cart FAB -->
+  <button class="cart-fab" id="cartFab" onclick="openCart()" aria-label="Abrir carrito">
+    <i class="fa-solid fa-bag-shopping"></i>
+    <span class="cart-fab-badge" id="cartBadge">0</span>
+  </button>
+
+  <!-- Cart Overlay + Drawer -->
+  <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+  <aside class="cart-drawer" id="cartDrawer" role="dialog" aria-label="Carrito de compras">
+    <div class="cart-drawer-header">
+      <h2><i class="fa-solid fa-bag-shopping" style="color:#fb383a;"></i> Mi carrito</h2>
+      <button class="cart-close-btn" onclick="closeCart()" aria-label="Cerrar carrito"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer" id="cartFooter" style="display:none;">
+      <div class="cart-subtotal">
+        <span class="cart-subtotal-label">Total</span>
+        <span class="cart-subtotal-val" id="cartTotal">$0</span>
+      </div>
+      <a href="/checkout" class="btn-checkout">
+        <i class="fa-solid fa-lock"></i> Ir al checkout
+      </a>
+    </div>
+  </aside>
+
   <script src="./assets/js/background.js"></script>
   <script>
+    const CART_KEY = 'supertec_cart';
     const WHATSAPP_NUMBER = "5492617735869";
     const FALLBACK_IMG = "assets/img/logo.png";
     const grid = document.getElementById("productos-grid");
@@ -576,6 +882,128 @@
     const resultCount = document.getElementById("result-count");
 
     let allProductos = [];
+    let activeChipFiltros = null; // null = todos
+
+    // ── Cart logic ──
+    function getCart() {
+      try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; }
+    }
+    function saveCart(cart) { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+
+    function addToCart(producto) {
+      const cart = getCart();
+      const existing = cart.find(i => i.id === producto.id);
+      if (existing) {
+        existing.cantidad = (existing.cantidad || 1) + 1;
+      } else {
+        cart.push({ ...producto, cantidad: 1 });
+      }
+      saveCart(cart);
+      updateCartUI();
+      openCart();
+    }
+
+    function removeFromCart(id) {
+      const cart = getCart().filter(i => i.id !== id);
+      saveCart(cart);
+      updateCartUI();
+      renderCartDrawer();
+    }
+
+    function updateQty(id, delta) {
+      const cart = getCart();
+      const item = cart.find(i => i.id === id);
+      if (!item) return;
+      item.cantidad = Math.max(1, (item.cantidad || 1) + delta);
+      saveCart(cart);
+      updateCartUI();
+      renderCartDrawer();
+    }
+
+    function getTotal() {
+      return getCart().reduce((s, i) => s + Number(i.precio) * (i.cantidad || 1), 0);
+    }
+
+    function updateCartUI() {
+      const cart = getCart();
+      const count = cart.reduce((s, i) => s + (i.cantidad || 1), 0);
+      const badge = document.getElementById('cartBadge');
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'flex' : 'none';
+    }
+
+    function openCart() {
+      document.getElementById('cartOverlay').classList.add('open');
+      document.getElementById('cartDrawer').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      renderCartDrawer();
+    }
+
+    function closeCart() {
+      document.getElementById('cartOverlay').classList.remove('open');
+      document.getElementById('cartDrawer').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function renderCartDrawer() {
+      const cart = getCart();
+      const itemsEl = document.getElementById('cartItems');
+      const footerEl = document.getElementById('cartFooter');
+      const totalEl = document.getElementById('cartTotal');
+
+      if (!cart.length) {
+        itemsEl.innerHTML = `
+          <div class="cart-empty-state">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <p>Tu carrito está vacío</p>
+            <small>Agregá productos para comenzar</small>
+          </div>`;
+        footerEl.style.display = 'none';
+        return;
+      }
+
+      itemsEl.innerHTML = cart.map(item => `
+        <div class="cart-item" data-id="${item.id}">
+          <img class="cart-item-img" src="${item.img || FALLBACK_IMG}" alt="${item.name}" onerror="this.src='${FALLBACK_IMG}'">
+          <div class="cart-item-body">
+            <p class="cart-item-name">${item.name}</p>
+            <p class="cart-item-price">Unitario: <span class="price-val">$${Number(item.precio).toLocaleString('es-AR')}</span></p>
+            <div class="cart-qty">
+              <button class="cart-qty-btn" onclick="updateQty(${item.id}, -1)">−</button>
+              <span class="cart-qty-num">${item.cantidad || 1}</span>
+              <button class="cart-qty-btn" onclick="updateQty(${item.id}, +1)">+</button>
+              <button class="cart-remove-btn" onclick="removeFromCart(${item.id})" aria-label="Eliminar"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      totalEl.textContent = `$${getTotal().toLocaleString('es-AR')}`;
+      footerEl.style.display = 'block';
+    }
+
+    // ── Category chips ──
+    function selectChip(el, filtros) {
+      document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      activeChipFiltros = filtros;
+      filterAndRender();
+    }
+
+    function applyChipFiltro(productos) {
+      if (!activeChipFiltros) return productos;
+      return productos.filter(p => {
+        if (activeChipFiltros.descuento && !(Number(p.descuento) > 0)) return false;
+        if (activeChipFiltros.destacado && !p.destacado) return false;
+        if (activeChipFiltros.categorias && activeChipFiltros.categorias.length) {
+          if (!activeChipFiltros.categorias.includes(p.categoria)) return false;
+        }
+        if (activeChipFiltros.precio_max && Number(p.precio) > activeChipFiltros.precio_max) return false;
+        if (activeChipFiltros.precio_min && Number(p.precio) < activeChipFiltros.precio_min) return false;
+        if (activeChipFiltros.marca && p.marca !== activeChipFiltros.marca) return false;
+        return true;
+      });
+    }
 
     // Hamburger menu
     document.getElementById("hamburger")?.addEventListener("click", () => {
@@ -585,9 +1013,10 @@
 
     function buildCard(p) {
       const meta = [p.marca, p.modelo].filter(Boolean).join(" · ");
-      const priceStr = Number(p.precio) > 0
-        ? `$${Number(p.precio).toLocaleString("es-AR")}`
-        : "Consultar precio";
+      const hasDiscount = Number(p.descuento) > 0;
+      const precioFinal = Number(p.precio);
+      const precioOriginal = p.precio_original ? Number(p.precio_original) : null;
+      const priceStr = precioFinal > 0 ? `$${precioFinal.toLocaleString("es-AR")}` : "Consultar precio";
 
       const card = document.createElement("div");
       card.className = "producto-card-tienda";
@@ -600,13 +1029,20 @@
             loading="lazy"
             onerror="this.src='${FALLBACK_IMG}'"
           >
+          ${hasDiscount ? `<span class="discount-badge">-${p.descuento}%</span>` : ''}
           ${p.stock > 0 ? `<span class="card-badge">En stock</span>` : ''}
         </div>
         <div class="card-body">
           ${meta ? `<p class="card-meta">${meta}</p>` : ''}
           <h2 class="card-name">${p.name}</h2>
           ${p.description ? `<p class="card-desc">${p.description}</p>` : ''}
-          <p class="card-price">${priceStr}</p>
+          <p class="card-price">
+            ${precioOriginal && precioOriginal > precioFinal ? `<span class="original">$${precioOriginal.toLocaleString('es-AR')}</span>` : ''}
+            ${priceStr}
+          </p>
+          <button class="btn-add-cart" data-id="${p.id}" type="button">
+            <i class="fa-solid fa-bag-shopping"></i> Agregar al carrito
+          </button>
           <button class="btn-consultar" type="button">
             <i class="fa-brands fa-whatsapp"></i> Consultar
           </button>
@@ -617,6 +1053,18 @@
         e.stopPropagation();
         const msg = `Buen día, quisiera consultar sobre este producto:\n\n📌 *${p.name}*${p.marca ? `\n🏷️ Marca: ${p.marca}` : ''}${p.modelo ? `\n🔖 Modelo: ${p.modelo}` : ''}${Number(p.precio) > 0 ? `\n💰 Precio: $${Number(p.precio).toLocaleString("es-AR")}` : ''}`;
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+      });
+
+      card.querySelector(".btn-add-cart").addEventListener("click", (e) => {
+        e.stopPropagation();
+        const btn = e.currentTarget;
+        addToCart(p);
+        btn.classList.add('added');
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Agregado';
+        setTimeout(() => {
+          btn.classList.remove('added');
+          btn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Agregar al carrito';
+        }, 1500);
       });
 
       return card;
@@ -630,7 +1078,7 @@
           <div class="empty-state">
             <i class="fa-solid fa-box-open"></i>
             <h3>Sin resultados</h3>
-            <p>Intenta con otro término o categoría</p>
+            <p>Intentá con otro término o categoría</p>
           </div>`;
         resultCount.innerHTML = `<span>0</span> productos encontrados`;
         return;
@@ -660,19 +1108,14 @@
 
     function renderOfertas(list) {
       ofertasGrid.innerHTML = "";
-      if (list.length === 0) {
+      const ofertas = list.filter(p => Number(p.descuento) > 0);
+      if (ofertas.length === 0) {
         ofertasSection.style.display = "none";
         return;
       }
-      
-      // Mostrar hasta 4 productos aleatorios como ofertas
-      const ofertas = [...list].sort(() => 0.5 - Math.random()).slice(0, 4);
-      
-      ofertas.forEach(p => {
+      ofertas.slice(0, 4).forEach(p => {
         const card = buildCard(p);
-        // Opcional: Destacar un poco la card de oferta
         card.style.borderColor = "rgba(251,56,58,0.3)";
-        card.style.boxShadow = "0 4px 15px rgba(251,56,58,0.05)";
         ofertasGrid.appendChild(card);
       });
       ofertasSection.style.display = "block";
@@ -681,12 +1124,13 @@
     function filterAndRender() {
       const q = searchInput.value.toLowerCase().trim();
       const cat = categoryFilter.value;
-      const filtered = allProductos.filter(p => {
+      let filtered = allProductos.filter(p => {
         const matchCat = !cat || p.categoria === cat;
         const matchQ = !q || [p.name, p.description, p.marca, p.modelo, p.categoria]
           .filter(Boolean).some(v => v.toLowerCase().includes(q));
         return matchCat && matchQ;
       });
+      filtered = applyChipFiltro(filtered);
       renderProductos(filtered);
     }
 
@@ -700,6 +1144,25 @@
       });
     }
 
+    async function loadCustomCats() {
+      try {
+        const res = await fetch('/api/categorias');
+        const cats = await res.json();
+        const chipsEl = document.getElementById('catChips');
+        cats.filter(c => c.activa).sort((a,b) => a.orden - b.orden).forEach(cat => {
+          const btn = document.createElement('button');
+          btn.className = 'cat-chip';
+          btn.dataset.slug = cat.slug;
+          btn.style.setProperty('--cat-color', cat.color || '#fb383a');
+          btn.innerHTML = `<i class="fa-solid ${cat.icono || 'fa-tag'}"></i> ${cat.nombre}`;
+          btn.onclick = () => selectChip(btn, cat.filtros);
+          chipsEl.appendChild(btn);
+        });
+      } catch (e) {
+        // silently fail, built-in chips still work
+      }
+    }
+
     // Debounce search
     let debounceTimer;
     searchInput.addEventListener("input", () => {
@@ -707,6 +1170,10 @@
       debounceTimer = setTimeout(filterAndRender, 220);
     });
     categoryFilter.addEventListener("change", filterAndRender);
+
+    // Init
+    updateCartUI();
+    loadCustomCats();
 
     // Load products
     fetch("/api/productos")
