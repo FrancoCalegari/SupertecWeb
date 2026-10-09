@@ -422,18 +422,34 @@
     const mpStatus = params.get('status');
     const mpCodigo = params.get('external_reference') || localStorage.getItem('supertec_pending_codigo') || '';
 
+    function guardarMisPedidos(codigo) {
+      if (!codigo) return;
+      let misPedidos = [];
+      try { misPedidos = JSON.parse(localStorage.getItem('supertec_mis_pedidos')) || []; } catch {}
+      if (!misPedidos.includes(codigo)) { misPedidos.unshift(codigo); }
+      localStorage.setItem('supertec_mis_pedidos', JSON.stringify(misPedidos));
+    }
+
     if (mpStatus === 'approved') {
       document.getElementById('coMain').style.display = 'none';
       document.getElementById('statusSuccess').classList.add('show');
       document.getElementById('successCodigo').textContent = mpCodigo;
       document.getElementById('linkSeguimiento').href = `/seguimiento?codigo=${mpCodigo}`;
-      if (mpCodigo) clearCart();
+      if (mpCodigo) {
+        guardarMisPedidos(mpCodigo);
+        clearCart();
+      }
       localStorage.removeItem('supertec_pending_codigo');
     } else if (mpStatus === 'pending') {
       document.getElementById('coMain').style.display = 'none';
       document.getElementById('statusPending').classList.add('show');
       document.getElementById('pendingCodigo').textContent = mpCodigo;
       document.getElementById('linkSeguimientoPending').href = `/seguimiento?codigo=${mpCodigo}`;
+      if (mpCodigo) {
+        guardarMisPedidos(mpCodigo);
+        clearCart();
+      }
+      localStorage.removeItem('supertec_pending_codigo');
     } else if (mpStatus === 'failure') {
       document.getElementById('coMain').style.display = 'none';
       document.getElementById('statusFailure').classList.add('show');

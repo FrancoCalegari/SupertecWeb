@@ -607,36 +607,74 @@ table img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--r
     <div class="modal-content">
         <h3 id="catModalTitle">Agregar Categoría</h3>
         <form id="catForm" onsubmit="saveCategoria(event)">
-            <input type="hidden" id="catId">
-            <input type="text" id="catNombre" placeholder="Nombre de la categoría" required>
-            <input type="text" id="catSlug" placeholder="slug-auto-generado">
-            <input type="text" id="catDescripcion" placeholder="Descripción (opcional)">
-            <div style="display:flex;gap:.6rem;">
-                <div style="flex:1;">
-                    <label>Icono FontAwesome (clase sin 'fa-')</label>
-                    <input type="text" id="catIcono" placeholder="fire, star, tag...">
+            <input type="hidden" id="catId" value="">
+            
+            <div style="padding-bottom: 0.8rem; border-bottom: 1px solid var(--clr-border); display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="catNombre">Nombre de la categoría</label>
+                <input type="text" id="catNombre" placeholder="Ej: Computadoras, Ofertas Semanales..." required>
+                
+                <div style="display:flex; gap: 0.8rem;">
+                    <div style="flex: 2; display: flex; flex-direction: column; gap: 0.2rem;">
+                        <label for="catSlug">Slug (URL)</label>
+                        <input type="text" id="catSlug" placeholder="Dejar vacío para auto-generar">
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 0.2rem;">
+                        <label for="catOrden">Orden</label>
+                        <input type="number" id="catOrden" placeholder="0" min="0">
+                    </div>
                 </div>
-                <div>
-                    <label>Color</label>
-                    <input type="color" id="catColor" value="#fb383a" style="width:52px;height:44px;padding:2px;border-radius:6px;border:1.5px solid var(--clr-border);">
+
+                <label for="catDescripcion">Descripción (opcional)</label>
+                <input type="text" id="catDescripcion" placeholder="Breve descripción que se verá en la tienda">
+                
+                <div style="display:flex; gap: 0.8rem; align-items: flex-end;">
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 0.2rem;">
+                        <label for="catIcono">Ícono FontAwesome</label>
+                        <input type="text" id="catIcono" placeholder="fire, star, gamepad, tag...">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                        <label for="catColor">Color</label>
+                        <input type="color" id="catColor" value="#fb383a" style="width:54px; height:42px; padding:2px; border-radius:var(--radius-sm); border:1.5px solid var(--clr-border); background:#fff; cursor:pointer;">
+                    </div>
+                </div>
+                
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; margin-top:0.4rem; font-weight:700; color:var(--clr-text); font-size: 0.9rem;">
+                    <input type="checkbox" id="catActiva" checked style="width:16px; height:16px; accent-color:var(--clr-primary);">
+                    Categoría Activa (Visible en tienda)
+                </label>
+            </div>
+
+            <div style="background:#f8fafc; padding: 1rem; border-radius:var(--radius-md); border:1px solid var(--clr-border); display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.2rem;">
+                <label style="font-size:0.85rem; font-weight:800; color:var(--clr-primary); text-transform:uppercase; letter-spacing:0.02em;">Reglas de Filtrado Automático</label>
+                <p style="font-size:0.75rem; color:var(--clr-muted); margin:-0.3rem 0 0.4rem 0; line-height:1.4;">Los productos que cumplan estas reglas aparecerán automáticamente en esta categoría.</p>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.4rem;">
+                    <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-size:0.85rem;">
+                        <input type="checkbox" id="filtroDescuento" style="width:16px; height:16px; accent-color:var(--clr-primary);">
+                        Solo con descuento
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-size:0.85rem;">
+                        <input type="checkbox" id="filtroDestacado" style="width:16px; height:16px; accent-color:var(--clr-primary);">
+                        Solo destacados
+                    </label>
+                </div>
+                
+                <label for="filtroCategorias">Filtrar por categorías (separadas por coma)</label>
+                <input type="text" id="filtroCategorias" placeholder="Ej: celular, notebook" style="background:#fff;">
+                
+                <label for="filtroMarca">Filtrar por marca específica</label>
+                <input type="text" id="filtroMarca" placeholder="Ej: Samsung, Sony, Redragon" style="background:#fff;">
+                
+                <label>Rango de Precio</label>
+                <div style="display:flex; gap:0.5rem;">
+                    <input type="number" id="filtroPrecioMin" placeholder="Mínimo ($)" min="0" style="background:#fff;">
+                    <input type="number" id="filtroPrecioMax" placeholder="Máximo ($)" min="0" style="background:#fff;">
                 </div>
             </div>
-            <label style="font-size:.82rem;font-weight:600;color:var(--clr-muted);">Filtros (marca todos los que aplican)</label>
-            <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.9rem;"><input type="checkbox" id="filtroDescuento"> Solo productos con descuento</label>
-            <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.9rem;"><input type="checkbox" id="filtroDestacado"> Solo productos destacados</label>
-            <input type="text" id="filtroCategorias" placeholder="Categorías (separadas por coma): gaming, celulares...">
-            <div style="display:flex;gap:.5rem;">
-                <input type="number" id="filtroPrecioMin" placeholder="Precio mín" min="0">
-                <input type="number" id="filtroPrecioMax" placeholder="Precio máx" min="0">
-            </div>
-            <input type="text" id="filtroMarca" placeholder="Marca específica (opcional)">
-            <div style="display:flex;gap:.6rem;align-items:center;">
-                <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.9rem;"><input type="checkbox" id="catActiva" checked> Activa</label>
-                <input type="number" id="catOrden" placeholder="Orden" min="0" style="width:80px;">
-            </div>
-            <div class="modal-actions">
-                <button type="submit" class="save-btn" style="flex:1;">Guardar</button>
-                <button type="button" class="cancel-btn" style="flex:1;" onclick="hideCatForm()">Cancelar</button>
+
+            <div class="modal-actions" style="margin-top:0.8rem;">
+                <button type="submit" class="save-btn" style="flex:1;">Guardar Categoría</button>
+                <button type="button" class="cancel-btn" style="flex:1; background:#94a3b8;" onclick="hideCatForm()">Cancelar</button>
             </div>
         </form>
     </div>

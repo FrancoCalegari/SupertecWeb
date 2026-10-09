@@ -516,6 +516,63 @@
     }
     .btn-add-cart:hover { background: rgba(251,56,58,0.12); border-color: rgba(251,56,58,0.3); color: #fff; }
     .btn-add-cart.added { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: #4ade80; }
+    /* ── Floating Orders Button ── */
+    .pedidos-fab {
+      position: fixed;
+      bottom: 9.5rem;
+      right: 1.25rem;
+      z-index: 200;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #1e1e2d;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .pedidos-fab:hover { transform: scale(1.08); background: #2a2a3c; }
+    .pedidos-fab:active { transform: scale(0.96); }
+    .pedidos-fab-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #fb383a;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      display: none;
+    }
+    
+    /* ── Pedidos Item Styles ── */
+    .pedido-item {
+      padding: 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .pedido-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .pedido-code { font-weight: 700; font-size: 1.05rem; color: #fff; letter-spacing: 0.5px; }
+    .pedido-status { padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+    .status-pendiente { background: rgba(245,158,11,0.2); color: #fcd34d; }
+    .status-confirmado { background: rgba(34,197,94,0.2); color: #4ade80; }
+    .status-preparando { background: rgba(59,130,246,0.2); color: #60a5fa; }
+    .status-enviado { background: rgba(168,85,247,0.2); color: #c084fc; }
+    .status-entregado { background: rgba(34,197,94,0.2); color: #4ade80; }
+    .status-cancelado { background: rgba(239,68,68,0.2); color: #f87171; }
+    .pedido-date { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 0.85rem; display:flex; justify-content:space-between; align-items:center; }
+    .pedido-total { color: #fff; font-weight: 700; font-size: 0.95rem; }
+    .pedido-btn { display: block; text-align: center; font-size: 0.85rem; font-weight: 600; color: #fff; background: rgba(255,255,255,0.1); padding: 0.6rem; border-radius: 8px; text-decoration: none; transition: background 0.2s; }
+    .pedido-btn:hover { background: rgba(255,255,255,0.2); }
 
     /* ── Floating Cart Button ── */
     .cart-fab {
@@ -850,8 +907,14 @@
     <span class="cart-fab-badge" id="cartBadge">0</span>
   </button>
 
-  <!-- Cart Overlay + Drawer -->
-  <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+  <!-- Orders FAB -->
+  <button class="pedidos-fab" id="pedidosFab" onclick="openPedidos()" aria-label="Ver mis pedidos" style="display:none;">
+    <i class="fa-solid fa-box-open"></i>
+    <span class="pedidos-fab-badge" id="pedidosBadge">0</span>
+  </button>
+
+  <!-- Overlay (Compartido) -->
+  <div class="cart-overlay" id="cartOverlay" onclick="closeAllDrawers()"></div>
   <aside class="cart-drawer" id="cartDrawer" role="dialog" aria-label="Carrito de compras">
     <div class="cart-drawer-header">
       <h2><i class="fa-solid fa-bag-shopping" style="color:#fb383a;"></i> Mi carrito</h2>
@@ -866,6 +929,17 @@
       <a href="/checkout" class="btn-checkout">
         <i class="fa-solid fa-lock"></i> Ir al checkout
       </a>
+    </div>
+  </aside>
+
+  <!-- Pedidos Drawer -->
+  <aside class="cart-drawer" id="pedidosDrawer" role="dialog" aria-label="Mis pedidos">
+    <div class="cart-drawer-header">
+      <h2><i class="fa-solid fa-box-open" style="color:#009ee3;"></i> Mis Pedidos</h2>
+      <button class="cart-close-btn" onclick="closePedidos()" aria-label="Cerrar pedidos"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cart-items" id="pedidosItems">
+      <div style="padding: 2rem 1.5rem; text-align: center; color: rgba(255,255,255,0.5);">Cargando pedidos...</div>
     </div>
   </aside>
 
@@ -940,9 +1014,69 @@
     }
 
     function closeCart() {
-      document.getElementById('cartOverlay').classList.remove('open');
       document.getElementById('cartDrawer').classList.remove('open');
+      document.getElementById('cartOverlay').classList.remove('open');
       document.body.style.overflow = '';
+    }
+
+    function openPedidos() {
+      document.getElementById('cartOverlay').classList.add('open');
+      document.getElementById('pedidosDrawer').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closePedidos() {
+      document.getElementById('pedidosDrawer').classList.remove('open');
+      document.getElementById('cartOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    
+    function closeAllDrawers() {
+      document.getElementById('cartDrawer').classList.remove('open');
+      document.getElementById('pedidosDrawer').classList.remove('open');
+      document.getElementById('cartOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // ── Load Mis Pedidos ──
+    function getMisPedidos() {
+      try { return JSON.parse(localStorage.getItem('supertec_mis_pedidos')) || []; } catch { return []; }
+    }
+
+    async function loadMisPedidos() {
+      const codigos = getMisPedidos();
+      if (!codigos.length) return;
+      document.getElementById('pedidosFab').style.display = 'flex';
+      document.getElementById('pedidosBadge').textContent = codigos.length;
+      document.getElementById('pedidosBadge').style.display = 'flex';
+      
+      const container = document.getElementById('pedidosItems');
+      container.innerHTML = '<div style="padding: 2rem; text-align:center;"><i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;color:var(--red);"></i></div>';
+      
+      let html = '';
+      for (const codigo of codigos) {
+        try {
+          const res = await fetch(`/api/seguimiento/${codigo}`);
+          const data = await res.json();
+          if (data.error) continue;
+          
+          let estadoClass = 'status-' + (data.estado || 'pendiente').toLowerCase();
+          html += `
+            <div class="pedido-item">
+              <div class="pedido-header">
+                <span class="pedido-code">${data.codigo_seguimiento}</span>
+                <span class="pedido-status ${estadoClass}">${(data.estado || 'pendiente')}</span>
+              </div>
+              <div class="pedido-date">
+                <span>${new Date(data.created_at).toLocaleDateString()}</span>
+                <span class="pedido-total">$${Number(data.total).toLocaleString('es-AR')}</span>
+              </div>
+              <a href="/seguimiento?codigo=${data.codigo_seguimiento}" class="pedido-btn">Ver seguimiento completo</a>
+            </div>
+          `;
+        } catch (e) {}
+      }
+      container.innerHTML = html || '<div style="padding: 2rem; text-align:center; color: rgba(255,255,255,0.5);">No se encontraron detalles.</div>';
     }
 
     function renderCartDrawer() {
@@ -1174,6 +1308,7 @@
     // Init
     updateCartUI();
     loadCustomCats();
+    loadMisPedidos();
 
     // Load products
     fetch("/api/productos")
