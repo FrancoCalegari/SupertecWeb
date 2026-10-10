@@ -222,17 +222,19 @@ async function uploadToSpiderAPI(buffer, originalname) {
 	const blob = new Blob([buffer]);
 	formData.append('files', blob, originalname);
 
+	const startUpload = Date.now();
 	const res = await fetch(`${SPIDER_API_BASE}/storage/projects/${projectId}/files`, {
 		method: 'POST',
 		headers: { 'X-API-KEY': SPIDER_API_KEY },
 		body: formData
 	});
+	const uploadTime = Date.now() - startUpload;
 
 	if (!res.ok) {
-		throw new Error(`Spider API error: ${res.status} ${res.statusText}`);
+		throw new Error(`Spider API error: ${res.status} ${res.statusText} (Time: ${uploadTime}ms)`);
 	}
 	const data = await res.json();
-	console.log("[Spider API] Upload response:", data);
+	console.log(`[Spider API] Upload response in ${uploadTime}ms:`, data);
 
 	let spiderUrl = "";
 	if (data.url) spiderUrl = data.url;
@@ -250,7 +252,7 @@ async function uploadToSpiderAPI(buffer, originalname) {
 }
 
 async function deleteFromSpiderAPI(url) {
-	if (!url || !url.includes('190.220.229.45:7256')) return;
+	if (!url || (!url.includes('190.220.229.45:7256') && !url.includes('spiderwebargapi.com.ar'))) return;
 	const urlParts = url.split('/');
 	const id = urlParts[urlParts.length - 1];
 	if (!id) return;
@@ -780,6 +782,29 @@ app.post("/api/spider-proxy/upload", upload.single("files"), async (req, res) =>
 	}
 });
 
+app.get("/api/proxy-image", async (req, res) => {
+	try {
+		const imageUrl = req.query.url;
+		if (!imageUrl) return res.status(400).send("No se proveyó URL");
+
+		const response = await fetch(imageUrl);
+		if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+
+		const arrayBuffer = await response.arrayBuffer();
+		const buffer = Buffer.from(arrayBuffer);
+
+		res.set('Content-Type', response.headers.get('content-type') || 'image/jpeg');
+		res.set('Cross-Origin-Resource-Policy', 'cross-origin'); 
+		res.set('Access-Control-Allow-Origin', '*');
+		res.set('Cache-Control', 'public, max-age=86400');
+
+		res.send(buffer);
+	} catch (error) {
+		console.error('[Proxy] Error descargando imagen:', error.message);
+		res.status(500).send('Error');
+	}
+});
+
 app.get("/api/spider-proxy/file/:id", async (req, res) => {
 	try {
 		const response = await fetch(`${SPIDER_API_BASE}/storage/files/${req.params.id}`, {
@@ -788,6 +813,8 @@ app.get("/api/spider-proxy/file/:id", async (req, res) => {
 		if (!response.ok) return res.status(response.status).end();
 		const arrayBuffer = await response.arrayBuffer();
 		res.setHeader("Content-Type", response.headers.get("content-type") || "application/octet-stream");
+		// Agregar headers de caché para que el navegador del cliente no solicite la misma imagen repetidamente
+		res.setHeader("Cache-Control", "public, max-age=86400, immutable"); 
 		return res.send(Buffer.from(arrayBuffer));
 	} catch (err) {
 		console.error("[Spider Proxy File Error]", err);
@@ -971,6 +998,47 @@ app.post("/api/mp/webhook", async (req, res) => {
 	} catch (err) {
 		console.error('[MP Webhook] Error:', err);
 		res.sendStatus(200); // siempre 200 a MP
+	}
+});
+
+// ==========================================
+// SPIDER IA CHAT ENDPOINT
+// ==========================================
+app.post("/api/ia/chat", async (req, res) => {
+	try {
+		const { message } = req.body;
+		if (!message) return res.status(400).json({ error: "Mensaje vacío" });
+
+		// 1. Obtener modelos
+		const modelsRes = await fetch(`${SPIDER_API_BASE}/ia/models`, {
+			headers: { 'X-API-KEY': SPIDER_API_KEY }
+		});
+		const modelsData = await modelsRes.json();
+		if (!modelsData.models || modelsData.models.length === 0) {
+			return res.status(500).json({ error: "No hay modelos de IA disponibles" });
+		}
+		const modelId = modelsData.models[0].id;
+
+		// 2. Enviar consulta
+		const replyRes = await fetch(`${SPIDER_API_BASE}/ia/chat`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', 'X-API-KEY': SPIDER_API_KEY },
+			body: JSON.stringify({
+				model_id: modelId,
+				messages: [
+					{ role: 'system', content: 'Eres el asistente virtual de ventas de SuperTec. Tu objetivo es ayudar a los clientes a encontrar productos, informar sobre tecnología, horarios y envíos. Responde de manera amigable, concisa y útil.' },
+					{ role: 'user', content: message }
+				]
+			})
+		});
+		const replyData = await replyRes.json();
+		if (replyData.error) {
+			return res.status(500).json({ error: replyData.error });
+		}
+		res.json({ success: true, reply: replyData.message.content });
+	} catch (error) {
+		console.error("[SpiderIA] Error en chat:", error);
+		res.status(500).json({ error: "Error interno del servidor IA" });
 	}
 });
 

@@ -169,7 +169,7 @@ function renderTable(type, data, tableId) {
 		const tr = document.createElement("tr");
 		tr.innerHTML = `
             <td data-label="ID">${p.id}</td>
-            <td data-label="Imagen"><img src="${p.img}" alt="${p.name}"></td>
+            <td data-label="Imagen"><img src="${p.img && p.img.startsWith('http') ? `/api/proxy-image?url=${encodeURIComponent(p.img)}` : p.img}" alt="${p.name}"></td>
             <td data-label="Nombre">${p.name}</td>
             <td>${p.description}</td>
             <td data-label="Precio">$${p.precio}</td>

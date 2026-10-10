@@ -356,6 +356,11 @@
     ];
 
     const FALLBACK = 'assets/img/logo.png';
+    function getProxyImgUrl(url) {
+        if (!url) return FALLBACK;
+        if (url.startsWith('http')) return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+        return url;
+    }
 
     // Auto-fill from URL param
     const urlParams = new URLSearchParams(window.location.search);
@@ -477,7 +482,7 @@
       const itemsEl = document.getElementById('resItems');
       itemsEl.innerHTML = (p.items || []).map(item => `
         <div class="seg-item">
-          <img src="${item.img || FALLBACK}" alt="${item.name}" onerror="this.src='${FALLBACK}'">
+          <img src="${getProxyImgUrl(item.img)}" alt="${item.name}" onerror="this.src='${FALLBACK}'">
           <div class="seg-item-info">
             <p class="seg-item-name">${item.name}</p>
             <p class="seg-item-sub">x${item.cantidad || 1}${item.marca ? ` · ${item.marca}` : ''}</p>

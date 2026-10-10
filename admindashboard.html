@@ -691,11 +691,18 @@ function showToast(msg, isError = false) {
     setTimeout(() => toast.remove(), 3200);
 }
 
+// ── Image Proxy ──
+function getProxyImgUrl(url) {
+    if (!url) return '';
+    if (url.startsWith('http')) return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+    return url;
+}
+
 // ── Image Preview ──
 function previewImg(url) {
     const preview = document.getElementById('imgPreview');
     if (url) {
-        preview.src = url;
+        preview.src = getProxyImgUrl(url);
         preview.style.display = 'block';
         preview.onerror = () => { preview.style.display = 'none'; };
     } else {
@@ -933,7 +940,7 @@ function renderTable(type, data, tableId) {
         if (type === 'productos') {
             tr.innerHTML = `
                 <td data-label="ID">${p.id}</td>
-                <td data-label="Imagen"><img src="${p.img || ''}" alt="${p.name}" onerror="this.style.display='none'"></td>
+                <td data-label="Imagen"><img src="${getProxyImgUrl(p.img)}" alt="${p.name}" onerror="this.style.display='none'"></td>
                 <td data-label="Nombre">${p.name}</td>
                 <td data-label="Precio">$${Number(p.precio).toLocaleString('es-AR')}${p.descuento ? ` <span style="color:var(--clr-danger);font-size:.8rem;">-${p.descuento}%</span>` : ''}</td>
                 <td data-label="Descuento">${p.descuento ? p.descuento + '%' : '-'}</td>
@@ -948,7 +955,7 @@ function renderTable(type, data, tableId) {
         } else {
             tr.innerHTML = `
                 <td data-label="ID">${p.id}</td>
-                <td data-label="Imagen"><img src="${p.img || ''}" alt="${p.name}" onerror="this.style.display='none'"></td>
+                <td data-label="Imagen"><img src="${getProxyImgUrl(p.img)}" alt="${p.name}" onerror="this.style.display='none'"></td>
                 <td data-label="Nombre">${p.name}</td>
                 <td data-label="Descripción">${p.description}</td>
                 <td data-label="Precio">$${Number(p.precio).toLocaleString('es-AR')}</td>
@@ -1131,7 +1138,7 @@ async function openPedidoModal(id) {
     const color = ESTADO_COLORS[p.estado] || '#94a3b8';
     const itemsHtml = (p.items || []).map(item => `
         <div style="display:flex;gap:.6rem;align-items:center;padding:.5rem;background:#f8fafc;border-radius:8px;margin-bottom:.4rem;">
-            ${item.img ? `<img src="${item.img}" style="width:40px;height:40px;object-fit:contain;border-radius:6px;">` : ''}
+            ${item.img ? `<img src="${getProxyImgUrl(item.img)}" style="width:40px;height:40px;object-fit:contain;border-radius:6px;">` : ''}
             <div style="flex:1;">
                 <div style="font-weight:600;font-size:.88rem;">${item.name}</div>
                 <div style="font-size:.78rem;color:var(--clr-muted);">x${item.cantidad || 1}</div>

@@ -116,13 +116,13 @@ async function upsertProducto(p) {
 
 	if (p.id) {
 		await spiderQuery(
-			`UPDATE productos SET name=${esc(prod.name)}, description=${esc(prod.description)}, precio=${prod.precio}, categoria=${esc(prod.categoria)}, stock=${prod.stock}, marca=${esc(prod.marca)}, modelo=${esc(prod.modelo)}, img=${esc(prod.img)} WHERE id=${p.id}`
+			`UPDATE productos SET name=${esc(prod.name)}, description=${esc(prod.description)}, precio=${prod.precio}, categoria=${esc(prod.categoria)}, stock=${prod.stock}, marca=${esc(prod.marca)}, modelo=${esc(prod.modelo)}, img=${esc(prod.img)}, descuento=${prod.descuento}, destacado=${prod.destacado} WHERE id=${p.id}`
 		);
 		const rows = await spiderQuery(`SELECT * FROM productos WHERE id=${p.id} LIMIT 1`);
 		return normalizeProducto(rows[0]);
 	} else {
 		const result = await spiderQuery(
-			`INSERT INTO productos (name, description, precio, categoria, stock, marca, modelo, img) VALUES (${esc(prod.name)}, ${esc(prod.description)}, ${prod.precio}, ${esc(prod.categoria)}, ${prod.stock}, ${esc(prod.marca)}, ${esc(prod.modelo)}, ${esc(prod.img)})`
+			`INSERT INTO productos (name, description, precio, categoria, stock, marca, modelo, img, descuento, destacado) VALUES (${esc(prod.name)}, ${esc(prod.description)}, ${prod.precio}, ${esc(prod.categoria)}, ${prod.stock}, ${esc(prod.marca)}, ${esc(prod.modelo)}, ${esc(prod.img)}, ${prod.descuento}, ${prod.destacado})`
 		);
 		const newId = result.insertId;
 		const rows = await spiderQuery(`SELECT * FROM productos WHERE id=${newId} LIMIT 1`);
@@ -257,7 +257,7 @@ async function saveAllProductos(data) {
 	for (const p of data) {
 		const prod = normalizeProducto(p);
 		await spiderQuery(
-			`INSERT INTO productos (name, description, precio, categoria, stock, marca, modelo, img) VALUES (${esc(prod.name)}, ${esc(prod.description)}, ${prod.precio}, ${esc(prod.categoria)}, ${prod.stock}, ${esc(prod.marca)}, ${esc(prod.modelo)}, ${esc(prod.img)})`
+			`INSERT INTO productos (name, description, precio, categoria, stock, marca, modelo, img, descuento, destacado) VALUES (${esc(prod.name)}, ${esc(prod.description)}, ${prod.precio}, ${esc(prod.categoria)}, ${prod.stock}, ${esc(prod.marca)}, ${esc(prod.modelo)}, ${esc(prod.img)}, ${prod.descuento}, ${prod.destacado})`
 		);
 	}
 }

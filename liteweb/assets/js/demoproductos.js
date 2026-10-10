@@ -15,6 +15,12 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
     `;
 
+	function getProxyImgUrl(url) {
+		if (!url) return '';
+		if (url.startsWith('http')) return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+		return url;
+	}
+
 	if (productosContainer) productosContainer.innerHTML = loaderHTML;
 	if (ofertasContainer) ofertasContainer.innerHTML = loaderHTML;
 
@@ -62,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
 						card.setAttribute("data-id", producto.id);
 
 						card.innerHTML = `
-                            <img src="${producto.img}" alt="${producto.name}">
+                            <img src="${getProxyImgUrl(producto.img)}" alt="${producto.name}">
                             <h3>${producto.name}</h3>
                             <p class="descripcion">${producto.description}</p>
                             ${
@@ -127,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					ofertaCard.setAttribute("data-id", producto.id);
 
 					ofertaCard.innerHTML = `
-                        <img src="${producto.img}" alt="${producto.name}">
+                        <img src="${getProxyImgUrl(producto.img)}" alt="${producto.name}">
                         <h3>${producto.name}</h3>
                         <p class="descripcion">${producto.description}</p>
                     `;
@@ -157,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					
                     // 1. ELIMINADO: La l�nea que mostraba el precio en la tarjeta (<p class="precio">...)
 					card.innerHTML = `
-                        <img src="${venta.img}" alt="${venta.name}">
+                        <img src="${getProxyImgUrl(venta.img)}" alt="${venta.name}">
                         <h3>${venta.name}</h3>
                         <p class="descripcion">${venta.description}</p>
                         <p class="precio">Desde ${venta.precio.toLocaleString("es-AR")}</p>
@@ -209,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					}
 
 					card.innerHTML = `
-                        <img src="${servicio.img}" alt="${servicio.name}">
+                        <img src="${getProxyImgUrl(servicio.img)}" alt="${servicio.name}">
                         <h3>${servicio.name}</h3>
                         <p class="descripcion">${servicio.description}</p>
                         ${priceHtml}

@@ -408,6 +408,11 @@
   <script>
     const CART_KEY = 'supertec_cart';
     const FALLBACK = 'assets/img/logo.png';
+    function getProxyImgUrl(url) {
+        if (!url) return FALLBACK;
+        if (url.startsWith('http')) return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+        return url;
+    }
 
     function getCart() {
       try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; }
@@ -522,7 +527,7 @@
       const el = document.getElementById('coItemsResumen');
       el.innerHTML = cart.map(item => `
         <div class="co-item">
-          <img src="${item.img || FALLBACK}" alt="${item.name}" onerror="this.src='${FALLBACK}'">
+          <img src="${getProxyImgUrl(item.img)}" alt="${item.name}" onerror="this.src='${FALLBACK}'">
           <div class="co-item-info">
             <p class="co-item-name">${item.name}</p>
             <p class="co-item-qty">x${item.cantidad || 1}</p>

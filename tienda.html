@@ -774,6 +774,58 @@
       .tienda-controls { flex-direction: column; }
       .filter-select { min-width: auto; width: 100%; }
       .cart-drawer { max-width: 100%; }
+      
+      /* ── Tienda Mobile Grid ── */
+      .productos-grid-tienda {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+      .producto-card-tienda .card-body {
+        padding: 0.75rem 0.6rem;
+        gap: 0.25rem;
+      }
+      .producto-card-tienda .card-name {
+        font-size: 0.85rem;
+        line-height: 1.2;
+        -webkit-line-clamp: 3;
+      }
+      .producto-card-tienda .card-price {
+        font-size: 1rem;
+        padding-top: 0.4rem;
+      }
+      .producto-card-tienda .card-price .original {
+        font-size: 0.75rem;
+      }
+      .producto-card-tienda .card-meta {
+        font-size: 0.65rem;
+      }
+      .producto-card-tienda .card-desc {
+        display: none;
+      }
+      .producto-card-tienda .btn-add-cart,
+      .producto-card-tienda .btn-consultar {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        margin-top: 0.4rem;
+      }
+      .card-badge, .discount-badge {
+        font-size: 0.65rem;
+        padding: 0.15rem 0.4rem;
+        top: 0.4rem;
+      }
+      .card-badge {
+        right: 0.4rem;
+      }
+      .discount-badge {
+        left: 0.4rem;
+      }
+      .skeleton-card .skeleton-body {
+        padding: 0.75rem 0.6rem;
+        gap: 0.4rem;
+      }
+      .skeleton-card .skeleton-line.btn {
+        height: 30px;
+      }
     }
   </style>
 </head>
@@ -948,6 +1000,13 @@
     const CART_KEY = 'supertec_cart';
     const WHATSAPP_NUMBER = "5492617735869";
     const FALLBACK_IMG = "assets/img/logo.png";
+    
+    function getProxyImgUrl(url) {
+        if (!url) return FALLBACK_IMG;
+        if (url.startsWith('http')) return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+        return url;
+    }
+
     const grid = document.getElementById("productos-grid");
     const ofertasGrid = document.getElementById("ofertas-grid");
     const ofertasSection = document.getElementById("ofertas-section");
@@ -1098,7 +1157,7 @@
 
       itemsEl.innerHTML = cart.map(item => `
         <div class="cart-item" data-id="${item.id}">
-          <img class="cart-item-img" src="${item.img || FALLBACK_IMG}" alt="${item.name}" onerror="this.src='${FALLBACK_IMG}'">
+          <img class="cart-item-img" src="${getProxyImgUrl(item.img)}" alt="${item.name}" onerror="this.src='${FALLBACK_IMG}'">
           <div class="cart-item-body">
             <p class="cart-item-name">${item.name}</p>
             <p class="cart-item-price">Unitario: <span class="price-val">$${Number(item.precio).toLocaleString('es-AR')}</span></p>
@@ -1121,6 +1180,11 @@
       document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
       activeChipFiltros = filtros;
+      
+      const container = el.parentNode;
+      container.prepend(el);
+      container.scrollTo({ left: 0, behavior: 'smooth' });
+      
       filterAndRender();
     }
 
@@ -1146,10 +1210,17 @@
     });
 
     function buildCard(p) {
+      const pWithDiscount = { ...p };
       const meta = [p.marca, p.modelo].filter(Boolean).join(" · ");
       const hasDiscount = Number(p.descuento) > 0;
-      const precioFinal = Number(p.precio);
-      const precioOriginal = p.precio_original ? Number(p.precio_original) : null;
+      const precioOriginal = Number(p.precio);
+      let precioFinal = precioOriginal;
+      
+      if (hasDiscount) {
+          precioFinal = precioOriginal - (precioOriginal * p.descuento) / 100;
+          pWithDiscount.precio = precioFinal;
+      }
+      
       const priceStr = precioFinal > 0 ? `$${precioFinal.toLocaleString("es-AR")}` : "Consultar precio";
 
       const card = document.createElement("div");
@@ -1158,7 +1229,7 @@
       card.innerHTML = `
         <div class="card-img-wrap">
           <img
-            src="${p.img || FALLBACK_IMG}"
+            src="${getProxyImgUrl(p.img)}"
             alt="${p.name}"
             loading="lazy"
             onerror="this.src='${FALLBACK_IMG}'"
@@ -1171,7 +1242,7 @@
           <h2 class="card-name">${p.name}</h2>
           ${p.description ? `<p class="card-desc">${p.description}</p>` : ''}
           <p class="card-price">
-            ${precioOriginal && precioOriginal > precioFinal ? `<span class="original">$${precioOriginal.toLocaleString('es-AR')}</span>` : ''}
+            ${hasDiscount && precioFinal > 0 ? `<span class="original">$${precioOriginal.toLocaleString('es-AR')}</span>` : ''}
             ${priceStr}
           </p>
           <button class="btn-add-cart" data-id="${p.id}" type="button">
@@ -1192,7 +1263,7 @@
       card.querySelector(".btn-add-cart").addEventListener("click", (e) => {
         e.stopPropagation();
         const btn = e.currentTarget;
-        addToCart(p);
+        addToCart(pWithDiscount);
         btn.classList.add('added');
         btn.innerHTML = '<i class="fa-solid fa-check"></i> Agregado';
         setTimeout(() => {
@@ -1220,16 +1291,29 @@
 
       resultCount.innerHTML = `<span>${list.length}</span> producto${list.length !== 1 ? "s" : ""} encontrado${list.length !== 1 ? "s" : ""}`;
 
-      // Group by category
-      const byCategory = list.reduce((acc, p) => {
+      const destacados = list.filter(p => p.destacado);
+      const showDestacados = destacados.length > 0 && !(activeChipFiltros && activeChipFiltros.destacado);
+
+      if (showDestacados) {
+        const header = document.createElement("div");
+        header.className = "cat-header";
+        header.innerHTML = `<h2><i class="fa-solid fa-star" style="color: #8b5cf6; margin-right: 5px;"></i> Destacados</h2>`;
+        grid.appendChild(header);
+        destacados.forEach(p => grid.appendChild(buildCard(p)));
+      }
+
+      const listForCategories = showDestacados ? list.filter(p => !p.destacado) : list;
+      
+      const byCategory = listForCategories.reduce((acc, p) => {
         const cat = p.categoria || "Sin categoría";
         (acc[cat] = acc[cat] || []).push(p);
         return acc;
       }, {});
 
-      const hasManyCategories = Object.keys(byCategory).length > 1;
+      const hasManyCategories = Object.keys(byCategory).length > 1 || showDestacados;
 
       Object.entries(byCategory).forEach(([cat, productos]) => {
+        if (productos.length === 0) return;
         if (hasManyCategories) {
           const header = document.createElement("div");
           header.className = "cat-header";
@@ -1329,5 +1413,7 @@
         resultCount.textContent = "";
       });
   </script>
+  <link rel="stylesheet" href="./assets/css/chatbot.css" />
+  <script src="./assets/js/chatbot.js" defer></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
-const SPIDER_API_KEY = 'c90d1502ce815ea5d1108662186145d3cefe642586466c769d4c7fae63086ac6';
-const SPIDER_API_BASE = 'http://190.220.229.45:7256/api/v1';
-const LIVE_API_BASE = 'https://supertec-web.vercel.app';
+const SPIDER_API_KEY = process.env.SPIDERWEB_API_KEY || 'c90d1502ce815ea5d1108662186145d3cefe642586466c769d4c7fae63086ac6';
+const SPIDER_API_BASE = process.env.SPIDERWEB_API_BASE || 'https://spiderwebargapi.com.ar/api/v1';
+const LIVE_API_BASE = 'http://localhost:3000'; // Let's use local server for testing instead of remote? Or better, let's keep the one configured or change it to http://localhost:3000 to interact with the local db. Let's make it an env var.
+const SPIDER_API_BASE_URL = 'https://spiderwebargapi.com.ar/api/v1';
 
 let spiderProjectId = null;
 
@@ -73,7 +74,7 @@ async function migrateImages(endpoint, typeName) {
 
     for (const item of items) {
         if (!item.img) continue; // no image
-        if (item.img.includes('190.220.229.45:7256')) {
+        if (item.img.includes('spiderwebargapi.com.ar')) {
             console.log(`Item ${item.id} (${item.name}) ya usa Spider API.`);
             continue;
         }

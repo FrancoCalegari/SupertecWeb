@@ -73,10 +73,44 @@ document.addEventListener("DOMContentLoaded", () => {
 				if (productos.length === 0) {
 					productosContainer.innerHTML = "<p style='color:rgba(255,255,255,0.4)'>Sin productos disponibles.</p>";
 				} else {
+					const destacados = productos.filter(p => p.destacado);
+					if (destacados.length > 0) {
+						const section = document.createElement("section");
+						section.className = "categoria-section destacados-section";
+						section.innerHTML = "<h2><i class='fa-solid fa-star' style='color:#8b5cf6; margin-right:5px;'></i> Destacados</h2>";
+						const grid = document.createElement("div");
+						grid.className = "productos-grid";
+						destacados.forEach((p) => {
+							const precioFinal = p.descuento > 0
+								? p.precio - (p.precio * p.descuento) / 100
+								: p.precio;
+							const card = document.createElement("div");
+							card.className = "producto-card";
+							card.dataset.id = p.id;
+							card.innerHTML = `
+								<img src="${p.img || FALLBACK}" alt="${p.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
+								<h3>${p.name}</h3>
+								<p class="descripcion">${p.description}</p>
+								${p.descuento > 0
+									? `<p class="precio"><span class="precio-original">$${p.precio.toLocaleString("es-AR")}</span><span class="precio-descuento">$${precioFinal.toLocaleString("es-AR")}</span><span class="badge-descuento">-${p.descuento}%</span></p>`
+									: `<p class="precio">$${p.precio.toLocaleString("es-AR")}</p>`}
+								<button class="btn btn-comprar">Consultar</button>`;
+							card.querySelector(".btn-comprar").addEventListener("click", () => {
+								const msg = `Buen dia quisiera consultar sobre este producto:\n\n📌 *${p.name}*\n🏷️ Marca: ${p.marca}\n🔖 Modelo: ${p.modelo}\n💰 Precio: $${precioFinal.toLocaleString("es-AR")}`;
+								window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank");
+							});
+							grid.appendChild(card);
+						});
+						section.appendChild(grid);
+						productosContainer.appendChild(section);
+					}
+
+					const listForCategories = destacados.length > 0 ? productos.filter(p => !p.destacado) : productos;
 					const categorias = {};
-					productos.forEach((p) => {
+					listForCategories.forEach((p) => {
 						(categorias[p.categoria] = categorias[p.categoria] || []).push(p);
 					});
+					
 					Object.keys(categorias).forEach((cat) => {
 						const section = document.createElement("section");
 						section.className = "categoria-section";
@@ -112,20 +146,30 @@ document.addEventListener("DOMContentLoaded", () => {
 				}
 			}
 
-			/* ── Ofertas (random) ── */
+			/* ── Ofertas ── */
 			if (ofertasContainer) {
 				ofertasContainer.innerHTML = "";
-				const aleatorios = [...productos].sort(() => 0.5 - Math.random()).slice(0, 4);
-				aleatorios.forEach((p) => {
-					const card = document.createElement("div");
-					card.className = "oferta-card";
-					card.dataset.id = p.id;
-					card.innerHTML = `
-						<img src="${p.img || FALLBACK}" alt="${p.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
-						<h3>${p.name}</h3>
-						<p class="descripcion">${p.description}</p>`;
-					ofertasContainer.appendChild(card);
-				});
+				const ofertas = productos.filter(p => p.descuento > 0).slice(0, 4);
+				if (ofertas.length === 0) {
+					ofertasContainer.innerHTML = "<p style='color:rgba(255,255,255,0.4)'>No hay ofertas por el momento.</p>";
+				} else {
+					ofertas.forEach((p) => {
+						const precioFinal = p.precio - (p.precio * p.descuento) / 100;
+						const card = document.createElement("div");
+						card.className = "oferta-card";
+						card.dataset.id = p.id;
+						card.innerHTML = `
+							<img src="${p.img || FALLBACK}" alt="${p.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
+							<h3>${p.name}</h3>
+							<p class="descripcion">${p.description}</p>
+							<p class="precio">
+								<span class="precio-original">$${p.precio.toLocaleString("es-AR")}</span>
+								<span class="precio-descuento">$${precioFinal.toLocaleString("es-AR")}</span>
+								<span class="badge-descuento" style="font-size:0.75rem;">-${p.descuento}%</span>
+							</p>`;
+						ofertasContainer.appendChild(card);
+					});
+				}
 			}
 		})
 		.catch((err) => {
