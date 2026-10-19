@@ -1,4 +1,4 @@
-import { apiFetch, API_BASE_URL } from "./api.js";
+import { apiFetch, API_BASE_URL, API_URL } from "./api.js";
 import { initSorteoTab } from "./sorteo-admin.js";
 
 let productos = [];
@@ -169,7 +169,7 @@ function renderTable(type, data, tableId) {
 		const tr = document.createElement("tr");
 		tr.innerHTML = `
             <td data-label="ID">${p.id}</td>
-            <td data-label="Imagen"><img src="${p.img && p.img.startsWith('http') ? `/api/proxy-image?url=${encodeURIComponent(p.img)}` : p.img}" alt="${p.name}"></td>
+            <td data-label="Imagen"><img src="${p.img && (p.img.startsWith('http://') || p.img.startsWith('https://')) ? `${API_URL}/api/proxy-image?url=${encodeURIComponent(p.img)}` : (p.img || './assets/img/logo.png')}" alt="${p.name}" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='./assets/img/logo.png';"></td>
             <td data-label="Nombre">${p.name}</td>
             <td>${p.description}</td>
             <td data-label="Precio">$${p.precio}</td>

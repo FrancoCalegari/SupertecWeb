@@ -1,4 +1,4 @@
-import { apiFetch } from "./api.js";
+import { apiFetch, API_URL } from "./api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 	const productosContainer = document.getElementById("productos-container");
@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	// 🔹 Número de WhatsApp (cámbialo por el tuyo con código de país, sin + ni 00)
 	const whatsappNumber = "5492615031101";
+	const FALLBACK_IMG = "./assets/img/logo.png";
 
 	// Loader HTML
 	const loaderHTML = `
@@ -16,8 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
 
 	function getProxyImgUrl(url) {
-		if (!url) return '';
-		if (url.startsWith('http')) return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+		if (!url) return FALLBACK_IMG;
+		if (url.startsWith("http://") || url.startsWith("https://")) {
+			return `${API_URL}/api/proxy-image?url=${encodeURIComponent(url)}`;
+		}
 		return url;
 	}
 
@@ -68,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
 						card.setAttribute("data-id", producto.id);
 
 						card.innerHTML = `
-                            <img src="${getProxyImgUrl(producto.img)}" alt="${producto.name}">
+                            <img src="${getProxyImgUrl(producto.img)}" alt="${producto.name}" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';">
                             <h3>${producto.name}</h3>
                             <p class="descripcion">${producto.description}</p>
                             ${
@@ -133,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					ofertaCard.setAttribute("data-id", producto.id);
 
 					ofertaCard.innerHTML = `
-                        <img src="${getProxyImgUrl(producto.img)}" alt="${producto.name}">
+                        <img src="${getProxyImgUrl(producto.img)}" alt="${producto.name}" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';">
                         <h3>${producto.name}</h3>
                         <p class="descripcion">${producto.description}</p>
                     `;
@@ -163,10 +166,10 @@ document.addEventListener("DOMContentLoaded", () => {
 					
                     // 1. ELIMINADO: La l�nea que mostraba el precio en la tarjeta (<p class="precio">...)
 					card.innerHTML = `
-                        <img src="${getProxyImgUrl(venta.img)}" alt="${venta.name}">
+                        <img src="${getProxyImgUrl(venta.img)}" alt="${venta.name}" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';">
                         <h3>${venta.name}</h3>
                         <p class="descripcion">${venta.description}</p>
-                        <p class="precio">Desde ${venta.precio.toLocaleString("es-AR")}</p>
+                        <p class="precio">Desde $${venta.precio ? venta.precio.toLocaleString("es-AR") : ""}</p>
                         <button class="btn btn-comprar">Consultar</button>
                     `;
 					
@@ -215,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					}
 
 					card.innerHTML = `
-                        <img src="${getProxyImgUrl(servicio.img)}" alt="${servicio.name}">
+                        <img src="${getProxyImgUrl(servicio.img)}" alt="${servicio.name}" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';">
                         <h3>${servicio.name}</h3>
                         <p class="descripcion">${servicio.description}</p>
                         ${priceHtml}
