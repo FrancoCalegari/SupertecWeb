@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
 	const backgrounds = {
 		hero: "assets/img/fondos/FondoIATest.png",
-		servicios: "assets/img/localphotos/LocalPhoto1.jpg",
-		faqs: "assets/img/localphotos/LocalPhoto2.jpg",
-		contacto: "assets/img/localphotos/LocalPhoto3.jpg",
+		servicios: "assets/img/localphotos/LocalPhoto1.webp",
+		faqs: "assets/img/localphotos/LocalPhoto2.webp",
+		contacto: "assets/img/localphotos/LocalPhoto3.webp",
 	};
 
 	const bgImage = document.getElementById("bgImage");
