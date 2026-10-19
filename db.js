@@ -69,6 +69,18 @@ function esc(val) {
 	return `'${String(val).replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
 }
 
+// Ensures image URLs use HTTPS to prevent mixed content and 301 redirects
+function ensureHttps(url) {
+	if (!url || typeof url !== "string") return "";
+	if (url.startsWith("http://spiderwebargapi.com.ar")) {
+		return url.replace("http://spiderwebargapi.com.ar", "https://spiderwebargapi.com.ar");
+	}
+	if (url.startsWith("http://") && !url.startsWith("http://localhost") && !url.startsWith("http://127.0.0.1")) {
+		return url.replace(/^http:\/\//i, "https://");
+	}
+	return url;
+}
+
 const normalizeProducto = (p) => ({
 	...(p.id ? { id: Number(p.id) } : {}),
 	name: p.name,
@@ -78,7 +90,7 @@ const normalizeProducto = (p) => ({
 	stock: Number(p.stock) || 0,
 	marca: p.marca || "",
 	modelo: p.modelo || "",
-	img: p.img || "",
+	img: ensureHttps(p.img),
 	descuento: Number(p.descuento) || 0,
 	precio_original: p.precio_original ? Number(p.precio_original) : null,
 	destacado: p.destacado ? 1 : 0,
@@ -491,4 +503,5 @@ module.exports = {
 	updatePedidoEstado,
 	updatePedidoMpStatus,
 	generateCodigoSeguimiento,
+	ensureHttps,
 };

@@ -2,6 +2,14 @@ document.addEventListener("DOMContentLoaded", () => {
 	const WHATSAPP = "5492617735869";
 	const FALLBACK = "assets/img/logo.png";
 
+	function getProxyImgUrl(url) {
+		if (!url) return FALLBACK;
+		if (url.startsWith("http://") || url.startsWith("https://")) {
+			return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+		}
+		return url;
+	}
+
 	// Skeleton card HTML for use as placeholder
 	const skeletonCard = () => `
 		<div class="skeleton-oferta-card">
@@ -88,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
 							card.className = "producto-card";
 							card.dataset.id = p.id;
 							card.innerHTML = `
-								<img src="${p.img || FALLBACK}" alt="${p.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
+								<img src="${getProxyImgUrl(p.img)}" alt="${p.name}" loading="lazy" onerror="this.onerror=null; this.src='${FALLBACK}'">
 								<h3>${p.name}</h3>
 								<p class="descripcion">${p.description}</p>
 								${p.descuento > 0
@@ -127,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
 							card.className = "producto-card";
 							card.dataset.id = p.id;
 							card.innerHTML = `
-								<img src="${p.img || FALLBACK}" alt="${p.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
+								<img src="${getProxyImgUrl(p.img)}" alt="${p.name}" loading="lazy" onerror="this.onerror=null; this.src='${FALLBACK}'">
 								<h3>${p.name}</h3>
 								<p class="descripcion">${p.description}</p>
 								${p.descuento > 0
@@ -159,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
 						card.className = "oferta-card";
 						card.dataset.id = p.id;
 						card.innerHTML = `
-							<img src="${p.img || FALLBACK}" alt="${p.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
+							<img src="${getProxyImgUrl(p.img)}" alt="${p.name}" loading="lazy" onerror="this.onerror=null; this.src='${FALLBACK}'">
 							<h3>${p.name}</h3>
 							<p class="descripcion">${p.description}</p>
 							<p class="precio">
@@ -190,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					const card = document.createElement("div");
 					card.className = "oferta-card";
 					card.innerHTML = `
-						<img src="${v.img || FALLBACK}" alt="${v.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
+						<img src="${getProxyImgUrl(v.img)}" alt="${v.name}" loading="lazy" onerror="this.onerror=null; this.src='${FALLBACK}'">
 						<h3>${v.name}</h3>
 						<p class="descripcion">${v.description}</p>
 						<p class="precio">$${v.precio.toLocaleString("es-AR")}</p>
@@ -223,7 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
 						? `<p class="precio">$${s.precio.toLocaleString("es-AR")}</p>`
 						: "";
 					card.innerHTML = `
-						<img src="${s.img || FALLBACK}" alt="${s.name}" loading="lazy" onerror="this.src='${FALLBACK}'">
+						<img src="${getProxyImgUrl(s.img)}" alt="${s.name}" loading="lazy" onerror="this.onerror=null; this.src='${FALLBACK}'">
 						<h3>${s.name}</h3>
 						<p class="descripcion">${s.description}</p>
 						${priceHtml}

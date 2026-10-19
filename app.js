@@ -29,6 +29,7 @@ const {
 	createPedido,
 	updatePedidoEstado,
 	updatePedidoMpStatus,
+	ensureHttps,
 } = require("./db");
 
 
@@ -248,7 +249,7 @@ async function uploadToSpiderAPI(buffer, originalname) {
 	else if (data.files && data.files[0] && data.files[0].fileId) spiderUrl = `${SPIDER_API_BASE}/storage/files/${data.files[0].fileId}`;
 	else throw new Error("Could not extract URL from Spider API response.");
 
-	return spiderUrl;
+	return ensureHttps(spiderUrl);
 }
 
 async function deleteFromSpiderAPI(url) {
@@ -418,7 +419,7 @@ app.post("/api/productos", upload.single("imgFile"), async (req, res) => {
 			stock: Number(body.stock) || 0,
 			marca: body.marca,
 			modelo: body.modelo,
-			img: body.img || null,
+			img: ensureHttps(body.img || null),
 			descuento: Number(body.descuento) || 0,
 			precio_original: body.precio_original ? Number(body.precio_original) : null,
 			destacado: body.destacado === '1' || body.destacado === 'true' ? 1 : 0,
@@ -447,7 +448,7 @@ app.post("/api/productos", upload.single("imgFile"), async (req, res) => {
 				return res.status(500).json({ ok: false, error: "Error subiendo imagen" });
 			}
 		}
-		producto.img = imageUrl;
+		producto.img = ensureHttps(imageUrl);
 
 		const saved = await upsertProducto(producto);
 		console.log(`[API] Producto ${saved.id} guardado/actualizado`);
@@ -483,7 +484,7 @@ app.post("/api/ventas", upload.single("imgFile"), async (req, res) => {
 			stock: Number(body.stock) || 0,
 			marca: body.marca,
 			modelo: body.modelo,
-			img: body.img || null,
+			img: ensureHttps(body.img || null),
 		};
 
 		if (!venta.name || !venta.description) {
@@ -515,7 +516,7 @@ app.post("/api/ventas", upload.single("imgFile"), async (req, res) => {
 				return res.status(500).json({ ok: false, error: "Error subiendo imagen" });
 			}
 		}
-		venta.img = imageUrl;
+		venta.img = ensureHttps(imageUrl);
 
 		const saved = await upsertVenta(venta);
 		res.json({ ok: true, venta: saved });
@@ -569,7 +570,7 @@ app.post("/api/servicios", upload.single("imgFile"), async (req, res) => {
 			stock: Number(body.stock) || 0,
 			marca: body.marca,
 			modelo: body.modelo,
-			img: body.img || null,
+			img: ensureHttps(body.img || null),
 		};
 
 		if (!servicio.name || !servicio.description) {
@@ -593,7 +594,7 @@ app.post("/api/servicios", upload.single("imgFile"), async (req, res) => {
 				return res.status(500).json({ ok: false, error: "Error subiendo imagen" });
 			}
 		}
-		servicio.img = imageUrl;
+		servicio.img = ensureHttps(imageUrl);
 
 		const saved = await upsertServicio(servicio);
 		res.json({ ok: true, servicio: saved });
@@ -775,6 +776,7 @@ app.post("/api/spider-proxy/upload", upload.single("files"), async (req, res) =>
 			body: formData,
 		});
 		const data = await response.json();
+		if (data.url) data.url = ensureHttps(data.url);
 		return res.json(data);
 	} catch (err) {
 		console.error("[Spider Proxy Upload Error]", err);
@@ -784,24 +786,61 @@ app.post("/api/spider-proxy/upload", upload.single("files"), async (req, res) =>
 
 app.get("/api/proxy-image", async (req, res) => {
 	try {
-		const imageUrl = req.query.url;
-		if (!imageUrl) return res.status(400).send("No se proveyó URL");
+		let imageUrl = req.query.url;
+		if (!imageUrl || typeof imageUrl !== "string") {
+			return res.status(400).send("No se proveyó URL válida");
+		}
 
-		const response = await fetch(imageUrl);
-		if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+		// Normalizar a HTTPS para evitar redirecciones 301 innecesarias y mixed content
+		imageUrl = ensureHttps(imageUrl.trim());
+
+		// Validar protocolo
+		let parsedUrl;
+		try {
+			parsedUrl = new URL(imageUrl);
+		} catch {
+			return res.status(400).send("URL malformada");
+		}
+
+		if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+			return res.status(400).send("Protocolo no soportado");
+		}
+
+		const response = await fetch(imageUrl, {
+			headers: {
+				"User-Agent": "SupertecImageProxy/1.0",
+				"Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+			},
+		});
+
+		if (!response.ok) {
+			console.warn(`[Proxy] Error HTTP ${response.status} descargando: ${imageUrl}`);
+			return res.status(response.status).send(`Error remoto: ${response.status}`);
+		}
+
+		const contentType = response.headers.get("content-type") || "image/jpeg";
+		const contentLength = response.headers.get("content-length");
+		const etag = response.headers.get("etag");
+		const lastModified = response.headers.get("last-modified");
 
 		const arrayBuffer = await response.arrayBuffer();
 		const buffer = Buffer.from(arrayBuffer);
 
-		res.set('Content-Type', response.headers.get('content-type') || 'image/jpeg');
-		res.set('Cross-Origin-Resource-Policy', 'cross-origin'); 
-		res.set('Access-Control-Allow-Origin', '*');
-		res.set('Cache-Control', 'public, max-age=86400');
+		res.set("Content-Type", contentType);
+		res.set("Cross-Origin-Resource-Policy", "cross-origin"); 
+		res.set("Access-Control-Allow-Origin", "*");
+		// s-maxage=31536000 le indica a la red Edge CDN de Vercel almacenar en caché hasta por 1 año
+		// Esto evita que ejecuciones posteriores llamen a la función Serverless y ahorra ancho de banda y tiempo
+		res.set("Cache-Control", "public, max-age=86400, s-maxage=31536000, stale-while-revalidate=86400, immutable");
+
+		if (contentLength) res.set("Content-Length", contentLength);
+		if (etag) res.set("ETag", etag);
+		if (lastModified) res.set("Last-Modified", lastModified);
 
 		res.send(buffer);
 	} catch (error) {
-		console.error('[Proxy] Error descargando imagen:', error.message);
-		res.status(500).send('Error');
+		console.error("[Proxy] Error descargando imagen:", error.message);
+		res.status(502).send("Error de proxy de imagen");
 	}
 });
 
@@ -813,8 +852,10 @@ app.get("/api/spider-proxy/file/:id", async (req, res) => {
 		if (!response.ok) return res.status(response.status).end();
 		const arrayBuffer = await response.arrayBuffer();
 		res.setHeader("Content-Type", response.headers.get("content-type") || "application/octet-stream");
-		// Agregar headers de caché para que el navegador del cliente no solicite la misma imagen repetidamente
-		res.setHeader("Cache-Control", "public, max-age=86400, immutable"); 
+		res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+		res.setHeader("Access-Control-Allow-Origin", "*");
+		// Caché en Edge de Vercel y navegadores
+		res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=31536000, stale-while-revalidate=86400, immutable"); 
 		return res.send(Buffer.from(arrayBuffer));
 	} catch (err) {
 		console.error("[Spider Proxy File Error]", err);
