@@ -13,10 +13,6 @@
   # Redirigir llamadas de API y proxy-image hacia el backend en Vercel
   RewriteRule ^api/(.*)$ https://supertec-web.vercel.app/api/$1 [L,R=307,QSA]
 
-  # Fallback temporal: si un .webp de sectionsimg no existe en el servidor, servir el .png
-  # ELIMINAR esta regla una vez subidos los .webp al hosting
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^assets/img/sectionsimg/(.+)\.webp$ assets/img/sectionsimg/$1.png [L]
 
   # Force WWW (Optional - uncomment if desired, currently favoring whatever user lands on or specific preference)
   # RewriteCond %{HTTP_HOST} !^www\. [NC]
