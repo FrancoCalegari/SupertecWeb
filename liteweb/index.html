@@ -30,6 +30,11 @@
 	<meta property="og:image:alt" content="Supertec - Servicio Técnico Mendoza" />
 	<meta property="og:url" content="https://www.supertecmza.com.ar/" />
 	<meta property="og:type" content="website" />
+	<meta property="og:video" content="https://www.supertecmza.com.ar/assets/img/localphotos/LocalLlegada.mp4" />
+	<meta property="og:video:secure_url" content="https://www.supertecmza.com.ar/assets/img/localphotos/LocalLlegada.mp4" />
+	<meta property="og:video:type" content="video/mp4" />
+	<meta property="og:video:width" content="1080" />
+	<meta property="og:video:height" content="1920" />
 
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="Supertec | Reparación de Consolas, Laptops, iPhone y PC en Mendoza" />
@@ -99,6 +104,31 @@
 					"https://www.instagram.com/supertecmza/"
 				]
 			}
+		</script>
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "VideoObject",
+			"name": "Cómo llegar a Supertec Mendoza - Local y Laboratorio Técnico",
+			"description": "Recorrido y guía visual para llegar a las instalaciones de Supertec en Brasil 341 Local 4, Godoy Cruz, Mendoza. Laboratorio especializado en reparación de consolas PS5, Xbox, Nintendo Switch, laptops, iPhone, Mac y PC gamer.",
+			"thumbnailUrl": [
+				"https://www.supertecmza.com.ar/assets/img/localphotos/LocalLlegada-poster.webp"
+			],
+			"uploadDate": "2024-01-15T10:00:00-03:00",
+			"duration": "PT13S",
+			"contentUrl": "https://www.supertecmza.com.ar/assets/img/localphotos/LocalLlegada.mp4",
+			"embedUrl": "https://www.supertecmza.com.ar/#ubicacion",
+			"inLanguage": "es",
+			"regionsAllowed": ["AR"],
+			"publisher": {
+				"@type": "Organization",
+				"name": "Supertec",
+				"logo": {
+					"@type": "ImageObject",
+					"url": "https://www.supertecmza.com.ar/assets/img/logo.png"
+				}
+			}
+		}
 		</script>
 		<!-- Google Tag Manager -->
 		<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -314,7 +344,7 @@
 								<img src="./assets/img/marcas/windows-logo.png" alt="Windows" loading="lazy" decoding="async" />
 								<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Intel_logo_2023.svg/330px-Intel_logo_2023.svg.png"
 									alt="Intel" loading="lazy" decoding="async" />
-								<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/AMD_Logo.svg/2560px-AMD_Logo.svg.png"
+								<img src="https://1000logos.net/wp-content/uploads/2020/05/AMD-Logo.png"
 									alt="AMD" loading="lazy" decoding="async" />
 								<img src="./assets/img/marcas/apple-logo.png" alt="Apple" loading="lazy" decoding="async" />
 								<img src="./assets/img/marcas/hp-logo.png" alt="HP" loading="lazy" decoding="async" />
@@ -598,9 +628,26 @@
 				</a>
 			</div>
 			<div class="ubicacion-gallery">
-				<video src="./assets/img/localphotos/LocalLlegada.mp4" autoplay loop muted playsinline></video>
-				<img src="./assets/img/localphotos/LocalPhoto1.webp" alt="Local Supertec 2" />
-				<img src="./assets/img/localphotos/LocalPhoto3.webp" alt="Local Supertec 3" />
+				<video
+					class="ubicacion-video"
+					width="720"
+					height="1280"
+					poster="./assets/img/localphotos/LocalLlegada-poster.webp"
+					preload="metadata"
+					loading="lazy"
+					autoplay
+					loop
+					muted
+					playsinline
+					title="Video de llegada al local de Supertec en Godoy Cruz, Mendoza"
+					aria-label="Video explicativo mostrando cómo llegar al local y laboratorio de Supertec"
+				>
+					<source src="./assets/img/localphotos/LocalLlegada.webm" type="video/webm" />
+					<source src="./assets/img/localphotos/LocalLlegada.mp4" type="video/mp4" />
+					<p>Tu navegador no admite reproducción de video HTML5. Conoce nuestra ubicación en <a href="https://maps.app.goo.gl/4w85V9tjvPkYLWJLA" target="_blank">Google Maps</a>.</p>
+				</video>
+				<img src="./assets/img/localphotos/LocalPhoto1.webp" alt="Local Supertec 2" loading="lazy" />
+				<img src="./assets/img/localphotos/LocalPhoto3.webp" alt="Local Supertec 3" loading="lazy" />
 			</div>
 		</div>
 	</section>

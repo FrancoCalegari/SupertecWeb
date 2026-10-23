@@ -37,6 +37,11 @@
 			content="https://supertec-web.vercel.app/index.html"
 		/>
 		<meta property="og:type" content="website" />
+		<meta property="og:video" content="https://supertec-web.vercel.app/assets/img/localphotos/LocalLlegada.mp4" />
+		<meta property="og:video:secure_url" content="https://supertec-web.vercel.app/assets/img/localphotos/LocalLlegada.mp4" />
+		<meta property="og:video:type" content="video/mp4" />
+		<meta property="og:video:width" content="1080" />
+		<meta property="og:video:height" content="1920" />
 
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta
@@ -95,6 +100,31 @@
 					"https://www.facebook.com/profile.php?id=100003893068135",
 					"https://www.instagram.com/supertecmza/"
 				]
+			}
+		</script>
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "VideoObject",
+				"name": "Cómo llegar a Supertec Mendoza - Local y Laboratorio Técnico",
+				"description": "Recorrido y guía visual para llegar a las instalaciones de Supertec en Brasil 341 Local 4, Godoy Cruz, Mendoza. Laboratorio especializado en reparación de consolas PS5, Xbox, Nintendo Switch, laptops, iPhone, Mac y PC gamer.",
+				"thumbnailUrl": [
+					"https://supertec-web.vercel.app/assets/img/localphotos/LocalLlegada-poster.webp"
+				],
+				"uploadDate": "2024-01-15T10:00:00-03:00",
+				"duration": "PT13S",
+				"contentUrl": "https://supertec-web.vercel.app/assets/img/localphotos/LocalLlegada.mp4",
+				"embedUrl": "https://supertec-web.vercel.app/#ubicacion",
+				"inLanguage": "es",
+				"regionsAllowed": ["AR"],
+				"publisher": {
+					"@type": "Organization",
+					"name": "Supertec",
+					"logo": {
+						"@type": "ImageObject",
+						"url": "https://supertec-web.vercel.app/assets/img/logo.png"
+					}
+				}
 			}
 		</script>
 	</head>
@@ -654,12 +684,23 @@
 				</div>
 				<div class="ubicacion-gallery">
 					<video
-						src="./assets/img/localphotos/LocalLlegada.mp4"
+						class="ubicacion-video"
+						width="720"
+						height="1280"
+						poster="./assets/img/localphotos/LocalLlegada-poster.webp"
+						preload="metadata"
+						loading="lazy"
 						autoplay
 						loop
 						muted
 						playsinline
-					></video>
+						title="Video de llegada al local de Supertec en Godoy Cruz, Mendoza"
+						aria-label="Video explicativo mostrando cómo llegar al local y laboratorio de Supertec"
+					>
+						<source src="./assets/img/localphotos/LocalLlegada.webm" type="video/webm" />
+						<source src="./assets/img/localphotos/LocalLlegada.mp4" type="video/mp4" />
+						<p>Tu navegador no admite reproducción de video HTML5. Conoce nuestra ubicación en <a href="https://maps.app.goo.gl/4w85V9tjvPkYLWJLA" target="_blank">Google Maps</a>.</p>
+					</video>
 					<img
 						src="./assets/img/localphotos/LocalPhoto1.webp"
 						alt="Local Supertec 2"

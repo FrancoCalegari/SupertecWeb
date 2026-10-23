@@ -57,6 +57,10 @@
   ExpiresByType image/svg+xml "access plus 1 year"
   ExpiresByType image/x-icon "access plus 1 year"
 
+  # Videos
+  ExpiresByType video/mp4 "access plus 1 year"
+  ExpiresByType video/webm "access plus 1 year"
+
   # CSS, JS
   ExpiresByType text/css "access plus 1 month"
   ExpiresByType text/javascript "access plus 1 month"
